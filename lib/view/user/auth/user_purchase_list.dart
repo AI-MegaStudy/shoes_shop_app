@@ -14,7 +14,7 @@ class UserPurchaseList extends StatefulWidget {
 
 class _UserPurchaseListState extends State<UserPurchaseList> {
   // Property
-  String ipAddress = "127.0.0.1"; //ip
+  String ipAddress = "172.16.250.176"; //ip
   late List<PurchaseItemJoin> data; //유저의 구매 목록
 
   late int userSeq;

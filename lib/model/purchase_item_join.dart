@@ -6,7 +6,7 @@ class PurchaseItemJoin {
   String? b_status;
 
   int? u_seq;
-  String? u_id;
+  String? u_email;
   String? u_name;
   String? u_phone;
 
@@ -34,7 +34,7 @@ class PurchaseItemJoin {
     this.b_date,
     this.b_status,
     this.u_seq,
-    this.u_id,
+    this.u_email,
     this.u_name,
     this.u_phone,
     this.p_seq,
@@ -61,7 +61,7 @@ class PurchaseItemJoin {
       b_date: json['b_date'],
       b_status: json['b_status'],
       u_seq: json['u_seq'],
-      u_id: json['u_id'],
+      u_email: json['u_email'],
       u_name: json['u_name'],
       u_phone: json['u_phone'],
       p_seq: json['p_seq'],
@@ -89,7 +89,7 @@ class PurchaseItemJoin {
       'b_date': b_date,
       'b_status': b_status,
       'u_seq': u_seq,
-      'u_id': u_id,
+      'u_email': u_email,
       'u_name': u_name,
       'u_phone': u_phone,
       'p_seq': p_seq,

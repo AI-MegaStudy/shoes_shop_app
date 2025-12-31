@@ -26,6 +26,7 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
     super.initState();
     data = [];
     searchController = TextEditingController();
+    initStorage();
     getJSONData();
   }
 
@@ -35,7 +36,7 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
   }
 
   Future<void> getJSONData() async{
-    var url = Uri.parse('http://${ipAddress}:8000/purchase_items/by_user/${userSeq}/with_details');
+    var url = Uri.parse('http://${ipAddress}:8000/api/purchase_items/purchase_items/by_user/${userSeq}/with_details');
     var response = await http.get(url);
 
     data.clear();
@@ -55,7 +56,10 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
       ),
       body: data.isEmpty
       ? Center(
-        child: Text('데이터가 없습니다.'),
+        child: SizedBox(
+          height: 100,
+          child: Text('데이터가 없습니다.')
+        ),
       )
       : Center(
         child: Column(
@@ -81,18 +85,22 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                 // 자동검색
               },
             ),
-            ListView.builder(
-              itemCount: data.length,
-              itemBuilder: (context, index) {
-                return SizedBox(
-                  child: Row(
-                    children: [
-                      Image.asset(data[index].p_image!),
-                      Text(data[index].b_date!)
-                    ]
-                  ),
-                );
-              },
+            Expanded(
+              child: ListView.builder(
+                itemCount: data.length,
+                itemBuilder: (context, index) {
+                  print("데이터: ${data[index].m_name}");
+                  return SizedBox(
+                    child: Row(
+                      children: [
+                        //Image.asset(data[index].p_image!),
+                        Text(data[index].b_date!),
+                        Text(data[index].b_status!)
+                      ]
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         )

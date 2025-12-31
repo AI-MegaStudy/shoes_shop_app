@@ -35,7 +35,7 @@ async def get_purchase_item_with_details(purchase_item_seq: int):
             pi.b_date,
             pi.b_status,
             u.u_seq,
-            u.u_id,
+            u.u_email,
             u.u_name,
             u.u_phone,
             p.p_seq,
@@ -66,7 +66,7 @@ async def get_purchase_item_with_details(purchase_item_seq: int):
             'b_status': row[4],
             'user': {
                 'u_seq': row[5],
-                'u_id': row[6],
+                'u_email': row[6],
                 'u_name': row[7],
                 'u_phone': row[8]
             },
@@ -113,7 +113,7 @@ async def get_purchase_item_full_detail(purchase_item_seq: int):
             pi.b_date,
             pi.b_status,
             u.u_seq,
-            u.u_id,
+            u.u_email,
             u.u_name,
             u.u_phone,
             p.p_seq,
@@ -155,7 +155,7 @@ async def get_purchase_item_full_detail(purchase_item_seq: int):
             'b_status': row[4],
             'user': {
                 'u_seq': row[5],
-                'u_id': row[6],
+                'u_email': row[6],
                 'u_name': row[7],
                 'u_phone': row[8]
             },

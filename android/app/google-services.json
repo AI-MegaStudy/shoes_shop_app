@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1016721628672",
+    "project_id": "shoes-shop-app-28f42",
+    "storage_bucket": "shoes-shop-app-28f42.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1016721628672:android:8c4d328fc7c1b3bd68c2e5",
+        "android_client_info": {
+          "package_name": "com.tj.shoes_shop_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAf6y7yCEGvOiXs-U_yQahQ62OjqRICk5Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

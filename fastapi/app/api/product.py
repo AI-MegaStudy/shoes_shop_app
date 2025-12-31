@@ -1,0 +1,452 @@
+"""
+Product API - 제품 CRUD
+개별 실행: python product.py
+"""
+
+from fastapi import APIRouter, Form, UploadFile, File, Response
+from pydantic import BaseModel
+from typing import Optional
+from app_new_form.database.connection import connect_db
+from pathlib import Path
+import os
+
+router = APIRouter()
+
+# ============================================
+# PHP 웹서버 설정 (사용자가 실제 경로로 변경 필요)
+# ============================================
+# PHP 웹서버의 model 디렉토리 경로 (절대 경로 또는 상대 경로)
+# 예: "/var/www/html/model" 또는 "../php_webserver/model"
+PHP_MODEL_DIR = Path("/path/to/php_webserver/model")  # TODO: 실제 PHP 웹서버의 model 디렉토리 경로로 변경
+
+# PHP 웹서버 Base URL (파일 접근용)
+# 예: "https://yourdomain.com" 또는 "http://localhost"
+PHP_WEB_SERVER_URL = "YOUR_PHP_WEB_SERVER_URL"  # TODO: 실제 PHP 웹서버 URL로 변경
+
+# PHP 파일명 (GLB 파일 제공용)
+PHP_MODEL_FILE = "model.php"  # 예: "model.php"
+
+
+# ============================================
+# 모델 정의
+# ============================================
+class Product(BaseModel):
+    p_seq: Optional[int] = None
+    kc_seq: int
+    cc_seq: int
+    sc_seq: int
+    gc_seq: int
+    m_seq: int
+    p_name: Optional[str] = None
+    p_price: int = 0
+    p_stock: int = 0
+    p_image: Optional[str] = None
+    p_description: Optional[str] = None
+    created_at: Optional[str] = None
+
+
+# ============================================
+# 전체 제품 조회
+# ============================================
+@router.get("")
+async def select_products():
+    conn = connect_db()
+    curs = conn.cursor()
+    curs.execute("""
+        SELECT p_seq, kc_seq, cc_seq, sc_seq, gc_seq, m_seq, p_name, p_price, p_stock, p_image, p_description, created_at 
+        FROM product 
+        ORDER BY p_seq
+    """)
+    rows = curs.fetchall()
+    conn.close()
+    result = [{
+        'p_seq': row[0],
+        'kc_seq': row[1],
+        'cc_seq': row[2],
+        'sc_seq': row[3],
+        'gc_seq': row[4],
+        'm_seq': row[5],
+        'p_name': row[6],
+        'p_price': row[7],
+        'p_stock': row[8],
+        'p_image': row[9],
+        'p_description': row[10],
+        'created_at': row[11].isoformat() if row[11] else None
+    } for row in rows]
+    return {"results": result}
+
+
+# ============================================
+# ID로 제품 조회
+# ============================================
+@router.get("/{product_seq}")
+async def select_product(product_seq: int):
+    conn = connect_db()
+    curs = conn.cursor()
+    curs.execute("""
+        SELECT p_seq, kc_seq, cc_seq, sc_seq, gc_seq, m_seq, p_name, p_price, p_stock, p_image, p_description, created_at 
+        FROM product 
+        WHERE p_seq = %s
+    """, (product_seq,))
+    row = curs.fetchone()
+    conn.close()
+    if row is None:
+        return {"result": "Error", "message": "Product not found"}
+    result = {
+        'p_seq': row[0],
+        'kc_seq': row[1],
+        'cc_seq': row[2],
+        'sc_seq': row[3],
+        'gc_seq': row[4],
+        'm_seq': row[5],
+        'p_name': row[6],
+        'p_price': row[7],
+        'p_stock': row[8],
+        'p_image': row[9],
+        'p_description': row[10],
+        'created_at': row[11].isoformat() if row[11] else None
+    }
+    return {"result": result}
+
+
+# ============================================
+# 제조사별 제품 조회
+# ============================================
+@router.get("/by_maker/{maker_seq}")
+async def select_products_by_maker(maker_seq: int):
+    conn = connect_db()
+    curs = conn.cursor()
+    curs.execute("""
+        SELECT p_seq, kc_seq, cc_seq, sc_seq, gc_seq, m_seq, p_name, p_price, p_stock, p_image, p_description, created_at 
+        FROM product 
+        WHERE m_seq = %s
+        ORDER BY p_seq
+    """, (maker_seq,))
+    rows = curs.fetchall()
+    conn.close()
+    result = [{
+        'p_seq': row[0],
+        'kc_seq': row[1],
+        'cc_seq': row[2],
+        'sc_seq': row[3],
+        'gc_seq': row[4],
+        'm_seq': row[5],
+        'p_name': row[6],
+        'p_price': row[7],
+        'p_stock': row[8],
+        'p_image': row[9],
+        'p_description': row[10],
+        'created_at': row[11].isoformat() if row[11] else None
+    } for row in rows]
+    return {"results": result}
+
+
+# ============================================
+# 제품 추가
+# ============================================
+@router.post("")
+async def insert_product(
+    kc_seq: int = Form(...),
+    cc_seq: int = Form(...),
+    sc_seq: int = Form(...),
+    gc_seq: int = Form(...),
+    m_seq: int = Form(...),
+    p_name: Optional[str] = Form(None),
+    p_price: int = Form(0),
+    p_stock: int = Form(0),
+    p_image: Optional[str] = Form(None),
+    p_description: Optional[str] = Form(None),
+):
+    try:
+        conn = connect_db()
+        curs = conn.cursor()
+        sql = """
+            INSERT INTO product (kc_seq, cc_seq, sc_seq, gc_seq, m_seq, p_name, p_price, p_stock, p_image, p_description) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        curs.execute(sql, (kc_seq, cc_seq, sc_seq, gc_seq, m_seq, p_name, p_price, p_stock, p_image, p_description))
+        conn.commit()
+        inserted_id = curs.lastrowid
+        conn.close()
+        return {"result": "OK", "p_seq": inserted_id}
+    except Exception as e:
+        return {"result": "Error", "errorMsg": str(e)}
+
+
+# ============================================
+# 제품 수정
+# ============================================
+@router.post("/{product_seq}")
+async def update_product(
+    product_seq: int,
+    kc_seq: int = Form(...),
+    cc_seq: int = Form(...),
+    sc_seq: int = Form(...),
+    gc_seq: int = Form(...),
+    m_seq: int = Form(...),
+    p_name: Optional[str] = Form(None),
+    p_price: int = Form(0),
+    p_stock: int = Form(0),
+    p_image: Optional[str] = Form(None),
+    p_description: Optional[str] = Form(None),
+):
+    try:
+        conn = connect_db()
+        curs = conn.cursor()
+        sql = """
+            UPDATE product 
+            SET kc_seq=%s, cc_seq=%s, sc_seq=%s, gc_seq=%s, m_seq=%s, 
+                p_name=%s, p_price=%s, p_stock=%s, p_image=%s, p_description=%s 
+            WHERE p_seq=%s
+        """
+        curs.execute(sql, (kc_seq, cc_seq, sc_seq, gc_seq, m_seq, p_name, p_price, p_stock, p_image, p_description, product_seq))
+        conn.commit()
+        conn.close()
+        return {"result": "OK"}
+    except Exception as e:
+        return {"result": "Error", "errorMsg": str(e)}
+
+
+# ============================================
+# 제품 재고 수정
+# ============================================
+@router.post("/{product_seq}/stock")
+async def update_product_stock(
+    product_seq: int,
+    p_stock: int = Form(...),
+):
+    try:
+        conn = connect_db()
+        curs = conn.cursor()
+        sql = "UPDATE product SET p_stock=%s WHERE p_seq=%s"
+        curs.execute(sql, (p_stock, product_seq))
+        conn.commit()
+        conn.close()
+        return {"result": "OK"}
+    except Exception as e:
+        return {"result": "Error", "errorMsg": str(e)}
+
+
+# ============================================
+# 제품 삭제
+# ============================================
+@router.delete("/{product_seq}")
+async def delete_product(product_seq: int):
+    try:
+        conn = connect_db()
+        curs = conn.cursor()
+        sql = "DELETE FROM product WHERE p_seq=%s"
+        curs.execute(sql, (product_seq,))
+        conn.commit()
+        conn.close()
+        return {"result": "OK"}
+    except Exception as e:
+        return {"result": "Error", "errorMsg": str(e)}
+
+
+# ============================================
+# 제품 파일 업로드 (이미지 또는 GLB 파일)
+# ============================================
+@router.post("/{product_seq}/upload_file")
+async def upload_product_file(
+    product_seq: int,
+    file_type: str = Form(...),  # 'image' 또는 'glb'
+    model_name: Optional[str] = Form(None),  # GLB 파일일 때 모델명 (예: 'nike_v2k')
+    file: UploadFile = File(...)
+):
+    """
+    제품 파일을 PHP 웹서버의 model 디렉토리에 업로드합니다.
+    
+    - file_type: 'image' 또는 'glb'
+    - model_name: GLB 파일일 때 필수 (예: 'nike_v2k')
+    - file: 업로드할 파일
+    
+    반환: 파일 경로 (PHP 웹서버 URL)
+    """
+    try:
+        # 파일 타입 검증
+        if file_type not in ['image', 'glb']:
+            return {"result": "Error", "errorMsg": "file_type은 'image' 또는 'glb'만 가능합니다."}
+        
+        # GLB 파일일 때 model_name 필수
+        if file_type == 'glb' and not model_name:
+            return {"result": "Error", "errorMsg": "GLB 파일은 model_name이 필수입니다."}
+        
+        # 파일 확장자 검증
+        file_ext = Path(file.filename).suffix.lower()
+        if file_type == 'glb' and file_ext != '.glb':
+            return {"result": "Error", "errorMsg": "GLB 파일만 업로드 가능합니다."}
+        elif file_type == 'image' and file_ext not in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
+            return {"result": "Error", "errorMsg": "지원하는 이미지 형식이 아닙니다."}
+        
+        # PHP 웹서버 디렉토리 생성 (없으면 생성)
+        PHP_MODEL_DIR.mkdir(parents=True, exist_ok=True)
+        
+        # 파일명 결정
+        if file_type == 'glb':
+            # GLB 파일: model_name.glb (예: nike_v2k.glb)
+            file_name = f"{model_name}.glb"
+        else:
+            # 이미지 파일: product_{p_seq}_{original_filename} (예: product_1_image.jpg)
+            original_name = Path(file.filename).stem
+            file_ext = Path(file.filename).suffix
+            file_name = f"product_{product_seq}_{original_name}{file_ext}"
+        
+        # 저장할 파일 경로 (PHP 웹서버 디렉토리 내)
+        file_path = PHP_MODEL_DIR / file_name
+        
+        # 파일 읽기 및 저장
+        file_content = await file.read()
+        with open(file_path, "wb") as buffer:
+            buffer.write(file_content)
+        
+        # DB에 파일 경로 저장
+        # product 테이블에 p_image 필드가 있으므로 경로 저장
+        # 또는 별도의 product_files 테이블에 저장할 수도 있음
+        # 여기서는 p_image 필드에 경로 저장 (기존 방식과 호환)
+        conn = connect_db()
+        curs = conn.cursor()
+        
+        # PHP 웹서버 URL 경로 생성
+        if file_type == 'glb':
+            # GLB 파일: PHP 파일을 통해 접근 (예: https://yourdomain.com/model.php?name=nike_v2k)
+            file_url = f"{PHP_WEB_SERVER_URL}/{PHP_MODEL_FILE}?name={model_name}"
+        else:
+            # 이미지 파일: 직접 접근 (예: https://yourdomain.com/model/product_1_image.jpg)
+            # 또는 PHP를 통해 접근할 수도 있음
+            file_url = f"{PHP_WEB_SERVER_URL}/model/{file_name}"
+        
+        # product 테이블의 p_image 필드 업데이트
+        # 주의: 기존 이미지 경로가 있으면 덮어쓰게 됨
+        sql = "UPDATE product SET p_image=%s WHERE p_seq=%s"
+        curs.execute(sql, (file_url, product_seq))
+        conn.commit()
+        conn.close()
+        
+        return {
+            "result": "OK",
+            "file_path": str(file_path),
+            "file_url": file_url,
+            "file_name": file_name,
+            "file_type": file_type
+        }
+    except Exception as e:
+        import traceback
+        error_msg = str(e)
+        traceback.print_exc()
+        return {"result": "Error", "errorMsg": error_msg, "traceback": traceback.format_exc()}
+
+
+# ============================================
+# 제품 파일 정보 조회
+# ============================================
+@router.get("/{product_seq}/file_info")
+async def get_product_file_info(product_seq: int):
+    """
+    제품의 파일 정보를 조회합니다 (DB에 저장된 경로 반환).
+    """
+    try:
+        conn = connect_db()
+        curs = conn.cursor()
+        curs.execute("SELECT p_image FROM product WHERE p_seq = %s", (product_seq,))
+        row = curs.fetchone()
+        conn.close()
+        
+        if row is None:
+            return {"result": "Error", "message": "Product not found"}
+        
+        file_path = row[0] if row[0] else None
+        
+        if file_path is None:
+            return {"result": "Error", "message": "No file uploaded"}
+        
+        return {
+            "result": "OK",
+            "file_url": file_path,
+            "product_seq": product_seq
+        }
+    except Exception as e:
+        return {"result": "Error", "errorMsg": str(e)}
+
+
+# ============================================
+# 제품 파일 직접 다운로드 (PHP 웹서버 파일 시스템에서 직접 읽어서 반환)
+# ============================================
+@router.get("/{product_seq}/file")
+async def download_product_file(product_seq: int):
+    """
+    제품 파일을 직접 다운로드합니다 (PHP 웹서버 파일 시스템에서 파일을 읽어서 반환).
+    GLB 파일은 PHP 파일을 통해 접근하는 것을 권장하지만, 이 엔드포인트로도 다운로드 가능합니다.
+    """
+    try:
+        # DB에서 파일 경로 조회
+        conn = connect_db()
+        curs = conn.cursor()
+        curs.execute("SELECT p_image FROM product WHERE p_seq = %s", (product_seq,))
+        row = curs.fetchone()
+        conn.close()
+        
+        if row is None:
+            return {"result": "Error", "message": "Product not found"}
+        
+        file_url = row[0] if row[0] else None
+        
+        if file_url is None:
+            return {"result": "Error", "message": "No file uploaded"}
+        
+        # PHP 웹서버 URL에서 실제 파일명 추출
+        # 예: "https://yourdomain.com/model.php?name=nike_v2k" -> "nike_v2k.glb"
+        # 예: "https://yourdomain.com/model/product_1_image.jpg" -> "product_1_image.jpg"
+        
+        file_name = None
+        if "?name=" in file_url:
+            # GLB 파일: URL에서 모델명 추출
+            model_name = file_url.split("?name=")[1].split("&")[0]
+            file_name = f"{model_name}.glb"
+        elif "/model/" in file_url:
+            # 이미지 파일: URL에서 파일명 추출
+            file_name = file_url.split("/model/")[1].split("?")[0]
+        else:
+            # 파일명을 추출할 수 없는 경우
+            return {"result": "Error", "message": "Cannot extract file name from URL"}
+        
+        # PHP 웹서버 디렉토리에서 파일 읽기
+        file_path = PHP_MODEL_DIR / file_name
+        
+        if not file_path.exists():
+            return {"result": "Error", "message": "File not found on server"}
+        
+        # 파일 읽기
+        with open(file_path, "rb") as f:
+            file_content = f.read()
+        
+        # MIME 타입 결정
+        file_ext = Path(file_name).suffix.lower()
+        if file_ext == '.glb':
+            media_type = "model/gltf-binary"
+        elif file_ext in ['.jpg', '.jpeg']:
+            media_type = "image/jpeg"
+        elif file_ext == '.png':
+            media_type = "image/png"
+        elif file_ext == '.gif':
+            media_type = "image/gif"
+        elif file_ext == '.webp':
+            media_type = "image/webp"
+        else:
+            media_type = "application/octet-stream"
+        
+        # 파일 반환
+        return Response(
+            content=file_content,
+            media_type=media_type,
+            headers={
+                "Content-Disposition": f'inline; filename="{file_name}"',
+                "Cache-Control": "no-cache, no-store, must-revalidate"
+            }
+        )
+    except Exception as e:
+        import traceback
+        error_msg = str(e)
+        traceback.print_exc()
+        return {"result": "Error", "errorMsg": error_msg, "traceback": traceback.format_exc()}
+

@@ -8,7 +8,7 @@ Note: INSERT는 이미지 포함 필수, UPDATE는 이미지 제외/포함 두 �
 from fastapi import APIRouter, Form, UploadFile, File, Response
 from pydantic import BaseModel
 from typing import Optional
-from app_new_form.database.connection import connect_db
+from app.database.connection import connect_db
 
 router = APIRouter()
 

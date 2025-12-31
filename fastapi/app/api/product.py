@@ -6,7 +6,7 @@ Product API - 제품 CRUD
 from fastapi import APIRouter, Form, UploadFile, File, Response
 from pydantic import BaseModel
 from typing import Optional
-from app_new_form.database.connection import connect_db
+from app.database.connection import connect_db
 from pathlib import Path
 import os
 

@@ -5,7 +5,7 @@ Branch API - 지점 CRUD (Router 버전)
 from fastapi import APIRouter, Form
 from pydantic import BaseModel
 from typing import Optional
-from app_new_form.database.connection import connect_db
+from app.database.connection import connect_db
 
 router = APIRouter()
 

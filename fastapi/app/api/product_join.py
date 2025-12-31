@@ -8,7 +8,7 @@ Product 복합 쿼리 API
 
 from fastapi import APIRouter, Query
 from typing import Optional
-from app_new_form.database.connection import connect_db
+from app.database.connection import connect_db
 
 router = APIRouter()
 

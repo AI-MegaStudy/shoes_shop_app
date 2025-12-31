@@ -4,34 +4,34 @@ FastAPI 메인 애플리케이션 - 새로운 ERD 구조
 """
 
 from fastapi import FastAPI
-from app_new_form.database.connection import connect_db
+from app.database.connection import connect_db
 
 # 기본 라우터 import
-from app_new_form.api import branch
-from app_new_form.api import users
-from app_new_form.api import user_auth_identities
-from app_new_form.api import auth
-from app_new_form.api import staff
-from app_new_form.api import maker
-from app_new_form.api import kind_category
-from app_new_form.api import color_category
-from app_new_form.api import size_category
-from app_new_form.api import gender_category
-from app_new_form.api import refund_reason_category
-from app_new_form.api import product
-from app_new_form.api import purchase_item
-from app_new_form.api import pickup
-from app_new_form.api import refund
-from app_new_form.api import receive
-from app_new_form.api import request
+from app.api import branch
+from app.api import users
+from app.api import user_auth_identities
+from app.api import auth
+from app.api import staff
+from app.api import maker
+from app.api import kind_category
+from app.api import color_category
+from app.api import size_category
+from app.api import gender_category
+from app.api import refund_reason_category
+from app.api import product
+from app.api import purchase_item
+from app.api import pickup
+from app.api import refund
+from app.api import receive
+from app.api import request
 
 # JOIN 라우터 import
-from app_new_form.api import product_join
-from app_new_form.api import purchase_item_join
-from app_new_form.api import pickup_join
-from app_new_form.api import refund_join
-from app_new_form.api import receive_join
-from app_new_form.api import request_join
+from app.api import product_join
+from app.api import purchase_item_join
+from app.api import pickup_join
+from app.api import refund_join
+from app.api import receive_join
+from app.api import request_join
 
 app = FastAPI(title="Shoes Store API - 새로운 ERD 구조")
 ip_address = '127.0.0.1'

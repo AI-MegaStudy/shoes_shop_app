@@ -9,7 +9,7 @@ from fastapi import APIRouter, Form
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
-from app_new_form.database.connection import connect_db
+from app.database.connection import connect_db
 
 router = APIRouter()
 

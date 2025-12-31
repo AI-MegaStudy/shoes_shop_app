@@ -6,7 +6,7 @@ GenderCategory API - 성별 카테고리 CRUD
 from fastapi import APIRouter, Form
 from pydantic import BaseModel
 from typing import Optional
-from app_new_form.database.connection import connect_db
+from app.database.connection import connect_db
 
 router = APIRouter()
 

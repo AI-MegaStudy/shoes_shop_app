@@ -54,6 +54,25 @@ class _LoginViewState extends State<LoginView> {
     super.initState();
     // API base URL 설정 (Android 에뮬레이터 지원)
     CustomNetworkUtil.setBaseUrl(config.getApiBaseUrl());
+    
+    // 로그인 화면 진입 시 기존 사용자 정보 삭제 (새로운 로그인을 위함)
+    _clearStoredUserData();
+  }
+  
+  /// GetStorage에서 사용자 정보 삭제
+  void _clearStoredUserData() {
+    try {
+      final storage = GetStorage();
+      storage.remove('user');
+      storage.remove('user_auth_identity');
+      if (kDebugMode) {
+        print('🔵 [Login] 기존 사용자 정보 삭제 완료');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('⚠️ [Login] 기존 사용자 정보 삭제 중 오류: $e');
+      }
+    }
   }
 
   @override
@@ -686,8 +705,9 @@ class _LoginViewState extends State<LoginView> {
       if (googleUser == null) {
         // 사용자가 로그인을 취소한 경우
         if (kDebugMode) {
-          print('⚠️ [GoogleLogin] 구글 로그인 취소됨');
+          print('⚠️ [GoogleLogin] 구글 로그인 취소됨 - 로그인 화면 유지');
         }
+        // 취소 시 아무것도 하지 않고 로그인 화면에 머무름
         return;
       }
 

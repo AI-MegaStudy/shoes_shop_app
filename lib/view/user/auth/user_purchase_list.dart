@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class UserPurchaseList extends StatefulWidget {
   const UserPurchaseList({super.key});
@@ -9,7 +12,8 @@ class UserPurchaseList extends StatefulWidget {
 
 class _UserPurchaseListState extends State<UserPurchaseList> {
   // Property
-  late List data;
+  String ipAddress = "127.0.0.1"; //ip
+  late List data; //
 
   @override
   void initState() {
@@ -19,7 +23,15 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
   }
 
   Future<void> getJSONData() async{
-    var url = Uri.parse('http://172.16.250.176:8000/select');
+    var url = Uri.parse('http://${ipAddress}:8000/select');
+    var response = await http.get(url);
+
+    data.clear();
+    var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
+    List result = dataConvertedJSON['results'];
+    data = result.map((e) => ,).toList;
+
+    setState(() {});
   }
 
   @override
@@ -29,7 +41,16 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
         title: Text('주문 내역'),
         centerTitle: true,
       ),
-
+      body: data.isEmpty
+      ? Center(
+        child: Text('데이터가 없습니다.'),
+      )
+      : Center(
+        child: ListView.builder(
+          itemCount: data.length,
+          itemBuilder: itemBuilder
+        )
+      )
     );
   }
 }

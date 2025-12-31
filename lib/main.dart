@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:shoes_shop_app/config.dart' as config;
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -61,7 +62,7 @@ class _MyAppState extends State<MyApp> {
     return ThemeProvider(
       themeMode: _themeMode,
       onToggleTheme: _toggleTheme,
-      child: MaterialApp(
+      child: GetMaterialApp(
         title: 'Flutter Demo',
         themeMode: _themeMode,
         theme: ThemeData(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'dart:typed_data';
 import 'dart:convert';
 
 import 'package:shoes_shop_app/config.dart' as config;

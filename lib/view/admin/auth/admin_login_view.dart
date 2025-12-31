@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/custom/custom.dart';
-import 'package:shoes_shop_app/custom/util/log/custom_log_util.dart';
 import 'package:shoes_shop_app/utils/admin_tablet_utils.dart';
 import 'package:shoes_shop_app/view/admin/auth/admin_mobile_block_view.dart';
 

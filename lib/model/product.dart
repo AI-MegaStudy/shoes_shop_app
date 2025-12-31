@@ -1,79 +1,63 @@
 class Product {
-  final int? pSeq;           // 고객 고유 ID(PK)
-  final int kcSeq;
-  final int ccSeq;
-  final int scSeq;
-  final int gcseq;
-  final int mSeq;
-  final String pName;
-  final int pPrice;
-  final int pStock;
-  final String pImage;
-  final String pDescription;
-  final DateTime? created_at;
-  final String? ccSeqColor;
-  final String? scSeqSize;
-  final String? gcSeqGender;
-  final String? mSeqName;
-
+  int? p_seq;
+  int kc_seq;
+  int cc_seq;
+  int sc_seq;
+  int gc_seq;
+  int m_seq;
+  String p_name;
+  int p_price;
+  int p_stock;
+  String p_image;
+  String p_description;
+  String? created_at;
 
   Product({
-    this.pSeq,           
-    required this.kcSeq,
-    required this.ccSeq,
-    required this.scSeq,
-    required this.gcseq,
-    required this.mSeq,
-    required this.pName,
-    required this.pPrice,
-    required this.pStock,
-    required this.pImage,
-    required this.pDescription,
+    this.p_seq,
+    required this.kc_seq,
+    required this.cc_seq,
+    required this.sc_seq,
+    required this.gc_seq,
+    required this.m_seq,
+    required this.p_name,
+    required this.p_price,
+    required this.p_stock,
+    required this.p_image,
+    required this.p_description,
     this.created_at,
-    this.ccSeqColor,
-    this.scSeqSize,
-    this.gcSeqGender,
-    this.mSeqName
   });
-  
-  /// JSON으로 변환 (GetStorage 저장용)
-  Map<String, dynamic> toJson() {
-    return {
-      "pSeq":pSeq,           
-      "kcSeq":kcSeq,
-      "ccSeq":ccSeq,
-      "scSeq":scSeq,
-      "gcseq":gcseq,
-      "mSeq":mSeq,
-      "pName":pName,
-      "pPrice":pPrice,
-      "pStock":pStock,
-      "pImage":pImage,
-      "pDescription":pDescription,
-      "created_at":created_at
-    };
-  }
-  
-  /// JSON에서 생성
+
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      pSeq:json["p_eq"],           
-      kcSeq:json["kc_seq"],
-      ccSeq:json["cc_seq"],
-      scSeq:json["sc_seq"],
-      gcseq:json["gc_seq"],
-      mSeq:json["m_seq"],
-      pName:json["p_name"],
-      pPrice:json["p_price"],
-      pStock:json["p_stock"],
-      pImage:json["p_image"],
-      pDescription:json["p_description"] != null ? json["p_description"] : '' ,
-      created_at: DateTime.parse(json["created_at"].toString())
-      // ccSeqColor:json["ccSeqcolor"],
-      // scSeqSize:json["scSeqSize"],
-      // gcSeqGender:json["gcSeqGender"],
-      // mSeqName:json["mSeqName"]
+      p_seq: json['p_seq'],
+      kc_seq: json['kc_seq'],
+      cc_seq: json['cc_seq'],
+      sc_seq: json['sc_seq'],
+      gc_seq: json['gc_seq'],
+      m_seq: json['m_seq'],
+      p_name: json['p_name'],
+      p_price: json['p_price'],
+      p_stock: json['p_stock'],
+      p_image: json['p_image'],
+      p_description: json['p_description'],
+      created_at: json['created_at'],
     );
   }
-}
 
+  Map<String, dynamic> toJson() {
+    return {
+      'p_seq': p_seq,
+      'kc_seq': kc_seq,
+      'cc_seq': cc_seq,
+      'sc_seq': sc_seq,
+      'gc_seq': gc_seq,
+      'm_seq': m_seq,
+      'p_name': p_name,
+      'p_price': p_price,
+      'p_stock': p_stock,
+      'p_image': p_image,
+      'p_description': p_description,
+      'created_at': created_at,
+    };
+  }
+}

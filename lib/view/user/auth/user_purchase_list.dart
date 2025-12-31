@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shoes_shop_app/model/purchase_item.dart';
 
 class UserPurchaseList extends StatefulWidget {
   const UserPurchaseList({super.key});
@@ -13,7 +14,7 @@ class UserPurchaseList extends StatefulWidget {
 class _UserPurchaseListState extends State<UserPurchaseList> {
   // Property
   String ipAddress = "127.0.0.1"; //ip
-  late List data; //
+  late List<PurchaseItem> data; //
 
   @override
   void initState() {
@@ -29,7 +30,7 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
     data.clear();
     var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
     List result = dataConvertedJSON['results'];
-    data = result.map((e) => ,).toList;
+    data = result.map((e) =>  PurchaseItem.fromJson(e),).toList();
 
     setState(() {});
   }

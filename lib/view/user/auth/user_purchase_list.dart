@@ -16,6 +16,7 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
   // Property
   String ipAddress = "172.16.250.176"; //ip
   late List<PurchaseItemJoin> data; //유저의 구매 목록
+  late TextEditingController searchController;
 
   late int userSeq;
   final storage = GetStorage(); // 유저 정보 담은 get storage
@@ -24,6 +25,7 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
   void initState() {
     super.initState();
     data = [];
+    searchController = TextEditingController();
     getJSONData();
   }
 
@@ -56,18 +58,43 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
         child: Text('데이터가 없습니다.'),
       )
       : Center(
-        child: ListView.builder(
-          itemCount: data.length,
-          itemBuilder: (context, index) {
-            return SizedBox(
-              child: Row(
-                children: [
-                  Image.asset(data[index].p_image!),
-                  Text(data[index].b_date!)
-                ]
+        child: Column(
+          children: [
+            TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                hintText: '검색어를 입력하세요',
+                isDense: true,
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    //selectedCategory = 0;
+                    //isSearching = true;
+                    setState(() {});
+                  }, 
+                  icon: Icon(Icons.search)
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(50),
+                ),
               ),
-            );
-          },
+              onChanged: (value) {
+                // 자동검색
+              },
+            ),
+            ListView.builder(
+              itemCount: data.length,
+              itemBuilder: (context, index) {
+                return SizedBox(
+                  child: Row(
+                    children: [
+                      Image.asset(data[index].p_image!),
+                      Text(data[index].b_date!)
+                    ]
+                  ),
+                );
+              },
+            ),
+          ],
         )
       )
     );

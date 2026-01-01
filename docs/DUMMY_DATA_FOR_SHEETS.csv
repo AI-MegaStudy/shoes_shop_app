@@ -1,0 +1,192 @@
+테이블명,순서,필드명,데이터값,비고
+branch,1,br_name,강남점,지점명
+branch,1,br_phone,02-1234-5678,지점 전화번호
+branch,1,br_address,서울시 강남구 테헤란로 123,지점 주소
+branch,1,br_lat,37.5010,위도
+branch,1,br_lng,127.0260,경도
+branch,2,br_name,홍대점,지점명
+branch,2,br_phone,02-2345-6789,지점 전화번호
+branch,2,br_address,서울시 마포구 홍익로 456,지점 주소
+branch,2,br_lat,37.5563,위도
+branch,2,br_lng,126.9236,경도
+branch,3,br_name,잠실점,지점명
+branch,3,br_phone,02-3456-7890,지점 전화번호
+branch,3,br_address,서울시 송파구 올림픽로 789,지점 주소
+branch,3,br_lat,37.5133,위도
+branch,3,br_lng,127.1028,경도
+branch,4,br_name,부산점,지점명
+branch,4,br_phone,051-1111-2222,지점 전화번호
+branch,4,br_address,부산시 해운대구 해운대해변로 321,지점 주소
+branch,4,br_lat,35.1631,위도
+branch,4,br_lng,129.1636,경도
+branch,5,br_name,대구점,지점명
+branch,5,br_phone,053-3333-4444,지점 전화번호
+branch,5,br_address,대구시 중구 동성로 654,지점 주소
+branch,5,br_lat,35.8714,위도
+branch,5,br_lng,128.6014,경도
+maker,1,m_name,나이키,제조사명
+maker,1,m_phone,02-1111-1111,제조사 전화번호
+maker,1,m_address,서울시 강남구 테헤란로 100,제조사 주소
+maker,2,m_name,아디다스,제조사명
+maker,2,m_phone,02-2222-2222,제조사 전화번호
+maker,2,m_address,서울시 서초구 서초대로 200,제조사 주소
+maker,3,m_name,뉴발란스,제조사명
+maker,3,m_phone,02-3333-3333,제조사 전화번호
+maker,3,m_address,서울시 송파구 올림픽로 300,제조사 주소
+maker,4,m_name,컨버스,제조사명
+maker,4,m_phone,02-4444-4444,제조사 전화번호
+maker,4,m_address,서울시 마포구 홍익로 400,제조사 주소
+maker,5,m_name,반스,제조사명
+maker,5,m_phone,02-5555-5555,제조사 전화번호
+maker,5,m_address,서울시 강동구 천호대로 500,제조사 주소
+kind_category,1,kc_name,러닝화,종류 카테고리
+kind_category,2,kc_name,스니커즈,종류 카테고리
+kind_category,3,kc_name,부츠,종류 카테고리
+kind_category,4,kc_name,로퍼,종류 카테고리
+kind_category,5,kc_name,샌들,종류 카테고리
+color_category,1,cc_name,블랙,색상 카테고리
+color_category,2,cc_name,화이트,색상 카테고리
+color_category,3,cc_name,그레이,색상 카테고리
+color_category,4,cc_name,레드,색상 카테고리
+color_category,5,cc_name,블루,색상 카테고리
+color_category,6,cc_name,그린,색상 카테고리
+color_category,7,cc_name,옐로우,색상 카테고리
+size_category,1,sc_name,230,사이즈 카테고리
+size_category,2,sc_name,240,사이즈 카테고리
+size_category,3,sc_name,250,사이즈 카테고리
+size_category,4,sc_name,260,사이즈 카테고리
+size_category,5,sc_name,270,사이즈 카테고리
+size_category,6,sc_name,280,사이즈 카테고리
+size_category,7,sc_name,290,사이즈 카테고리
+gender_category,1,gc_name,남성,성별 카테고리
+gender_category,2,gc_name,여성,성별 카테고리
+gender_category,3,gc_name,공용,성별 카테고리
+user,1,u_email,user001@example.com,일반 회원 - 최근 접속 (5일 전)
+user,1,u_name,홍길동,이름
+user,1,u_phone,010-1111-1111,전화번호
+user,1,u_address,서울시 강남구 테헤란로 123,주소
+user,1,u_quit_date,,탈퇴일 (없음)
+user,1,last_login_days_ago,5,마지막 로그인 (일)
+user,1,password,qwer1234,비밀번호 (user_auth_identities)
+user,2,u_email,user002@example.com,일반 회원 - 최근 접속 (15일 전)
+user,2,u_name,김철수,이름
+user,2,u_phone,010-2222-2222,전화번호
+user,2,u_address,서울시 마포구 홍익로 456,주소
+user,2,u_quit_date,,탈퇴일 (없음)
+user,2,last_login_days_ago,15,마지막 로그인 (일)
+user,2,password,qwer1234,비밀번호 (user_auth_identities)
+user,3,u_email,user003@example.com,일반 회원 - 최근 접속 (30일 전)
+user,3,u_name,이영희,이름
+user,3,u_phone,010-3333-3333,전화번호
+user,3,u_address,서울시 송파구 올림픽로 789,주소
+user,3,u_quit_date,,탈퇴일 (없음)
+user,3,last_login_days_ago,30,마지막 로그인 (일)
+user,3,password,qwer1234,비밀번호 (user_auth_identities)
+user,4,u_email,user004@example.com,일반 회원 - 최근 접속 (10일 전)
+user,4,u_name,박민수,이름
+user,4,u_phone,010-4444-4444,전화번호
+user,4,u_address,부산시 해운대구 해운대해변로 321,주소
+user,4,u_quit_date,,탈퇴일 (없음)
+user,4,last_login_days_ago,10,마지막 로그인 (일)
+user,4,password,qwer1234,비밀번호 (user_auth_identities)
+user,5,u_email,user005@example.com,일반 회원 - 최근 접속 (1일 전)
+user,5,u_name,최지영,이름
+user,5,u_phone,010-5555-5555,전화번호
+user,5,u_address,대구시 중구 동성로 654,주소
+user,5,u_quit_date,,탈퇴일 (없음)
+user,5,last_login_days_ago,1,마지막 로그인 (일)
+user,5,password,qwer1234,비밀번호 (user_auth_identities)
+user,6,u_email,dormant001@example.com,휴면 회원 - 6개월 이상 미접속 (200일 전)
+user,6,u_name,휴면회원1,이름
+user,6,u_phone,010-6666-6666,전화번호
+user,6,u_address,서울시 강남구 테헤란로 100,주소
+user,6,u_quit_date,,탈퇴일 (없음)
+user,6,last_login_days_ago,200,마지막 로그인 (일)
+user,6,password,qwer1234,비밀번호 (user_auth_identities)
+user,7,u_email,dormant002@example.com,휴면 회원 - 6개월 이상 미접속 (210일 전)
+user,7,u_name,휴면회원2,이름
+user,7,u_phone,010-7777-7777,전화번호
+user,7,u_address,서울시 마포구 홍익로 200,주소
+user,7,u_quit_date,,탈퇴일 (없음)
+user,7,last_login_days_ago,210,마지막 로그인 (일)
+user,7,password,qwer1234,비밀번호 (user_auth_identities)
+user,8,u_email,quit001@example.com,탈퇴 회원 - 탈퇴일 30일 전
+user,8,u_name,탈퇴회원1,이름
+user,8,u_phone,010-8888-8888,전화번호
+user,8,u_address,서울시 송파구 올림픽로 300,주소
+user,8,u_quit_date,30일 전,탈퇴일 (30일 전)
+user,8,last_login_days_ago,60,마지막 로그인 (일)
+user,8,password,qwer1234,비밀번호 (user_auth_identities)
+user,9,u_email,quit002@example.com,탈퇴 회원 - 탈퇴일 90일 전
+user,9,u_name,탈퇴회원2,이름
+user,9,u_phone,010-9999-9999,전화번호
+user,9,u_address,부산시 해운대구 해운대해변로 400,주소
+user,9,u_quit_date,90일 전,탈퇴일 (90일 전)
+user,9,last_login_days_ago,120,마지막 로그인 (일)
+user,9,password,qwer1234,비밀번호 (user_auth_identities)
+staff,1,s_id,staff001,직원 ID
+staff,1,s_password,pass1234,비밀번호
+staff,1,s_name,김점장,이름
+staff,1,s_phone,010-1001-1001,전화번호
+staff,1,s_rank,점장,직급
+staff,1,br_seq,1,소속 지점 (강남점)
+staff,1,s_superseq,,상급자 (없음 - 최상급자)
+staff,2,s_id,staff002,직원 ID
+staff,2,s_password,pass1234,비밀번호
+staff,2,s_name,이부점장,이름
+staff,2,s_phone,010-1002-1002,전화번호
+staff,2,s_rank,부점장,직급
+staff,2,br_seq,1,소속 지점 (강남점)
+staff,2,s_superseq,staff001,상급자 (staff001)
+staff,3,s_id,staff003,직원 ID
+staff,3,s_password,pass1234,비밀번호
+staff,3,s_name,박점장,이름
+staff,3,s_phone,010-2001-2001,전화번호
+staff,3,s_rank,점장,직급
+staff,3,br_seq,2,소속 지점 (홍대점)
+staff,3,s_superseq,,상급자 (없음 - 최상급자)
+staff,4,s_id,staff004,직원 ID
+staff,4,s_password,pass1234,비밀번호
+staff,4,s_name,최사원,이름
+staff,4,s_phone,010-2002-2002,전화번호
+staff,4,s_rank,사원,직급
+staff,4,br_seq,2,소속 지점 (홍대점)
+staff,4,s_superseq,staff003,상급자 (staff003)
+staff,5,s_id,staff005,직원 ID
+staff,5,s_password,pass1234,비밀번호
+staff,5,s_name,정점장,이름
+staff,5,s_phone,010-3001-3001,전화번호
+staff,5,s_rank,점장,직급
+staff,5,br_seq,3,소속 지점 (잠실점)
+staff,5,s_superseq,,상급자 (없음 - 최상급자)
+product,info,product_names,"에어맥스 90, 에어포스 1, 스탠스미스, 슈퍼스타, 574 클래식, 척 테일러, 올스타, 올드스쿨, 어센틱, 에라",제품명 목록
+product,info,생성_개수,30개,랜덤 생성
+product,info,가격_범위,50000-200000원,랜덤 가격
+product,info,재고_범위,0-100개,랜덤 재고
+product,info,이미지_경로,/images/product_{번호}.jpg,제품 이미지 경로
+product,info,조합_제약,"(cc_seq, sc_seq, m_seq) 조합은 UNIQUE",UNIQUE 제약조건
+product,info,접미사,"프리미엄, 클래식, 에디션",제품명 접미사 (랜덤 선택)
+purchase_item,info,주문_그룹_수,10개,분 단위로 그룹화
+purchase_item,info,항목_수_범위,1-3개/주문,각 주문당 항목 수
+purchase_item,info,기간,최근 30일,랜덤 날짜
+purchase_item,info,시간대,9시-20시,랜덤 시간
+purchase_item,info,상태,"주문완료, 배송중, 배송완료, 수령완료, NULL",랜덤 상태
+purchase_item,info,가격_범위,50000-200000원,랜덤 가격
+purchase_item,info,수량_범위,1-3개,랜덤 수량
+pickup,info,생성_방식,구매 내역의 일부에서 생성,랜덤 선택
+pickup,info,최대_개수,15개,구매 내역 중 최대 15개
+pickup,info,기간,최근 20일 이내,랜덤 날짜
+refund,info,반품_사유,"사이즈 불일치, 색상 불일치, 제품 불량, 단순 변심, 배송 지연",랜덤 선택
+refund,info,생성_방식,수령(pickup) 중 일부에서 생성,랜덤 선택
+refund,info,최대_개수,5개,수령 중 최대 5개
+refund,info,기간,최근 10일 이내,랜덤 날짜
+receive,info,생성_개수,20개,랜덤 생성
+receive,info,수량_범위,10-100개,랜덤 수량
+receive,info,기간,최근 60일 이내,랜덤 날짜
+request,info,발주_내용,"재고 부족으로 인한 발주 요청, 신제품 입고 요청, 인기 상품 추가 발주, 계절 상품 발주, 프로모션 상품 발주",랜덤 선택
+request,info,생성_개수,15개,랜덤 생성
+request,info,수량_범위,20-200개,랜덤 수량
+request,info,기간,최근 30일 이내,랜덤 날짜
+request,info,결재_완료_비율,50%,랜덤 (req_manappdate 설정)
+request,info,이사_결재_완료_비율,30%,랜덤 (req_dirappdate 설정)
+

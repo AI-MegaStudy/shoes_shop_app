@@ -57,6 +57,7 @@ class _LoginViewState extends State<LoginView> {
     
     // 로그인 화면 진입 시 기존 사용자 정보 삭제 (새로운 로그인을 위함)
     _clearStoredUserData();
+    
   }
   
   /// GetStorage에서 사용자 정보 삭제
@@ -429,7 +430,7 @@ class _LoginViewState extends State<LoginView> {
       if (kDebugMode) {
         print('═══════════════════════════════════════════════════════');
         print('🚨 [ERROR] 함수: _updateLoginTime');
-        print('📍 URL: ${config.apiBaseUrl}/api/user_auth_identities/$authSeq/update_login_time');
+        print('📍 URL: ${config.getApiBaseUrl()}/api/user_auth_identities/$authSeq/update_login_time');
         print('❌ 오류: $e');
         print('📚 스택 트레이스: $stackTrace');
         print('═══════════════════════════════════════════════════════');
@@ -478,7 +479,7 @@ class _LoginViewState extends State<LoginView> {
         if (kDebugMode) {
           print('═══════════════════════════════════════════════════════');
           print('🚨 [ERROR] 함수: _handleLogin - 인증 정보 조회 실패');
-          print('📍 URL: ${config.apiBaseUrl}/api/user_auth_identities/provider/local');
+          print('📍 URL: ${config.getApiBaseUrl()}/api/user_auth_identities/provider/local');
           print('❌ 오류: ${authResponse.error}');
           print('═══════════════════════════════════════════════════════');
         }
@@ -567,7 +568,7 @@ class _LoginViewState extends State<LoginView> {
         if (kDebugMode) {
           print('═══════════════════════════════════════════════════════');
           print('🚨 [ERROR] 함수: _handleLogin - 사용자 정보 조회 실패');
-          print('📍 URL: ${config.apiBaseUrl}/api/users/$uSeq');
+          print('📍 URL: ${config.getApiBaseUrl()}/api/users/$uSeq');
           print('❌ 오류: ${userResponse.error}');
           print('═══════════════════════════════════════════════════════');
         }

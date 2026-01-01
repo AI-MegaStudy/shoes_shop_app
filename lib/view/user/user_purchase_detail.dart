@@ -34,78 +34,69 @@ class _UserPurchaseDetailState extends State<UserPurchaseDetail> {
       body: Padding(
         padding: const EdgeInsets.all(edgeSpace),
         child: Center(
-          child: data.isEmpty
-          ? SizedBox(
-            height: 100,
-            child: Text('데이터가 없습니다.')
-          )
-          : Column(
+          child: Column(
             children: [
+              Text("${data[0].b_date!.substring(0,11)}  ${data[0].b_date!.substring(11)}"),
+              Text("주문자: ${data[0].u_name}"),
+              Text("연락처: ${data[0].u_phone}"),
+              Text("email: ${data[0].u_email}"),
               Expanded(
                 child: ListView.builder(
                   itemCount: data.length,
                   itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.all(cardSpace),
-                      child: GestureDetector(
-                        onTap: (){
-                          Get.to(UserPurchaseDetail())!.then(
-                            (value) => setState(() {})
-                          );
-                        },
-                        child: SizedBox(
-                          child: Row(
-                            children: [
-                              SizedBox( //주문 묶음 한 개
-                                width: MediaQuery.of(context).size.width-100,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-                                      child: Image.asset(
-                                        'images/dummy-profile-pic.png',
-                                        width: MediaQuery.of(context).size.width-50,                            
+                      child: SizedBox(
+                        child: Row(
+                          children: [
+                            SizedBox( //주문 묶음 한 개
+                              width: MediaQuery.of(context).size.width-100,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+                                    child: Image.asset(
+                                      'images/dummy-profile-pic.png',
+                                      width: MediaQuery.of(context).size.width-150,                            
+                                      ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(data[index].p_name!),
+                                          Text("수량: ${data[index].b_quantity}"),
+                                          Text("총 ${data[index].b_price.toString()}원"),
+                                        ],
+                                      ),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: data[index].b_status == "제품 수령 완료"
+                                              ? arriveColor
+                                              : orderColor,
+                                          borderRadius: BorderRadius.circular(20),
                                         ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text("${data[index].b_date!.substring(0,11)}  ${data[index].b_date!.substring(11)}"),
-                                            Text(data[index].p_name!),
-                                            Text("수량: ${data[index].b_quantity}"),
-                                            Text("총 ${data[index].b_price.toString()}원"),
-                                          ],
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 6,
                                         ),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: data[index].b_status == "제품 수령 완료"
-                                                ? arriveColor
-                                                : orderColor,
-                                            borderRadius: BorderRadius.circular(20),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 6,
-                                          ),
-                                          child: Text(
-                                            data[index].b_status ?? '',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500,
-                                            ),
+                                        child: Text(
+                                          data[index].b_status ?? '',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
                                           ),
                                         ),
-                                      ],
-                                    )
-                                  ],
-                                ),
-                              )
-                            ]
-                          ),
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            )
+                          ]
                         ),
                       ),
                     );

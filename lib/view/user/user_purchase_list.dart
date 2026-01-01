@@ -22,11 +22,16 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
   late int userSeq;
   final storage = GetStorage(); // 유저 정보 담은 get storage
 
+  late String selectedOrder;
+  late List<String> orderList;
+
   @override
   void initState() {
     super.initState();
     data = [];
     searchController = TextEditingController();
+    selectedOrder = "최신순";
+    orderList = ["최신순", "오래된 순", "가격 높은순", "가격 낮은순"];
     initStorage();
     getJSONData();
   }
@@ -72,8 +77,7 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                   isDense: true,
                   suffixIcon: IconButton(
                     onPressed: () {
-                      //selectedCategory = 0;
-                      //isSearching = true;
+                      
                       setState(() {});
                     }, 
                     icon: Icon(Icons.search)
@@ -84,6 +88,61 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                 ),
                 onChanged: (value) {
                 },
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width/3,
+                  height: 30,
+                  child: DropdownButtonFormField<String>( //정렬 드롭다운
+                    initialValue: selectedOrder,
+                    isDense: true,
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(
+                          color: Colors.grey,
+                          width: 1,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(
+                          color: Colors.grey,
+                          width: 1,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(
+                          color: Colors.grey,
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    items: orderList.map(
+                      (e) {
+                        return DropdownMenuItem(
+                          value: e,
+                          child: Text(
+                            e,
+                            style: TextStyle(
+                              fontSize: 12
+                            ),
+                            ),
+                        );
+                      }
+                    ).toList(), 
+                    onChanged: (value) {
+                      selectedOrder = value!;
+                      setState(() {});
+                    },
+                  ),
+                ),
               ),
               Expanded(
                 child: ListView.builder(
@@ -154,11 +213,6 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
           )
         ),
       )
-      
-      
-      
-      
-    
     );
   }
 }

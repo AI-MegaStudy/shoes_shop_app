@@ -155,9 +155,9 @@ async def insert_staff(
 # ============================================
 # 직원 수정 (이미지 제외 - Form)
 # ============================================
-@router.post("/{id}")
+@router.post("/{staff_seq}")
 async def update_staff(
-    s_seq: int = Form(...),
+    staff_seq: int,
     s_id: str = Form(...),
     br_seq: int = Form(...),
     s_password: str = Form(...),
@@ -180,7 +180,7 @@ async def update_staff(
             SET s_id=%s, br_seq=%s, s_password=%s, s_name=%s, s_phone=%s, s_rank=%s, s_superseq=%s, s_quit_date=%s 
             WHERE s_seq=%s
         """
-        curs.execute(sql, (s_id, br_seq, s_password, s_name, s_phone, s_rank, s_superseq, s_quit_date_dt, s_seq))
+        curs.execute(sql, (s_id, br_seq, s_password, s_name, s_phone, s_rank, s_superseq, s_quit_date_dt, staff_seq))
         conn.commit()
         conn.close()
         return {"result": "OK"}
@@ -191,9 +191,9 @@ async def update_staff(
 # ============================================
 # 직원 수정 (이미지 포함 - Form + UploadFile)
 # ============================================
-@router.post("/{id}/with_image")
+@router.post("/{staff_seq}/with_image")
 async def update_staff_with_image(
-    s_seq: int = Form(...),
+    staff_seq: int,
     s_id: str = Form(...),
     br_seq: int = Form(...),
     s_password: str = Form(...),
@@ -220,7 +220,7 @@ async def update_staff_with_image(
             SET s_id=%s, br_seq=%s, s_password=%s, s_name=%s, s_phone=%s, s_rank=%s, s_superseq=%s, s_quit_date=%s, s_image=%s 
             WHERE s_seq=%s
         """
-        curs.execute(sql, (s_id, br_seq, s_password, s_name, s_phone, s_rank, s_superseq, s_quit_date_dt, image_data, s_seq))
+        curs.execute(sql, (s_id, br_seq, s_password, s_name, s_phone, s_rank, s_superseq, s_quit_date_dt, image_data, staff_seq))
         conn.commit()
         conn.close()
         return {"result": "OK"}
@@ -231,7 +231,7 @@ async def update_staff_with_image(
 # ============================================
 # 프로필 이미지 조회 (Response - 바이너리 직접 반환)
 # ============================================
-@router.get("/staff_seq/profile_image")
+@router.get("/{staff_seq}/profile_image")
 async def view_staff_profile_image(staff_seq: int):
     try:
         conn = connect_db()
@@ -259,7 +259,7 @@ async def view_staff_profile_image(staff_seq: int):
 # ============================================
 # 프로필 이미지 삭제
 # ============================================
-@router.delete("/{staff_seq}")
+@router.delete("/{staff_seq}/profile_image")
 async def delete_staff_profile_image(staff_seq: int):
     try:
         conn = connect_db()

@@ -1,10 +1,22 @@
-refactor: 사용자 이름 및 전화번호를 선택 사항으로 변경
+fix: API 엔드포인트 경로 파라미터 및 중복 문제 수정
 
-- DB 스키마: user 테이블의 u_name을 NULL 허용으로 변경
-- FastAPI: u_name 파라미터를 Optional로 변경 (회원가입/프로필 수정 API)
-- Flutter: 회원가입 및 프로필 수정 화면에서 이름/전화번호 필수 검증 제거
-- 문서: DBML 스키마 및 API 문서 업데이트
+API_ISSUES_CHECKLIST.md 문서에 따른 문제점 수정:
 
-추가 변경:
-- auth.py에서 미사용 회원가입 완료 관련 엔드포인트 제거
-  (complete_registration, registration_status, check_registration_completed)
+staff.py:
+- 경로 리터럴 문자열을 파라미터로 변경 (/staff_seq/ → /{staff_seq}/) - 엔드포인트 접근 불가 해결
+- update_staff 경로 파라미터 명시화 ({id} → {staff_seq}, Form에서 경로로 변경)
+- DELETE 엔드포인트 중복 해결 (프로필 이미지 삭제: /{staff_seq}/profile_image)
+
+pickup.py:
+- GET 엔드포인트 중복 해결 (구매 ID 조회: /by_bseq/{purchase_item_seq}로 변경)
+- 경로 리터럴 문자열을 파라미터로 변경 (/pickup_seq/ → /{pickup_seq}/)
+
+receive.py:
+- GET 엔드포인트 중복 해결 (제품별 조회: /by_product/{product_seq}로 변경)
+- 경로 리터럴 문자열을 파라미터로 변경 (/receive_seq/ → /{receive_seq}/)
+
+request.py:
+- 경로 리터럴 문자열을 파라미터로 변경 (/request_seq/ → /{request_seq}/) - 결재 엔드포인트 2곳
+
+purchase_item.py:
+- 경로 파라미터 명시화 ({id} → {purchase_item_seq}, Form에서 경로로 변경)

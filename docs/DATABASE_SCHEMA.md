@@ -93,8 +93,8 @@ staff (직원)
 |--------|------|------|----------|
 | u_seq | INT | 고객 고유 ID | PRIMARY KEY, AUTO_INCREMENT |
 | u_email | VARCHAR(255) | 고객 이메일 | NOT NULL, UNIQUE |
-| u_name | VARCHAR(255) | 고객 이름 | NOT NULL |
-| u_phone | VARCHAR(30) | 고객 전화번호 | UNIQUE |
+| u_name | VARCHAR(255) | 고객 이름 (선택 사항) | NULL 허용 |
+| u_phone | VARCHAR(30) | 고객 전화번호 (선택 사항) | NULL 허용, UNIQUE |
 | u_image | MEDIUMBLOB | 고객 프로필 이미지 | |
 | u_address | VARCHAR(255) | 고객 주소 | |
 | created_at | DATETIME | 고객 가입일자 | NOT NULL, DEFAULT CURRENT_TIMESTAMP |

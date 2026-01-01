@@ -14,7 +14,7 @@ class ProductListView extends StatefulWidget {
 }
 
 class _ProductListViewState extends State<ProductListView> {
-  String mainUrl = "http://172.16.250.187:8000/";
+  String mainUrl = "http://127.0.0.1:8000/";
   List products = [];
 
   @override
@@ -26,7 +26,7 @@ class _ProductListViewState extends State<ProductListView> {
 
   Future<void> getProducts() async {
     // 요청하여 값을 가져온다.
-    final url = Uri.parse("http://172.16.250.187:8000/api/products");
+    final url = Uri.parse(mainUrl + "api/products");
     final response = await http.get(url);
     final jsonData = json.decode(utf8.decode(response.bodyBytes));
 
@@ -41,16 +41,33 @@ class _ProductListViewState extends State<ProductListView> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: GridView.builder(
-            itemCount: products.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 10, // 가로
-              mainAxisSpacing: 10, // 세로
-            ),
-            itemBuilder: (context, index) {
-              return _displayProduct(products[index]);
-            },
+          child: Column(
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: 300,
+
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: Colors.green),
+
+                child: Text('aaa'),
+              ),
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height - 430,
+                child: GridView.builder(
+                  itemCount: products.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10, // 가로
+                    mainAxisSpacing: 10, // 세로
+                  ),
+                  itemBuilder: (context, index) {
+                    return _displayProduct(products[index]);
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -75,10 +92,7 @@ class _ProductListViewState extends State<ProductListView> {
         child: Stack(
           alignment: Alignment.bottomCenter,
           children: [
-            Image.asset(
-              'images/Nike_Air_1/Nike_Air_1_Black_01.avif',
-              fit: BoxFit.contain,
-            ),
+            Image.asset('images/Nike_Air_1/Nike_Air_1_Black_01.avif', fit: BoxFit.contain),
 
             Column(children: [Text(p.pName), Text("${p.pPrice}")]),
           ],

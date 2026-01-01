@@ -89,6 +89,7 @@ async def get_purchase_items_by_user_with_details(user_seq: int):
                 'b_seq': row[0],
                 'b_price': item_price,
                 'b_quantity': row[2],
+                'b_date': row[3],
                 'b_status': row[4],
 
                 'u_seq': row[5],

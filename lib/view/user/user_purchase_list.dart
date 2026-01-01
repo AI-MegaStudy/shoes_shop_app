@@ -93,7 +93,10 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                       padding: const EdgeInsets.all(cardSpace),
                       child: GestureDetector(
                         onTap: (){
-                          Get.to(UserPurchaseDetail())!.then(
+                          Get.to(
+                            UserPurchaseDetail(),
+                            arguments: data[index].items
+                          )!.then(
                             (value) => setState(() {})
                           );
                         },
@@ -114,8 +117,8 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                                   children: [
                                     Text("${data[index].order_date!}  ${data[index].order_time}"),
                                     Text(data[index].items!.first.p_name!),
-                                    Text("포함 ${data[index].item_count} 건"),
-                                    Text("총 ${data[index].total_amount.toString()} 원")
+                                    Text("포함 ${data[index].item_count}건"),
+                                    Text("총 ${data[index].total_amount.toString()}원")
                                   ],
                                 ),
                               ),

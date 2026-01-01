@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:shoes_shop_app/config.dart' as config;
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
@@ -12,6 +13,9 @@ Future<void> main() async {
   // GetStorage 초기화 (get_storage는 GetX와 독립적으로 사용 가능)
   await GetStorage.init();
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // API Base URL 초기화 (로컬 IP 자동 감지 시도)
+  await config.initializeApiBaseUrl();
 
   // GetStorage에서 DB 초기화 완료 여부 확인
   // TODO: DB 초기화 로직이 필요할 때 주석 해제
@@ -61,7 +65,7 @@ class _MyAppState extends State<MyApp> {
     return ThemeProvider(
       themeMode: _themeMode,
       onToggleTheme: _toggleTheme,
-      child: MaterialApp(
+      child: GetMaterialApp(
         title: 'Flutter Demo',
         themeMode: _themeMode,
         theme: ThemeData(

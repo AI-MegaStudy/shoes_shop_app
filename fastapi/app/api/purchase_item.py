@@ -182,9 +182,9 @@ async def insert_purchase_item(
 # ============================================
 # 구매 내역 수정
 # ============================================
-@router.post("/{id}")
+@router.post("/{purchase_item_seq}")
 async def update_purchase_item(
-    b_seq: int = Form(...),
+    purchase_item_seq: int,
     br_seq: int = Form(...),
     u_seq: int = Form(...),
     p_seq: int = Form(...),
@@ -204,7 +204,7 @@ async def update_purchase_item(
             SET br_seq=%s, u_seq=%s, p_seq=%s, b_price=%s, b_quantity=%s, b_date=%s, b_status=%s 
             WHERE b_seq=%s
         """
-        curs.execute(sql, (br_seq, u_seq, p_seq, b_price, b_quantity, b_date_dt, b_status, b_seq))
+        curs.execute(sql, (br_seq, u_seq, p_seq, b_price, b_quantity, b_date_dt, b_status, purchase_item_seq))
         conn.commit()
         conn.close()
         return {"result": "OK"}

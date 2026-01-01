@@ -1,8 +1,179 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:io' show Platform;
+import 'package:network_info_plus/network_info_plus.dart';
 
 // 커스텀 공용 유틸리티 클래스
 // 위젯 및 공통 기능 관련 유틸리티 함수들을 제공합니다.
 class CustomCommonUtil {
+  // ============================================
+  // API Base URL 관련 유틸리티
+  // ============================================
+  
+  /// FastAPI 서버 기본 URL (커스텀 오버라이드)
+  /// 
+  /// 각 개발자의 환경에 맞게 수정:
+  /// - Windows + Android 에뮬레이터: Windows 컴퓨터의 실제 IP 주소 (예: 'http://192.168.1.50:8000')
+  /// - Mac + iOS 시뮬레이터: 'http://127.0.0.1:8000' 또는 null (자동 감지)
+  /// - Mac + 실제 iOS 기기: Mac의 로컬 IP 주소 (예: 'http://192.168.1.100:8000')
+  /// 
+  /// IP 주소 확인 방법:
+  /// - Windows: 명령 프롬프트에서 `ipconfig` 실행 → IPv4 주소 확인
+  /// - Mac: 터미널에서 `ifconfig | grep "inet " | grep -v 127.0.0.1` 실행
+  /// 
+  /// 예시 (Windows 사용자의 경우):
+  /// ```dart
+  /// static const String? customApiBaseUrl = 'http://192.168.1.50:8000';
+  /// ```
+  /// 
+  /// 예시 (Mac + 실제 iOS 기기 사용자의 경우):
+  /// ```dart
+  /// static const String? customApiBaseUrl = 'http://192.168.1.100:8000';
+  /// ```
+  static const String? customApiBaseUrl = null; // null이면 iOS 시뮬레이터만 127.0.0.1 자동 사용
+
+  // 로컬 IP 주소 캐시 (자동 감지용)
+  static String? _cachedLocalIP;
+
+  /// 로컬 IP 주소 자동 감지 (비동기)
+  /// 
+  /// 주의: 에뮬레이터/시뮬레이터에서는 호스트 PC의 IP가 아닌 기기의 IP를 반환할 수 있습니다.
+  /// Windows/Mac의 실제 IP 주소가 필요한 경우 customApiBaseUrl을 수동으로 설정하는 것이 더 확실합니다.
+  static Future<String?> _getLocalIP() async {
+    if (_cachedLocalIP != null) {
+      return _cachedLocalIP;
+    }
+    
+    try {
+      final networkInfo = NetworkInfo();
+      final wifiIP = await networkInfo.getWifiIP();
+      
+      if (wifiIP != null && wifiIP.isNotEmpty && wifiIP != '127.0.0.1' && wifiIP != '::1') {
+        _cachedLocalIP = wifiIP;
+        return wifiIP;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('⚠️ [CustomCommonUtil] 로컬 IP 자동 감지 실패: $e');
+      }
+    }
+    
+    return null;
+  }
+
+  /// 로컬 IP 주소 자동 감지 초기화 (앱 시작 시 호출 권장)
+  /// 
+  /// 사용 예시:
+  /// ```dart
+  /// void main() async {
+  ///   WidgetsFlutterBinding.ensureInitialized();
+  ///   await CustomCommonUtil.initializeApiBaseUrl();
+  ///   runApp(MyApp());
+  /// }
+  /// ```
+  static Future<void> initializeApiBaseUrl() async {
+    if (customApiBaseUrl == null || customApiBaseUrl!.isEmpty) {
+      final localIP = await _getLocalIP();
+      if (kDebugMode) {
+        if (localIP != null) {
+          print('🌐 [CustomCommonUtil] 로컬 IP 자동 감지 성공: $localIP');
+        } else {
+          print('⚠️ [CustomCommonUtil] 로컬 IP 자동 감지 실패 (기본값 사용)');
+        }
+      }
+    } else {
+      if (kDebugMode) {
+        print('🌐 [CustomCommonUtil] customApiBaseUrl 사용: $customApiBaseUrl');
+      }
+    }
+    
+    // 최종 사용되는 Base URL 출력
+    if (kDebugMode) {
+      print('🌐 [CustomCommonUtil] 최종 API Base URL: ${getApiBaseUrl()}');
+    }
+  }
+
+  /// FastAPI 서버 기본 URL
+  /// 
+  /// 동작 방식:
+  /// 1. customApiBaseUrl이 설정되어 있으면 우선 사용 (권장)
+  /// 2. 설정되지 않았으면:
+  ///    - iOS 시뮬레이터: 127.0.0.1 사용
+  ///    - Android 에뮬레이터: 10.0.2.2 사용 (Windows에서 작동하지 않으면 customApiBaseUrl 설정 필요)
+  ///    - 실제 기기: 캐시된 로컬 IP 사용 (없으면 127.0.0.1)
+  /// 
+  /// 중요:
+  /// - Windows + Android 에뮬레이터: 
+  ///   * 10.0.2.2가 작동하지 않으면 customApiBaseUrl에 Windows IP 주소 수동 설정 권장
+  ///   * 자동 감지는 에뮬레이터의 IP를 반환하므로 호스트 PC IP와 다를 수 있음
+  /// - Mac + 실제 iOS 기기: 
+  ///   * 자동 감지가 작동할 수 있지만, customApiBaseUrl에 Mac IP 주소 설정이 더 확실함
+  ///   * 자동 감지는 iOS 기기의 IP를 반환하므로 Mac IP와 다를 수 있음
+  /// - Mac + iOS 시뮬레이터: customApiBaseUrl을 null로 두면 자동으로 127.0.0.1 사용
+  static String getApiBaseUrl() {
+    String baseUrl;
+    
+    // 커스텀 URL이 설정되어 있으면 우선 사용 (권장 방식)
+    if (customApiBaseUrl != null && customApiBaseUrl!.isNotEmpty) {
+      baseUrl = customApiBaseUrl!;
+      if (kDebugMode) {
+        print('🌐 [CustomCommonUtil] API Base URL: $baseUrl (customApiBaseUrl 사용)');
+      }
+      return baseUrl;
+    }
+    
+    // iOS 시뮬레이터: 감지된 IP 우선 사용, 없으면 localhost 사용
+    if (kDebugMode && Platform.isIOS) {
+      // 캐시된 로컬 IP가 있으면 사용 (실제 기기나 네트워크가 있는 경우)
+      if (_cachedLocalIP != null) {
+        baseUrl = 'http://$_cachedLocalIP:8000';
+        if (kDebugMode) {
+          print('🌐 [CustomCommonUtil] API Base URL: $baseUrl (iOS 시뮬레이터 - 로컬 IP 자동 감지)');
+        }
+        return baseUrl;
+      }
+      // IP 감지 실패 시 localhost 사용
+      baseUrl = 'http://localhost:8000';
+      if (kDebugMode) {
+        print('🌐 [CustomCommonUtil] API Base URL: $baseUrl (iOS 시뮬레이터 - localhost 기본값)');
+      }
+      return baseUrl;
+    }
+    
+    // Android 에뮬레이터: 10.0.2.2 사용 (Windows에서 작동하지 않을 수 있음)
+    if (kDebugMode && Platform.isAndroid) {
+      // 캐시된 로컬 IP가 있으면 사용 시도 (하지만 에뮬레이터 IP이므로 호스트 IP와 다를 수 있음)
+      if (_cachedLocalIP != null) {
+        baseUrl = 'http://$_cachedLocalIP:8000';
+        if (kDebugMode) {
+          print('🌐 [CustomCommonUtil] API Base URL: $baseUrl (Android 에뮬레이터 - 로컬 IP 자동 감지)');
+        }
+        return baseUrl;
+      }
+      baseUrl = 'http://10.0.2.2:8000';
+      if (kDebugMode) {
+        print('🌐 [CustomCommonUtil] API Base URL: $baseUrl (Android 에뮬레이터 - 기본값)');
+      }
+      return baseUrl;
+    }
+    
+    // 실제 기기: 캐시된 로컬 IP 사용
+    if (_cachedLocalIP != null) {
+      baseUrl = 'http://$_cachedLocalIP:8000';
+      if (kDebugMode) {
+        print('🌐 [CustomCommonUtil] API Base URL: $baseUrl (실제 기기 - 로컬 IP 자동 감지)');
+      }
+      return baseUrl;
+    }
+    
+    // 기본값
+    baseUrl = 'http://127.0.0.1:8000';
+    if (kDebugMode) {
+      print('🌐 [CustomCommonUtil] API Base URL: $baseUrl (기본값)');
+    }
+    return baseUrl;
+  }
+
   // ============================================
   // 위젯 관련 유틸리티
   // ============================================

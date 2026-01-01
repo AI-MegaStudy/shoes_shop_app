@@ -15,238 +15,10 @@ router = APIRouter()
 
 
 # ============================================
-# PurchaseItem + User + Product + Branch (4테이블 JOIN)
-# ============================================
-@router.get("/purchase_items/{purchase_item_seq}/with_details")
-async def get_purchase_item_with_details(purchase_item_seq: int):
-    """
-    특정 PurchaseItem + User + Product + Branch 정보
-    JOIN: PurchaseItem + User + Product + Branch
-    """
-    conn = connect_db()
-    curs = conn.cursor()
-    
-    try:
-        sql = """
-        SELECT 
-            pi.b_seq,
-            pi.b_price,
-            pi.b_quantity,
-            pi.b_date,
-            pi.b_status,
-            u.u_seq,
-            u.u_id,
-            u.u_name,
-            u.u_phone,
-            p.p_seq,
-            p.p_name,
-            p.p_price,
-            p.p_image,
-            br.br_seq,
-            br.br_name,
-            br.br_address,
-            br.br_phone
-        FROM purchase_item pi
-        JOIN user u ON pi.u_seq = u.u_seq
-        JOIN product p ON pi.p_seq = p.p_seq
-        JOIN branch br ON pi.br_seq = br.br_seq
-        WHERE pi.b_seq = %s
-        """
-        curs.execute(sql, (purchase_item_seq,))
-        row = curs.fetchone()
-        
-        if row is None:
-            return {"result": "Error", "message": "PurchaseItem not found"}
-        
-        result = {
-            'b_seq': row[0],
-            'b_price': row[1],
-            'b_quantity': row[2],
-            'b_date': row[3].isoformat() if row[3] else None,
-            'b_status': row[4],
-            'user': {
-                'u_seq': row[5],
-                'u_id': row[6],
-                'u_name': row[7],
-                'u_phone': row[8]
-            },
-            'product': {
-                'p_seq': row[9],
-                'p_name': row[10],
-                'p_price': row[11],
-                'p_image': row[12]
-            },
-            'branch': {
-                'br_seq': row[13],
-                'br_name': row[14],
-                'br_address': row[15],
-                'br_phone': row[16]
-            }
-        }
-        
-        return {"result": result}
-    except Exception as e:
-        return {"result": "Error", "errorMsg": str(e)}
-    finally:
-        conn.close()
-
-
-# ============================================
-# PurchaseItem 전체 상세 (Product의 모든 카테고리 포함)
-# ============================================
-@router.get("/purchase_items/{purchase_item_seq}/full_detail")
-async def get_purchase_item_full_detail(purchase_item_seq: int):
-    """
-    특정 PurchaseItem의 전체 상세 정보
-    JOIN: PurchaseItem + User + Product + Branch + 모든 카테고리 + Maker (9테이블)
-    용도: 주문 상세 화면
-    """
-    conn = connect_db()
-    curs = conn.cursor()
-    
-    try:
-        sql = """
-        SELECT 
-            pi.b_seq,
-            pi.b_price,
-            pi.b_quantity,
-            pi.b_date,
-            pi.b_status,
-            u.u_seq,
-            u.u_id,
-            u.u_name,
-            u.u_phone,
-            p.p_seq,
-            p.p_name,
-            p.p_price,
-            p.p_stock,
-            p.p_image,
-            kc.kc_name,
-            cc.cc_name,
-            sc.sc_name,
-            gc.gc_name,
-            m.m_name,
-            br.br_seq,
-            br.br_name,
-            br.br_address,
-            br.br_phone
-        FROM purchase_item pi
-        JOIN user u ON pi.u_seq = u.u_seq
-        JOIN product p ON pi.p_seq = p.p_seq
-        JOIN kind_category kc ON p.kc_seq = kc.kc_seq
-        JOIN color_category cc ON p.cc_seq = cc.cc_seq
-        JOIN size_category sc ON p.sc_seq = sc.sc_seq
-        JOIN gender_category gc ON p.gc_seq = gc.gc_seq
-        JOIN maker m ON p.m_seq = m.m_seq
-        JOIN branch br ON pi.br_seq = br.br_seq
-        WHERE pi.b_seq = %s
-        """
-        curs.execute(sql, (purchase_item_seq,))
-        row = curs.fetchone()
-        
-        if row is None:
-            return {"result": "Error", "message": "PurchaseItem not found"}
-        
-        result = {
-            'b_seq': row[0],
-            'b_price': row[1],
-            'b_quantity': row[2],
-            'b_date': row[3].isoformat() if row[3] else None,
-            'b_status': row[4],
-            'user': {
-                'u_seq': row[5],
-                'u_id': row[6],
-                'u_name': row[7],
-                'u_phone': row[8]
-            },
-            'product': {
-                'p_seq': row[9],
-                'p_name': row[10],
-                'p_price': row[11],
-                'p_stock': row[12],
-                'p_image': row[13],
-                'kind_name': row[14],
-                'color_name': row[15],
-                'size_name': row[16],
-                'gender_name': row[17],
-                'maker_name': row[18]
-            },
-            'branch': {
-                'br_seq': row[19],
-                'br_name': row[20],
-                'br_address': row[21],
-                'br_phone': row[22]
-            }
-        }
-        
-        return {"result": result}
-    except Exception as e:
-        return {"result": "Error", "errorMsg": str(e)}
-    finally:
-        conn.close()
-
-
-# ============================================
-# 고객별 PurchaseItem 목록 + 상세 정보
-# ============================================
-@router.get("/purchase_items/by_user/{user_seq}/with_details")
-async def get_purchase_items_by_user_with_details(user_seq: int):
-    """
-    특정 고객의 모든 PurchaseItem + Product + Branch 정보
-    JOIN: PurchaseItem + User + Product + Branch
-    용도: 고객 주문 내역 화면
-    """
-    conn = connect_db()
-    curs = conn.cursor()
-    
-    try:
-        sql = """
-        SELECT 
-            pi.b_seq,
-            pi.b_price,
-            pi.b_quantity,
-            pi.b_date,
-            pi.b_status,
-            p.p_seq,
-            p.p_name,
-            p.p_price,
-            p.p_image,
-            br.br_name
-        FROM purchase_item pi
-        JOIN product p ON pi.p_seq = p.p_seq
-        JOIN branch br ON pi.br_seq = br.br_seq
-        WHERE pi.u_seq = %s
-        ORDER BY pi.b_date DESC, pi.b_seq DESC
-        """
-        curs.execute(sql, (user_seq,))
-        rows = curs.fetchall()
-        
-        result = [{
-            'b_seq': row[0],
-            'b_price': row[1],
-            'b_quantity': row[2],
-            'b_date': row[3].isoformat() if row[3] else None,
-            'b_status': row[4],
-            'product': {
-                'p_seq': row[5],
-                'p_name': row[6],
-                'p_price': row[7],
-                'p_image': row[8]
-            },
-            'branch_name': row[9]
-        } for row in rows]
-        
-        return {"results": result}
-    except Exception as e:
-        return {"result": "Error", "errorMsg": str(e)}
-    finally:
-        conn.close()
-
-
-# ============================================
 # 날짜+시간(분 단위) 기반 주문 그룹화 (같은 날짜+시간(분), 사용자, 지점)
+# 더 구체적인 경로를 먼저 정의해야 함
 # ============================================
-@router.get("/purchase_items/by_datetime/with_details")
+@router.get("/by_datetime/with_details")
 async def get_purchase_items_by_datetime_with_details(
     user_seq: int,
     order_datetime: str,  # YYYY-MM-DD HH:MM format 또는 ISO format
@@ -293,7 +65,7 @@ async def get_purchase_items_by_datetime_with_details(
         JOIN maker m ON p.m_seq = m.m_seq
         JOIN branch br ON pi.br_seq = br.br_seq
         WHERE pi.u_seq = %s 
-          AND DATE_FORMAT(pi.b_date, '%%Y-%%m-%%d %%H:%%i') = DATE_FORMAT(%s, '%%Y-%%m-%%d %%H:%%i')
+          AND DATE_FORMAT(pi.b_date, '%%Y-%%m-%%d %%H:%%i') = %s
           AND pi.br_seq = %s
         ORDER BY pi.b_date, pi.b_seq
         """
@@ -354,7 +126,7 @@ async def get_purchase_items_by_datetime_with_details(
 # ============================================
 # 고객별 주문 목록 (날짜+시간(분 단위) 기반 그룹화)
 # ============================================
-@router.get("/purchase_items/by_user/{user_seq}/orders")
+@router.get("/by_user/{user_seq}/orders")
 async def get_user_orders(user_seq: int):
     """
     특정 고객의 주문 목록 (날짜+시간(분 단위), 지점으로 그룹화)
@@ -431,4 +203,191 @@ async def get_user_orders(user_seq: int):
 
 
 # ============================================
+# 고객별 PurchaseItem 목록 + 상세 정보
+# ============================================
+@router.get("/by_user/{user_seq}/with_details")
+async def get_purchase_items_by_user_with_details(user_seq: int):
+    """
+    특정 PurchaseItem + User + Product + Branch 정보
+    JOIN: PurchaseItem + User + Product + Branch
+    """
+    conn = connect_db()
+    curs = conn.cursor()
+    
+    try:
+        sql = """
+        SELECT 
+            pi.b_seq,
+            pi.b_price,
+            pi.b_quantity,
+            pi.b_date,
+            pi.b_status,
+            u.u_seq,
+            u.u_email,
+            u.u_name,
+            u.u_phone,
+            p.p_seq,
+            p.p_name,
+            p.p_price,
+            p.p_image,
+            br.br_seq,
+            br.br_name,
+            br.br_address,
+            br.br_phone
+        FROM purchase_item pi
+        JOIN user u ON pi.u_seq = u.u_seq
+        JOIN product p ON pi.p_seq = p.p_seq
+        JOIN branch br ON pi.br_seq = br.br_seq
+        WHERE pi.b_seq = %s
+        """
+        curs.execute(sql, (purchase_item_seq,))
+        row = curs.fetchone()
+        
+        if row is None:
+            return {"result": "Error", "message": "PurchaseItem not found"}
+        
+        result = {
+            'b_seq': row[0],
+            'b_price': row[1],
+            'b_quantity': row[2],
+            'b_date': row[3].isoformat() if row[3] else None,
+            'b_status': row[4],
+            'user': {
+                'u_seq': row[5],
+                'u_email': row[6],
+                'u_name': row[7],
+                'u_phone': row[8]
+            },
+            'product': {
+                'p_seq': row[9],
+                'p_name': row[10],
+                'p_price': row[11],
+                'p_image': row[12]
+            },
+            'branch': {
+                'br_seq': row[13],
+                'br_name': row[14],
+                'br_address': row[15],
+                'br_phone': row[16]
+            }
+        }
+        
+        return {"result": result}
+    except Exception as e:
+        return {"result": "Error", "errorMsg": str(e)}
+    finally:
+        conn.close()
+
+
+# ============================================
+# PurchaseItem 전체 상세 (Product의 모든 카테고리 포함)
+# ============================================
+@router.get("/{purchase_item_seq}/full_detail")
+async def get_purchase_item_full_detail(purchase_item_seq: int):
+    """
+    특정 PurchaseItem의 전체 상세 정보
+    JOIN: PurchaseItem + User + Product + Branch + 모든 카테고리 + Maker (9테이블)
+    용도: 주문 상세 화면
+    """
+    conn = connect_db()
+    curs = conn.cursor()
+    
+    try:
+        sql = """
+        SELECT 
+            pi.b_seq,
+            pi.b_price,
+            pi.b_quantity,
+            pi.b_date,
+            pi.b_status,
+            u.u_seq,
+            u.u_email,
+            u.u_name,
+            u.u_phone,
+            p.p_seq,
+            p.p_name,
+            p.p_price,
+            p.p_stock,
+            p.p_image,
+            kc.kc_name,
+            cc.cc_name,
+            sc.sc_name,
+            gc.gc_name,
+            m.m_name,
+            br.br_seq,
+            br.br_name,
+            br.br_address,
+            br.br_phone
+        FROM purchase_item pi
+        JOIN user u ON pi.u_seq = u.u_seq
+        JOIN product p ON pi.p_seq = p.p_seq
+        JOIN kind_category kc ON p.kc_seq = kc.kc_seq
+        JOIN color_category cc ON p.cc_seq = cc.cc_seq
+        JOIN size_category sc ON p.sc_seq = sc.sc_seq
+        JOIN gender_category gc ON p.gc_seq = gc.gc_seq
+        JOIN maker m ON p.m_seq = m.m_seq
+        JOIN branch br ON pi.br_seq = br.br_seq
+        WHERE pi.b_seq = %s
+        """
+        curs.execute(sql, (purchase_item_seq,))
+        row = curs.fetchone()
+        
+        if row is None:
+            return {"result": "Error", "message": "PurchaseItem not found"}
+        
+        result = {
+            'b_seq': row[0],
+            'b_price': row[1],
+            'b_quantity': row[2],
+            'b_date': row[3].isoformat() if row[3] else None,
+            'b_status': row[4],
+            'user': {
+                'u_seq': row[5],
+                'u_email': row[6],
+                'u_name': row[7],
+                'u_phone': row[8]
+            },
+            'product': {
+                'p_seq': row[9],
+                'p_name': row[10],
+                'p_price': row[11],
+                'p_stock': row[12],
+                'p_image': row[13],
+                'kind_name': row[14],
+                'color_name': row[15],
+                'size_name': row[16],
+                'gender_name': row[17],
+                'maker_name': row[18]
+            },
+            'branch': {
+                'br_seq': row[19],
+                'br_name': row[20],
+                'br_address': row[21],
+                'br_phone': row[22]
+            }
+        }
+        
+        return {"result": result}
+    except Exception as e:
+        return {"result": "Error", "errorMsg": str(e)}
+    finally:
+        conn.close()
+
+
+# ============================================
 # 개별 실행용 (테스트)
+
+
+# ============================================
+# 변경 이력
+# ============================================
+
+# 2026-01-01: 
+#   - 라우터 경로 수정: prefix(/api/purchase_items)를 고려하여 /purchase_items/...를 제거
+#     - /purchase_items/{purchase_item_seq}/with_details → /{purchase_item_seq}/with_details
+#     - /purchase_items/{purchase_item_seq}/full_detail → /{purchase_item_seq}/full_detail
+#     - /purchase_items/by_user/{user_seq}/with_details → /by_user/{user_seq}/with_details
+#     - /purchase_items/by_datetime/with_details → /by_datetime/with_details
+#     - /purchase_items/by_user/{user_seq}/orders → /by_user/{user_seq}/orders
+#   - 라우터 경로 순서 변경: 더 구체적인 경로(/by_datetime/with_details, /by_user/.../orders)를 일반 경로(/{purchase_item_seq}/...)보다 먼저 정의
+#   - SQL 쿼리 수정: DATE_FORMAT(%s, ...) → DATE_FORMAT(pi.b_date, ...) = %s (문자열 직접 비교)

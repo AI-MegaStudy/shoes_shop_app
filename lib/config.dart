@@ -1,9 +1,8 @@
 //  Configuration of the App
 
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:io' show Platform;
+import 'package:shoes_shop_app/utils/custom_common_util.dart';
 
 
 const String dbName = 'shoes_shop_db'; //sqlite database name
@@ -140,25 +139,18 @@ const String routeAdminMobileBlock = '/admin-mobile-block';
 const String routeLogin = '/login';
 const String routeHome = '/';
 
-//  API Configuration
 /// FastAPI 서버 기본 URL
-/// 
-/// 주의사항:
-/// - Android 에뮬레이터: 10.0.2.2 사용
-/// - iOS 시뮬레이터: 127.0.0.1 사용 가능
-/// - 실제 iOS 기기: Mac의 로컬 IP 주소 사용 필요 (예: 192.168.x.x:8000)
+/// CustomCommonUtil.getApiBaseUrl()을 호출합니다.
 String getApiBaseUrl() {
-  if (kDebugMode && Platform.isAndroid) {
-    // Android 에뮬레이터는 호스트 머신의 localhost에 접근하려면 10.0.2.2 사용
-    return 'http://10.0.2.2:8000';
-  }
-  // iOS 시뮬레이터는 127.0.0.1 사용 가능
-  // 실제 iOS 기기에서는 Mac의 로컬 IP 주소를 사용해야 함 (예: http://192.168.1.100:8000)
-  return 'http://127.0.0.1:8000';
+  return CustomCommonUtil.getApiBaseUrl();
 }
 
-/// FastAPI 서버 기본 URL (편의용 상수, 함수 호출 결과 캐싱)
-const String apiBaseUrl = 'http://127.0.0.1:8000'; // 기본값 (Android 에뮬레이터에서는 getApiBaseUrl() 사용 권장)
+/// API Base URL 초기화 (로컬 IP 자동 감지 시도)
+/// CustomCommonUtil.initializeApiBaseUrl()을 호출합니다.
+Future<void> initializeApiBaseUrl() async {
+  return CustomCommonUtil.initializeApiBaseUrl();
+}
+
 
 // Pickup 상태
 

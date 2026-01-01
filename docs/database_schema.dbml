@@ -1,0 +1,434 @@
+// 데이터베이스 스키마 DBML 파일
+// 작성일: 2025-12-29
+// 작성자: 김택권
+// 목적: ERD 시각화 및 데이터베이스 문서화
+// 사용 도구: https://dbdiagram.io
+// 데이터베이스: MySQL (소셜 로그인 지원 버전)
+// 
+// 변경 이력:
+// - 2025-12-31 김택권: DATABASE_SCHEMA.md 기준으로 MySQL 스키마로 갱신
+// - 2026-01-01: u_name 컬럼을 NULL 허용으로 변경 (선택 사항)
+
+Project shoes_store_app {
+  database_type: 'MySQL'
+  Note: '신발 가게 앱 데이터베이스 스키마 - 소셜 로그인 지원 버전'
+}
+
+/*
+데이터베이스 관계도:
+
+branch (지점)
+  └─ staff (직원) - 1:N
+
+user (고객)
+  ├─ user_auth_identities (인증 정보) - 1:N
+  ├─ purchase_item (구매 내역) - 1:N
+  ├─ pickup (수령) - 1:N
+  └─ refund (반품) - 1:N
+
+maker (제조사)
+  ├─ product (제품) - 1:N
+  ├─ receive (입고) - 1:N
+  └─ request (발주) - 1:N
+
+kind_category, color_category, size_category, gender_category (카테고리)
+  └─ product (제품) - 1:N
+
+refund_reason_category (반품 사유 카테고리)
+  └─ refund (반품) - 1:N
+
+product (제품)
+  ├─ purchase_item (구매 내역) - 1:N
+  ├─ receive (입고) - 1:N
+  └─ request (발주) - 1:N
+
+purchase_item (구매 내역)
+  └─ pickup (수령) - 1:N
+
+pickup (수령)
+  └─ refund (반품) - 1:N
+
+staff (직원)
+  ├─ refund (반품 처리) - 1:N
+  ├─ receive (입고 처리) - 1:N
+  └─ request (발주 요청) - 1:N
+*/
+
+// ============================================
+// 1. branch (지점)
+// ============================================
+Table branch {
+  br_seq INT [primary key, increment, note: '지점 고유 ID(PK)']
+  br_name VARCHAR(100) [not null, unique, note: '지점명']
+  br_phone VARCHAR(30) [note: '지점 전화번호']
+  br_address VARCHAR(255) [note: '지점 주소']
+  br_lat DECIMAL(10,7) [note: '지점 위도']
+  br_lng DECIMAL(10,7) [note: '지점 경도']
+  
+  Note: '오프라인 지점 정보'
+  
+  indexes {
+    br_name [name: 'idx_branch_name', unique, note: '지점명 UNIQUE 인덱스']
+  }
+}
+
+// ============================================
+// 2. user (고객)
+// ============================================
+Table user {
+  u_seq INT [primary key, increment, note: '고객 고유 ID(PK)']
+  u_email VARCHAR(255) [not null, unique, note: '고객 이메일 (로컬/소셜 모두 필수, UNIQUE)']
+  u_name VARCHAR(255) [note: '고객 이름 (선택 사항)']
+  u_phone VARCHAR(30) [unique, note: '고객 전화번호 (선택 사항)']
+  u_image MEDIUMBLOB [note: '고객 프로필 이미지']
+  u_address VARCHAR(255) [note: '고객 주소']
+  created_at DATETIME [not null, default: 'CURRENT_TIMESTAMP', note: '고객 가입일자']
+  u_quit_date DATETIME [note: '고객 탈퇴일자']
+  
+  Note: '''
+    고객 계정 정보를 저장하는 테이블.
+    - 소셜 로그인 지원 (u_id, u_password 필드 제거)
+    - 인증 정보는 user_auth_identities 테이블에서 관리
+  '''
+  
+  indexes {
+    u_email [name: 'idx_user_email', unique, note: '이메일 UNIQUE 인덱스']
+    u_phone [name: 'idx_user_phone', unique, note: '전화번호 UNIQUE 인덱스']
+    created_at [name: 'idx_user_created_at', note: '가입일자 인덱스']
+    u_quit_date [name: 'idx_user_quit_date', note: '탈퇴일자 인덱스']
+  }
+}
+
+// ============================================
+// 3. user_auth_identities (사용자 로그인 수단별 인증 정보)
+// ============================================
+Table user_auth_identities {
+  auth_seq INT [primary key, increment, note: '인증 수단 고유 ID(PK)']
+  u_seq INT [not null, ref: > user.u_seq, note: '고객 번호(FK)']
+  provider VARCHAR(50) [not null, note: '로그인 제공자(local, google, kakao)']
+  provider_subject VARCHAR(255) [not null, note: '제공자 고유 식별자(로컬: 이메일, 구글: sub, 카카오: id)']
+  provider_issuer VARCHAR(255) [note: '제공자 발급자(구글 iss 등)']
+  email_at_provider VARCHAR(255) [note: '제공자에서 받은 이메일']
+  password VARCHAR(255) [note: '로컬 로그인 비밀번호 (로컬만)']
+  created_at DATETIME [not null, default: 'CURRENT_TIMESTAMP', note: '생성일자']
+  last_login_at DATETIME [note: '마지막 로그인 일시']
+  
+  Note: '''
+    사용자의 로그인 수단별 인증 정보를 저장하는 테이블.
+    - 로컬 로그인: provider='local', provider_subject에 이메일 저장
+    - 구글 로그인: provider='google', provider_subject에 구글 sub 저장
+    - 카카오 로그인: provider='kakao', provider_subject에 카카오 id 저장
+  '''
+  
+  indexes {
+    (provider, provider_subject) [name: 'idx_provider_subject', unique, note: '(provider, provider_subject) UNIQUE 인덱스']
+    u_seq [name: 'idx_user_auth_u_seq', note: '고객별 인증 정보 조회']
+    provider [name: 'idx_user_auth_provider', note: '제공자별 조회']
+  }
+}
+
+// ============================================
+// 4. staff (직원)
+// ============================================
+Table staff {
+  s_seq INT [primary key, increment, note: '직원 고유 ID(PK)']
+  s_id VARCHAR(50) [not null, unique, note: '직원 로그인 ID']
+  br_seq INT [not null, ref: > branch.br_seq, note: '소속 지점 ID(FK)']
+  s_password VARCHAR(255) [not null, note: '직원 비밀번호(해시)']
+  s_name VARCHAR(255) [not null, note: '직원명']
+  s_phone VARCHAR(30) [not null, unique, note: '직원 전화번호']
+  s_rank VARCHAR(100) [note: '직원 직급']
+  s_image MEDIUMBLOB [note: '직원 프로필 이미지']
+  s_superseq INT [note: '상급자 직원 ID(논리적 참조)']
+  created_at DATETIME [not null, default: 'CURRENT_TIMESTAMP', note: '생성일자']
+  s_quit_date DATETIME [note: '직원 탈퇴 일자']
+  
+  Note: '지점 직원 정보'
+  
+  indexes {
+    br_seq [name: 'idx_staff_br_seq', note: '지점별 직원 조회']
+    s_id [name: 'idx_staff_id', unique, note: '로그인 ID UNIQUE 인덱스']
+    s_phone [name: 'idx_staff_phone', unique, note: '전화번호 UNIQUE 인덱스']
+    created_at [name: 'idx_staff_created_at', note: '생성일자 인덱스']
+    s_quit_date [name: 'idx_staff_quit_date', note: '탈퇴일자 인덱스']
+  }
+}
+
+// ============================================
+// 5. maker (제조사)
+// ============================================
+Table maker {
+  m_seq INT [primary key, increment, note: '제조사 고유 ID(PK)']
+  m_name VARCHAR(255) [not null, unique, note: '제조사명']
+  m_phone VARCHAR(30) [note: '제조사 전화번호']
+  m_address VARCHAR(255) [note: '제조사 주소']
+  
+  Note: '신발 제조사 정보'
+  
+  indexes {
+    m_name [name: 'idx_maker_name', unique, note: '제조사명 UNIQUE 인덱스']
+  }
+}
+
+// ============================================
+// 6. kind_category (종류 카테고리)
+// ============================================
+Table kind_category {
+  kc_seq INT [primary key, increment, note: '종류 카테고리 ID(PK)']
+  kc_name VARCHAR(100) [not null, unique, note: '종류명(러닝화/스니커즈/부츠 등)']
+  
+  Note: '제품 종류 카테고리'
+  
+  indexes {
+    kc_name [name: 'idx_kind_category_name', unique, note: '종류명 UNIQUE 인덱스']
+  }
+}
+
+// ============================================
+// 7. color_category (색상 카테고리)
+// ============================================
+Table color_category {
+  cc_seq INT [primary key, increment, note: '색상 카테고리 ID(PK)']
+  cc_name VARCHAR(100) [not null, unique, note: '색상명']
+  
+  Note: '제품 색상 카테고리'
+  
+  indexes {
+    cc_name [name: 'idx_color_category_name', unique, note: '색상명 UNIQUE 인덱스']
+  }
+}
+
+// ============================================
+// 8. size_category (사이즈 카테고리)
+// ============================================
+Table size_category {
+  sc_seq INT [primary key, increment, note: '사이즈 카테고리 ID(PK)']
+  sc_name VARCHAR(100) [not null, unique, note: '사이즈 값']
+  
+  Note: '제품 사이즈 카테고리'
+  
+  indexes {
+    sc_name [name: 'idx_size_category_name', unique, note: '사이즈값 UNIQUE 인덱스']
+  }
+}
+
+// ============================================
+// 9. gender_category (성별 카테고리)
+// ============================================
+Table gender_category {
+  gc_seq INT [primary key, increment, note: '성별 카테고리 ID(PK)']
+  gc_name VARCHAR(100) [not null, unique, note: '성별 구분']
+  
+  Note: '제품 성별 카테고리'
+  
+  indexes {
+    gc_name [name: 'idx_gender_category_name', unique, note: '성별명 UNIQUE 인덱스']
+  }
+}
+
+// ============================================
+// 10. refund_reason_category (반품 사유 카테고리)
+// ============================================
+Table refund_reason_category {
+  ref_re_seq INT [primary key, increment, note: '반품 사유 번호(PK)']
+  ref_re_name VARCHAR(100) [not null, unique, note: '반품 사유명']
+  
+  Note: '반품 사유 카테고리'
+  
+  indexes {
+    ref_re_name [name: 'idx_refund_reason_name', unique, note: '반품 사유명 UNIQUE 인덱스']
+  }
+}
+
+// ============================================
+// 11. product (제품)
+// ============================================
+Table product {
+  p_seq INT [primary key, increment, note: '제품 고유 ID(PK)']
+  kc_seq INT [not null, ref: > kind_category.kc_seq, note: '제품 종류 카테고리 ID(FK)']
+  cc_seq INT [not null, ref: > color_category.cc_seq, note: '제품 색상 카테고리 ID(FK)']
+  sc_seq INT [not null, ref: > size_category.sc_seq, note: '제품 사이즈 카테고리 ID(FK)']
+  gc_seq INT [not null, ref: > gender_category.gc_seq, note: '제품 성별 카테고리 ID(FK)']
+  m_seq INT [not null, ref: > maker.m_seq, note: '제조사 ID(FK)']
+  p_name VARCHAR(255) [note: '제품명']
+  p_price INT [default: 0, note: '제품 가격']
+  p_stock INT [not null, default: 0, note: '중앙 재고 수량']
+  p_image VARCHAR(255) [note: '제품 이미지 경로']
+  p_description TEXT [note: '제품 설명']
+  created_at DATETIME [not null, default: 'CURRENT_TIMESTAMP', note: '제품 등록일자']
+  
+  Note: '''
+    판매 상품(SKU) 정보를 저장하는 테이블.
+    - 재고는 본사가 중앙 관리 (p_stock)
+    - UNIQUE 제약: (cc_seq, sc_seq, m_seq) 조합은 중복 불가
+  '''
+  
+  indexes {
+    p_name [name: 'idx_product_p_name', note: '제품명 인덱스']
+    m_seq [name: 'idx_product_m_seq', note: '제조사별 제품 조회']
+    kc_seq [name: 'idx_product_kc_seq', note: '종류별 제품 조회']
+    cc_seq [name: 'idx_product_cc_seq', note: '색상별 제품 조회']
+    sc_seq [name: 'idx_product_sc_seq', note: '사이즈별 제품 조회']
+    gc_seq [name: 'idx_product_gc_seq', note: '성별별 제품 조회']
+    created_at [name: 'idx_product_created_at', note: '등록일자 인덱스']
+    (cc_seq, sc_seq, m_seq) [name: 'uq_product_color_size_maker', unique, note: 'UNIQUE 제약: (cc_seq, sc_seq, m_seq)']
+  }
+}
+
+// ============================================
+// 12. purchase_item (구매 내역)
+// ============================================
+Table purchase_item {
+  b_seq INT [primary key, increment, note: '구매 고유 ID(PK)']
+  br_seq INT [not null, ref: > branch.br_seq, note: '수령 지점 ID(FK)']
+  u_seq INT [not null, ref: > user.u_seq, note: '구매 고객 ID(FK)']
+  p_seq INT [not null, ref: > product.p_seq, note: '구매 제품 ID(FK)']
+  b_price INT [default: 0, note: '구매 당시 가격']
+  b_quantity INT [default: 1, note: '구매 수량']
+  b_date DATETIME [not null, note: '구매 일시']
+  b_tnum VARCHAR(100) [note: '결제 트랜잭션 번호']
+  b_status VARCHAR(50) [note: '상품주문상태']
+  
+  Note: '''
+    고객의 구매 내역을 저장하는 테이블.
+    - 주문 그룹화: 분 단위로 그룹화 (b_date 기준)
+    - 상태값: 주문완료, 배송중, 배송완료, 수령완료, NULL
+  '''
+  
+  indexes {
+    b_tnum [name: 'idx_purchase_item_b_tnum', note: '결제 트랜잭션 번호 인덱스']
+    b_date [name: 'idx_purchase_item_b_date', note: '구매 일시 인덱스']
+    u_seq [name: 'idx_purchase_item_u_seq', note: '고객별 구매 내역 조회']
+    br_seq [name: 'idx_purchase_item_br_seq', note: '지점별 구매 내역 조회']
+    p_seq [name: 'idx_purchase_item_p_seq', note: '제품별 구매 내역 조회']
+    b_status [name: 'idx_purchase_item_b_status', note: '상태별 조회']
+  }
+}
+
+// ============================================
+// 13. pickup (수령)
+// ============================================
+Table pickup {
+  pic_seq INT [primary key, increment, note: '수령 고유 ID(PK)']
+  b_seq INT [not null, ref: > purchase_item.b_seq, note: '구매 ID(FK)']
+  u_seq INT [not null, ref: > user.u_seq, note: '고객 번호(FK)']
+  created_at DATETIME [not null, default: 'CURRENT_TIMESTAMP', note: '수령 완료 일시']
+  
+  Note: '오프라인 수령 기록'
+  
+  indexes {
+    b_seq [name: 'idx_pickup_b_seq', note: '구매별 수령 조회']
+    u_seq [name: 'idx_pickup_u_seq', note: '고객별 수령 조회']
+    created_at [name: 'idx_pickup_created_at', note: '수령 일시 인덱스']
+  }
+}
+
+// ============================================
+// 14. refund (반품/환불)
+// ============================================
+Table refund {
+  ref_seq INT [primary key, increment, note: '반품 고유 ID(PK)']
+  ref_date DATETIME [note: '반품 처리 일시']
+  ref_reason VARCHAR(255) [note: '반품 사유']
+  ref_re_seq INT [ref: > refund_reason_category.ref_re_seq, note: '반품 사유 번호(FK)']
+  ref_re_content VARCHAR(255) [note: '반품 사유 내용']
+  u_seq INT [not null, ref: > user.u_seq, note: '반품 요청 고객 ID(FK)']
+  s_seq INT [not null, ref: > staff.s_seq, note: '반품 처리 직원 ID(FK)']
+  pic_seq INT [not null, ref: > pickup.pic_seq, note: '수령 ID(FK)']
+  
+  Note: '''
+    오프라인 반품/환불 기록을 저장하는 테이블.
+    - 반품은 반드시 수령(pickup) 후에만 가능
+    - 모든 반품은 직원이 처리
+  '''
+  
+  indexes {
+    u_seq [name: 'idx_refund_u_seq', note: '고객별 반품 조회']
+    s_seq [name: 'idx_refund_s_seq', note: '직원별 반품 처리 조회']
+    pic_seq [name: 'idx_refund_pic_seq', note: '수령별 반품 조회']
+    ref_date [name: 'idx_refund_ref_date', note: '반품 처리 일시 인덱스']
+    ref_re_seq [name: 'idx_refund_ref_re_seq', note: '반품 사유별 조회']
+  }
+}
+
+// ============================================
+// 15. receive (입고)
+// ============================================
+Table receive {
+  rec_seq INT [primary key, increment, note: '입고 고유 ID(PK)']
+  rec_quantity INT [default: 0, note: '입고 수량']
+  rec_date DATETIME [note: '입고 처리 일시']
+  s_seq INT [not null, ref: > staff.s_seq, note: '입고 처리 직원 ID(FK)']
+  p_seq INT [not null, ref: > product.p_seq, note: '입고 제품 ID(FK)']
+  m_seq INT [not null, ref: > maker.m_seq, note: '제조사 ID(FK)']
+  
+  Note: '제조사로부터의 입고(수주) 처리 기록'
+  
+  indexes {
+    s_seq [name: 'idx_receive_s_seq', note: '직원별 입고 처리 조회']
+    p_seq [name: 'idx_receive_p_seq', note: '제품별 입고 조회']
+    m_seq [name: 'idx_receive_m_seq', note: '제조사별 입고 조회']
+    rec_date [name: 'idx_receive_rec_date', note: '입고 일시 인덱스']
+  }
+}
+
+// ============================================
+// 16. request (발주/품의)
+// ============================================
+Table request {
+  req_seq INT [primary key, increment, note: '발주/품의 고유 ID(PK)']
+  req_date DATETIME [note: '발주 요청 일시']
+  req_content TEXT [note: '발주 내용']
+  req_quantity INT [default: 0, note: '발주 수량']
+  req_manappdate DATETIME [note: '팀장 결재 일시']
+  req_dirappdate DATETIME [note: '이사 결재 일시']
+  s_seq INT [not null, ref: > staff.s_seq, note: '발주 요청 직원 ID(FK)']
+  p_seq INT [not null, ref: > product.p_seq, note: '발주 제품 ID(FK)']
+  m_seq INT [not null, ref: > maker.m_seq, note: '제조사 ID(FK)']
+  s_superseq INT [note: '승인자 직원 ID(논리적 참조)']
+  
+  Note: '''
+    재고 부족 시 발주/품의 기록을 저장하는 테이블.
+    - 발주 프로세스: 직원 발주 요청 → 팀장 결재 → 이사 결재
+  '''
+  
+  indexes {
+    s_seq [name: 'idx_request_s_seq', note: '직원별 발주 요청 조회']
+    p_seq [name: 'idx_request_p_seq', note: '제품별 발주 조회']
+    m_seq [name: 'idx_request_m_seq', note: '제조사별 발주 조회']
+    req_date [name: 'idx_request_req_date', note: '발주 요청 일시 인덱스']
+    req_manappdate [name: 'idx_request_req_manappdate', note: '팀장 결재 일시 인덱스']
+    req_dirappdate [name: 'idx_request_req_dirappdate', note: '이사 결재 일시 인덱스']
+  }
+}
+
+// ============================================
+// 관계 요약
+// ============================================
+// 
+// 물리적 관계 (FK):
+// branch (1) -> staff (N)
+// user (1) -> user_auth_identities (N)
+// user (1) -> purchase_item (N)
+// user (1) -> pickup (N)
+// user (1) -> refund (N)
+// maker (1) -> product (N)
+// maker (1) -> receive (N)
+// maker (1) -> request (N)
+// kind_category (1) -> product (N)
+// color_category (1) -> product (N)
+// size_category (1) -> product (N)
+// gender_category (1) -> product (N)
+// refund_reason_category (1) -> refund (N)
+// product (1) -> purchase_item (N)
+// product (1) -> receive (N)
+// product (1) -> request (N)
+// purchase_item (1) -> pickup (N)
+// pickup (1) -> refund (N)
+// staff (1) -> refund (N)
+// staff (1) -> receive (N)
+// staff (1) -> request (N)
+//
+// 논리적 관계 (비즈니스 로직):
+// staff.s_superseq -> staff.s_seq (상급자 관계, FK 없음)
+// request.s_superseq -> staff.s_seq (승인자 관계, FK 없음)

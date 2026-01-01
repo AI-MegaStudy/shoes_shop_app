@@ -184,7 +184,7 @@ async def update_request(
 # ============================================
 # 팀장 결재 처리
 # ============================================
-@router.post("/request_seq/approve_manager")
+@router.post("/{request_seq}/approve_manager")
 async def approve_request_manager(request_seq: int):
     try:
         req_manappdate_dt = datetime.now()
@@ -203,7 +203,7 @@ async def approve_request_manager(request_seq: int):
 # ============================================
 # 이사 결재 처리
 # ============================================
-@router.post("/request_seq/approve_director")
+@router.post("/{request_seq}/approve_director")
 async def approve_request_director(request_seq: int):
     try:
         req_dirappdate_dt = datetime.now()

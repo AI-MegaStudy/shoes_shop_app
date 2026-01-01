@@ -5,7 +5,8 @@ User API - 고객 계정 CRUD (Form 방식)
 변경사항:
 - u_id, u_password 제거
 - u_email 추가 (필수, UNIQUE)
-- u_phone nullable로 변경
+- u_name nullable로 변경 (선택 사항)
+- u_phone nullable로 변경 (선택 사항)
 """
 
 from fastapi import APIRouter, Form, UploadFile, File, Response
@@ -22,7 +23,7 @@ router = APIRouter()
 class User(BaseModel):
     u_seq: Optional[int] = None
     u_email: str
-    u_name: str
+    u_name: Optional[str] = None
     u_phone: Optional[str] = None
     u_address: Optional[str] = None
     created_at: Optional[str] = None
@@ -136,7 +137,7 @@ async def select_user(user_seq: int):
 @router.post("")
 async def insert_user(
     u_email: str = Form(...),
-    u_name: str = Form(...),
+    u_name: Optional[str] = Form(None),
     u_phone: Optional[str] = Form(None),
     u_address: Optional[str] = Form(None),
     file: UploadFile = File(...)
@@ -171,7 +172,7 @@ async def insert_user(
 async def update_user(
     user_seq: int,
     u_email: str = Form(...),
-    u_name: str = Form(...),
+    u_name: Optional[str] = Form(None),
     u_phone: Optional[str] = Form(None),
     u_address: Optional[str] = Form(None),
 ):
@@ -202,7 +203,7 @@ async def update_user(
 async def update_user_with_image(
     user_seq: int,
     u_email: str = Form(...),
-    u_name: str = Form(...),
+    u_name: Optional[str] = Form(None),
     u_phone: Optional[str] = Form(None),
     u_address: Optional[str] = Form(None),
     file: UploadFile = File(...)

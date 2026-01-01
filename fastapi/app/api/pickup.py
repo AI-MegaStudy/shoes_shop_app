@@ -73,15 +73,15 @@ async def select_pickup(pickup_seq: int):
 # ============================================
 # 구매 ID로 수령 내역 조회
 # ============================================
-@router.get("/{purchase_seq}")
-async def select_pickup_by_purchase(purchase_seq: int):
+@router.get("/by_bseq/{purchase_item_seq}")
+async def select_pickup_by_purchase(purchase_item_seq: int):
     conn = connect_db()
     curs = conn.cursor()
     curs.execute("""
         SELECT pic_seq, b_seq, u_seq, created_at 
         FROM pickup 
         WHERE b_seq = %s
-    """, (purchase_seq,))
+    """, (purchase_item_seq,))
     row = curs.fetchone()
     conn.close()
     if row is None:
@@ -158,7 +158,7 @@ async def update_pickup(
 # ============================================
 # 수령 완료 처리 (날짜 업데이트)
 # ============================================
-@router.post("/pickup_seq/complete")
+@router.post("/{pickup_seq}/complete")
 async def complete_pickup(pickup_seq: int):
     try:
         from datetime import datetime

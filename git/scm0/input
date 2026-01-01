@@ -1,0 +1,10 @@
+refactor: 사용자 이름 및 전화번호를 선택 사항으로 변경
+
+- DB 스키마: user 테이블의 u_name을 NULL 허용으로 변경
+- FastAPI: u_name 파라미터를 Optional로 변경 (회원가입/프로필 수정 API)
+- Flutter: 회원가입 및 프로필 수정 화면에서 이름/전화번호 필수 검증 제거
+- 문서: DBML 스키마 및 API 문서 업데이트
+
+추가 변경:
+- auth.py에서 미사용 회원가입 완료 관련 엔드포인트 제거
+  (complete_registration, registration_status, check_registration_completed)

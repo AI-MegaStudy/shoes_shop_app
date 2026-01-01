@@ -237,20 +237,18 @@ class _UserProfileEditViewState extends State<UserProfileEditView> {
                           enabled: false, // 수정 불가
                         ),
                         SizedBox(height: config.largeSpacing),
-                        // 이름 입력 필드
+                        // 이름 입력 필드 (선택사항)
                         TextFormField(
                           controller: _nameController,
                           decoration: const InputDecoration(
-                          labelText: '이름',
+                          labelText: '이름 (선택사항)',
                           hintText: '이름을 입력하세요',
                             prefixIcon: Icon(Icons.person),
                             border: OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.text,
                           validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return '이름을 입력해주세요';
-                            }
+                            // 이름은 선택사항이므로 빈 값 허용
                             return null;
                           },
                         ),
@@ -463,13 +461,7 @@ class _UserProfileEditViewState extends State<UserProfileEditView> {
       return;
     }
 
-    if (_nameController.text.trim().isEmpty) {
-      FocusScope.of(context).requestFocus(FocusNode());
-      CustomCommonUtil.showErrorSnackbar(context: context, message: '이름을 입력해주세요');
-      return;
-    }
-
-    // 전화번호는 선택사항이므로 검증 제거
+    // 이름과 전화번호는 선택사항이므로 검증 제거
 
     // 비밀번호 검증 (로컬 로그인 사용자만)
     if (!_isSocialLogin) {
@@ -555,7 +547,7 @@ class _UserProfileEditViewState extends State<UserProfileEditView> {
       final request = http.MultipartRequest('POST', uri);
 
       request.fields['u_email'] = _email;
-      request.fields['u_name'] = name;
+      request.fields['u_name'] = name.isNotEmpty ? name : '';
       request.fields['u_phone'] = phone.isNotEmpty ? phone : '';
       request.fields['u_address'] = _currentUser!.uAddress ?? '';
 

@@ -496,20 +496,6 @@ class _SignUpViewState extends State<SignUpView> {
       return;
     }
 
-    // 전화번호 검증
-    if (_phoneController.text.trim().isEmpty) {
-      FocusScope.of(context).requestFocus(FocusNode());
-      CustomCommonUtil.showErrorSnackbar(context: context, message: '전화번호를 입력해주세요');
-      return;
-    }
-
-    // 이름 검증
-    if (_nameController.text.trim().isEmpty) {
-      FocusScope.of(context).requestFocus(FocusNode());
-      CustomCommonUtil.showErrorSnackbar(context: context, message: '이름을 입력해주세요');
-      return;
-    }
-
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     final passwordConfirm = _passwordConfirmController.text.trim();
@@ -663,7 +649,9 @@ class _SignUpViewState extends State<SignUpView> {
       
       // Form 필드 추가
       request.fields['u_email'] = email;
-      request.fields['u_name'] = name;
+      if (name.isNotEmpty) {
+        request.fields['u_name'] = name;
+      }
       if (phone.isNotEmpty) {
         request.fields['u_phone'] = phone;
       }

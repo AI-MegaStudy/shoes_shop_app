@@ -48,17 +48,21 @@
 
 ### 서버 실행
 
+**방법 1: main.py 직접 실행**
 ```bash
-cd fastapi/app
-python main.py
+cd fastapi
+python app/main.py
 ```
 
-또는
-
+**방법 2: uvicorn으로 실행 (권장)**
 ```bash
 cd fastapi
 uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
+
+**참고**: 
+- `main.py`는 `fastapi/app/main.py`에 위치합니다
+- 실행은 반드시 `fastapi` 폴더에서 해야 합니다 (Python이 `app` 모듈을 찾을 수 있도록)
 
 ### 헬스 체크
 
@@ -192,13 +196,13 @@ GET /
 | 메서드 | 엔드포인트 | 설명 |
 |--------|-----------|------|
 | GET | `/api/users` | 전체 고객 조회 |
-| GET | `/api/users/{u_seq}` | 고객 상세 조회 |
+| GET | `/api/users/{user_seq}` | 고객 상세 조회 |
 | POST | `/api/users` | 고객 추가 (이미지 필수) |
-| POST | `/api/users/{u_seq}` | 고객 수정 (이미지 제외) |
-| POST | `/api/users/{u_seq}/with_image` | 고객 수정 (이미지 포함) |
-| GET | `/api/users/{u_seq}/profile_image` | 프로필 이미지 조회 |
-| DELETE | `/api/users/{u_seq}/profile_image` | 프로필 이미지 삭제 |
-| DELETE | `/api/users/{u_seq}` | 고객 삭제 |
+| POST | `/api/users/{user_seq}` | 고객 수정 (이미지 제외) |
+| POST | `/api/users/{user_seq}/with_image` | 고객 수정 (이미지 포함) |
+| GET | `/api/users/{user_seq}/profile_image` | 프로필 이미지 조회 |
+| DELETE | `/api/users/{user_seq}/profile_image` | 프로필 이미지 삭제 |
+| DELETE | `/api/users/{user_seq}` | 고객 삭제 |
 
 **데이터 모델:**
 ```json
@@ -235,7 +239,7 @@ curl -X POST "http://127.0.0.1:8000/api/users" \
 |--------|-----------|------|
 | GET | `/api/user_auth_identities` | 전체 인증 정보 조회 |
 | GET | `/api/user_auth_identities/{auth_seq}` | 인증 정보 상세 조회 |
-| GET | `/api/user_auth_identities/user/{u_seq}` | 사용자별 인증 정보 조회 |
+| GET | `/api/user_auth_identities/user/{user_seq}` | 사용자별 인증 정보 조회 |
 | GET | `/api/user_auth_identities/provider/{provider}` | 제공자별 인증 정보 조회 |
 | POST | `/api/user_auth_identities` | 인증 정보 추가 |
 | POST | `/api/user_auth_identities/{auth_seq}` | 인증 정보 수정 |
@@ -283,13 +287,12 @@ curl -X POST "http://127.0.0.1:8000/api/user_auth_identities" \
 |--------|-----------|------|
 | GET | `/api/staffs` | 전체 직원 조회 |
 | GET | `/api/staffs/{s_seq}` | 직원 상세 조회 |
-| GET | `/api/staffs/by_branch/{br_seq}` | 지점별 직원 조회 |
+| GET | `/api/staffs/by_branch/{branch_seq}` | 지점별 직원 조회 |
 | POST | `/api/staffs` | 직원 추가 (이미지 필수) |
-| POST | `/api/staffs/{s_seq}` | 직원 수정 |
-| POST | `/api/staffs/{s_seq}/with_image` | 직원 수정 (이미지 포함) |
-| GET | `/api/staffs/{s_seq}/profile_image` | 프로필 이미지 조회 |
-| DELETE | `/api/staffs/{s_seq}/profile_image` | 프로필 이미지 삭제 |
-| DELETE | `/api/staffs/{s_seq}` | 직원 삭제 |
+| POST | `/api/staffs/{id}` | 직원 수정 |
+| POST | `/api/staffs/{id}/with_image` | 직원 수정 (이미지 포함) |
+| GET | `/api/staffs/staff_seq/profile_image` | 프로필 이미지 조회 |
+| DELETE | `/api/staffs/{staff_seq}` | 직원 삭제 |
 
 **데이터 모델:**
 ```json
@@ -374,12 +377,15 @@ curl -X POST "http://127.0.0.1:8000/api/staffs" \
 | 메서드 | 엔드포인트 | 설명 |
 |--------|-----------|------|
 | GET | `/api/products` | 전체 제품 조회 |
-| GET | `/api/products/{p_seq}` | 제품 상세 조회 |
-| GET | `/api/products/by_maker/{m_seq}` | 제조사별 제품 조회 |
+| GET | `/api/products/{product_seq}` | 제품 상세 조회 |
+| GET | `/api/products/by_maker/{maker_seq}` | 제조사별 제품 조회 |
 | POST | `/api/products` | 제품 추가 |
-| POST | `/api/products/{p_seq}` | 제품 수정 |
-| POST | `/api/products/{p_seq}/stock` | 제품 재고 수정 |
-| DELETE | `/api/products/{p_seq}` | 제품 삭제 |
+| POST | `/api/products/{product_seq}` | 제품 수정 |
+| POST | `/api/products/{product_seq}/stock` | 제품 재고 수정 |
+| POST | `/api/products/{product_seq}/upload_file` | 제품 이미지 업로드 |
+| GET | `/api/products/{product_seq}/file_info` | 제품 이미지 정보 조회 |
+| GET | `/api/products/{product_seq}/file` | 제품 이미지 다운로드 |
+| DELETE | `/api/products/{product_seq}` | 제품 삭제 |
 
 **데이터 모델:**
 ```json
@@ -408,12 +414,12 @@ curl -X POST "http://127.0.0.1:8000/api/staffs" \
 | 메서드 | 엔드포인트 | 설명 |
 |--------|-----------|------|
 | GET | `/api/purchase_items` | 전체 구매 내역 조회 |
-| GET | `/api/purchase_items/{b_seq}` | 구매 내역 상세 조회 |
-| GET | `/api/purchase_items/by_user/{u_seq}` | 고객별 구매 내역 조회 |
+| GET | `/api/purchase_items/{purchase_item_seq}` | 구매 내역 상세 조회 |
+| GET | `/api/purchase_items/by_user/{user_seq}` | 고객별 구매 내역 조회 |
 | GET | `/api/purchase_items/by_datetime` | 분 단위 그룹화된 주문 조회 |
 | POST | `/api/purchase_items` | 구매 내역 추가 |
-| POST | `/api/purchase_items/{b_seq}` | 구매 내역 수정 |
-| DELETE | `/api/purchase_items/{b_seq}` | 구매 내역 삭제 |
+| POST | `/api/purchase_items/{id}` | 구매 내역 수정 |
+| DELETE | `/api/purchase_items/{purchase_item_seq}` | 구매 내역 삭제 |
 
 ---
 
@@ -424,12 +430,12 @@ curl -X POST "http://127.0.0.1:8000/api/staffs" \
 | 메서드 | 엔드포인트 | 설명 |
 |--------|-----------|------|
 | GET | `/api/pickups` | 전체 수령 내역 조회 |
-| GET | `/api/pickups/{pic_seq}` | 수령 내역 상세 조회 |
-| GET | `/api/pickups/by_bseq/{b_seq}` | 구매 내역별 수령 조회 |
+| GET | `/api/pickups/{pickup_seq}` | 수령 내역 상세 조회 |
+| GET | `/api/pickups/{purchase_seq}` | 구매 내역별 수령 조회 |
 | POST | `/api/pickups` | 수령 내역 추가 |
-| POST | `/api/pickups/{pic_seq}` | 수령 내역 수정 |
-| POST | `/api/pickups/{pic_seq}/complete` | 수령 완료 처리 |
-| DELETE | `/api/pickups/{pic_seq}` | 수령 내역 삭제 |
+| POST | `/api/pickups/{id}` | 수령 내역 수정 |
+| POST | `/api/pickups/pickup_seq/complete` | 수령 완료 처리 |
+| DELETE | `/api/pickups/{pickup_seq}` | 수령 내역 삭제 |
 
 ---
 
@@ -440,12 +446,12 @@ curl -X POST "http://127.0.0.1:8000/api/staffs" \
 | 메서드 | 엔드포인트 | 설명 |
 |--------|-----------|------|
 | GET | `/api/refunds` | 전체 반품 내역 조회 |
-| GET | `/api/refunds/{ref_seq}` | 반품 내역 상세 조회 |
-| GET | `/api/refunds/by_user/{u_seq}` | 고객별 반품 내역 조회 |
+| GET | `/api/refunds/{refund_seq}` | 반품 내역 상세 조회 |
+| GET | `/api/refunds/by_user/{user_seq}` | 고객별 반품 내역 조회 |
 | POST | `/api/refunds` | 반품 내역 추가 |
-| POST | `/api/refunds/{ref_seq}` | 반품 내역 수정 |
-| POST | `/api/refunds/{ref_seq}/process` | 반품 처리 |
-| DELETE | `/api/refunds/{ref_seq}` | 반품 내역 삭제 |
+| POST | `/api/refunds/{id}` | 반품 내역 수정 |
+| POST | `/api/refunds/{refund_seq}/process` | 반품 처리 |
+| DELETE | `/api/refunds/{refund_seq}` | 반품 내역 삭제 |
 
 ---
 
@@ -456,12 +462,12 @@ curl -X POST "http://127.0.0.1:8000/api/staffs" \
 | 메서드 | 엔드포인트 | 설명 |
 |--------|-----------|------|
 | GET | `/api/receives` | 전체 입고 내역 조회 |
-| GET | `/api/receives/{rec_seq}` | 입고 내역 상세 조회 |
-| GET | `/api/receives/by_product/{p_seq}` | 제품별 입고 내역 조회 |
+| GET | `/api/receives/{receive_seq}` | 입고 내역 상세 조회 |
+| GET | `/api/receives/{product_seq}` | 제품별 입고 내역 조회 |
 | POST | `/api/receives` | 입고 내역 추가 |
-| POST | `/api/receives/{rec_seq}` | 입고 내역 수정 |
-| POST | `/api/receives/{rec_seq}/process` | 입고 처리 |
-| DELETE | `/api/receives/{rec_seq}` | 입고 내역 삭제 |
+| POST | `/api/receives/{id}` | 입고 내역 수정 |
+| POST | `/api/receives/receive_seq/process` | 입고 처리 |
+| DELETE | `/api/receives/{receive_seq}` | 입고 내역 삭제 |
 
 ---
 
@@ -472,12 +478,12 @@ curl -X POST "http://127.0.0.1:8000/api/staffs" \
 | 메서드 | 엔드포인트 | 설명 |
 |--------|-----------|------|
 | GET | `/api/requests` | 전체 발주 내역 조회 |
-| GET | `/api/requests/{req_seq}` | 발주 내역 상세 조회 |
+| GET | `/api/requests/{request_seq}` | 발주 내역 상세 조회 |
 | POST | `/api/requests` | 발주 내역 추가 |
-| POST | `/api/requests/{req_seq}` | 발주 내역 수정 |
-| POST | `/api/requests/{req_seq}/approve_manager` | 팀장 결재 처리 |
-| POST | `/api/requests/{req_seq}/approve_director` | 이사 결재 처리 |
-| DELETE | `/api/requests/{req_seq}` | 발주 내역 삭제 |
+| POST | `/api/requests/{id}` | 발주 내역 수정 |
+| POST | `/api/requests/request_seq/approve_manager` | 팀장 결재 처리 |
+| POST | `/api/requests/request_seq/approve_director` | 이사 결재 처리 |
+| DELETE | `/api/requests/{request_seq}` | 발주 내역 삭제 |
 
 ---
 
@@ -622,7 +628,7 @@ GET /api/users/{user_seq}/registration_status
 #### 1.1 제품 전체 상세 조회
 
 ```http
-GET /api/products/{p_seq}/full_detail
+GET /api/products/{product_seq}/full_detail
 ```
 
 **설명**: 제품 + 모든 카테고리 + 제조사 정보 (6테이블 JOIN)
@@ -669,6 +675,9 @@ curl "http://127.0.0.1:8000/api/products/with_categories"
 
 # 필터링: 나이키 제품 중 남성용
 curl "http://127.0.0.1:8000/api/products/with_categories?maker_seq=1&gender_seq=1"
+
+# 제조사별 제품 조회
+curl "http://127.0.0.1:8000/api/products/by_maker/{maker_seq}/with_categories"
 ```
 
 ---
@@ -680,7 +689,7 @@ curl "http://127.0.0.1:8000/api/products/with_categories?maker_seq=1&gender_seq=
 #### 2.1 구매 내역 상세 조회
 
 ```http
-GET /api/purchase_items/{b_seq}/with_details
+GET /api/purchase_items/{purchase_item_seq}/with_details
 ```
 
 **설명**: 구매 내역 + 고객 + 제품 + 지점 정보 (4테이블 JOIN)
@@ -688,7 +697,7 @@ GET /api/purchase_items/{b_seq}/with_details
 #### 2.2 구매 내역 전체 상세 조회
 
 ```http
-GET /api/purchase_items/{b_seq}/full_detail
+GET /api/purchase_items/{purchase_item_seq}/full_detail
 ```
 
 **설명**: 구매 내역 + 고객 + 제품 + 지점 + 모든 카테고리 + 제조사 (9테이블 JOIN)
@@ -713,7 +722,7 @@ GET /api/purchase_items/by_datetime/with_details
 #### 3.1 수령 상세 조회
 
 ```http
-GET /api/pickups/{pic_seq}/with_details
+GET /api/pickups/{pickup_seq}/with_details
 ```
 
 **설명**: 수령 + 구매 내역 + 고객 + 제품 + 지점 정보 (5테이블 JOIN)
@@ -721,7 +730,7 @@ GET /api/pickups/{pic_seq}/with_details
 #### 3.2 수령 전체 상세 조회
 
 ```http
-GET /api/pickups/{pic_seq}/full_detail
+GET /api/pickups/{pickup_seq}/full_detail
 ```
 
 **설명**: 수령 + 구매 내역 + 고객 + 제품 + 지점 + 모든 카테고리 + 제조사 (10테이블 JOIN)
@@ -735,7 +744,7 @@ GET /api/pickups/{pic_seq}/full_detail
 #### 4.1 반품 상세 조회
 
 ```http
-GET /api/refunds/{ref_seq}/with_details
+GET /api/refunds/{refund_seq}/with_details
 ```
 
 **설명**: 반품 + 고객 + 직원 + 수령 + 구매 내역 + 제품 + 지점 정보 (7테이블 JOIN)
@@ -743,7 +752,7 @@ GET /api/refunds/{ref_seq}/with_details
 #### 4.2 반품 전체 상세 조회
 
 ```http
-GET /api/refunds/{ref_seq}/full_detail
+GET /api/refunds/{refund_seq}/full_detail
 ```
 
 **설명**: 반품 + 고객 + 직원 + 수령 + 구매 내역 + 제품 + 지점 + 모든 카테고리 + 제조사 (12테이블 JOIN)
@@ -757,7 +766,7 @@ GET /api/refunds/{ref_seq}/full_detail
 #### 5.1 입고 상세 조회
 
 ```http
-GET /api/receives/{rec_seq}/with_details
+GET /api/receives/{receive_seq}/with_details
 ```
 
 **설명**: 입고 + 직원 + 제품 + 제조사 정보 (4테이블 JOIN)
@@ -765,7 +774,7 @@ GET /api/receives/{rec_seq}/with_details
 #### 5.2 입고 전체 상세 조회
 
 ```http
-GET /api/receives/{rec_seq}/full_detail
+GET /api/receives/{receive_seq}/full_detail
 ```
 
 **설명**: 입고 + 직원 + 제품 + 제조사 + 모든 카테고리 정보 (9테이블 JOIN)
@@ -779,7 +788,7 @@ GET /api/receives/{rec_seq}/full_detail
 #### 6.1 발주 상세 조회
 
 ```http
-GET /api/requests/{req_seq}/with_details
+GET /api/requests/{request_seq}/with_details
 ```
 
 **설명**: 발주 + 직원 + 제품 + 제조사 정보 (4테이블 JOIN)
@@ -787,7 +796,7 @@ GET /api/requests/{req_seq}/with_details
 #### 6.2 발주 전체 상세 조회
 
 ```http
-GET /api/requests/{req_seq}/full_detail
+GET /api/requests/{request_seq}/full_detail
 ```
 
 **설명**: 발주 + 직원 + 제품 + 제조사 + 모든 카테고리 정보 (9테이블 JOIN)
@@ -923,7 +932,8 @@ curl -X POST "http://127.0.0.1:8000/api/purchase_items" \
   -F "b_price=150000" \
   -F "b_quantity=2" \
   -F "b_date=2025-01-15T14:30:00" \
-  -F "b_status=주문완료"
+  -F "b_status=주문완료" \
+  -F "b_tnum=TRANS001"
 ```
 
 ---
@@ -972,11 +982,24 @@ curl -X POST "http://127.0.0.1:8000/api/purchase_items" \
 
 ## 📝 변경 이력
 
-### 2025-01-XX 김택권
+### 2025-12-30 김택권
 - **최초 작성**: API 가이드 문서 작성
+
+### 2026-01-01 김택권
+- **실제 코드 반영**: 경로 파라미터 이름 수정
+  - `{u_seq}` → `{user_seq}`
+  - `{b_seq}` → `{purchase_item_seq}`
+  - `{pic_seq}` → `{pickup_seq}`
+  - `{ref_seq}` → `{refund_seq}`
+  - `{rec_seq}` → `{receive_seq}`
+  - `{req_seq}` → `{request_seq}`
+  - `{p_seq}` → `{product_seq}`
+  - `{m_seq}` → `{maker_seq}`
+- 실행 방법 경로 수정 (`fastapi` 폴더에서 실행)
+- 제품 이미지 업로드/다운로드 API 추가
 
 ---
 
-**문서 버전**: 2.0  
-**최종 수정일**: 2025-01-XX  
+**문서 버전**: 2.1  
+**최종 수정일**: 2026-01-01  
 **최종 수정자**: 김택권

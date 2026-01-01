@@ -53,7 +53,7 @@ dependencies:
 
   # image Picker
   image_picker: ^1.2.1
-
+  # flutter_3d_controller: ^2.3.0 # 3D 이미지 표시용 (제거됨)
 
 dev_dependencies:
   flutter_test:

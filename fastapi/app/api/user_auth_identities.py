@@ -67,7 +67,7 @@ async def select_user_auth_identities():
                     'provider_subject': row[3],
                     'provider_issuer': row[4],
                     'email_at_provider': row[5],
-                    'password': row[6],  # 보안상 실제로는 반환하지 않는 것이 좋지만, 현재는 포함
+                    'password': row[6],  
                     'created_at': created_at,
                     'last_login_at': last_login_at
                 })

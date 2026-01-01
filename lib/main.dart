@@ -10,9 +10,11 @@ import 'package:shoes_shop_app/view/admin/auth/admin_mobile_block_view.dart';
 
 
 Future<void> main() async {
+  // Flutter 바인딩 초기화 (플러그인 사용 전 필수)
+  WidgetsFlutterBinding.ensureInitialized();
+  
   // GetStorage 초기화 (get_storage는 GetX와 독립적으로 사용 가능)
   await GetStorage.init();
-  WidgetsFlutterBinding.ensureInitialized();
   
   // API Base URL 초기화 (로컬 IP 자동 감지 시도)
   await config.initializeApiBaseUrl();

@@ -1,6 +1,8 @@
 //dev_06.dart (작업자 :  김택권)
 
 import 'package:flutter/material.dart';
+// import 'package:get/get.dart';
+// import 'package:shoes_shop_app/view/Dev/cheng/product_detail_3d.dart';
 
 class Dev_06 extends StatefulWidget {
   const Dev_06({super.key});
@@ -39,7 +41,79 @@ class _Dev_06State extends State<Dev_06> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-             Text("Hello"),
+            Text("Hello"),
+            // const SizedBox(height: 40),
+            // // U740WN2 버튼
+            // ElevatedButton(
+            //   onPressed: () {
+            //     Get.to(
+            //       () => const ProductDetail3D(),
+            //       arguments: {
+            //         'imageNames': [
+            //           'Newbalnce_U740WN2_Black_01.png',
+            //           'Newbalnce_U740WN2_Gray_01.png',
+            //           'Newbalnce_U740WN2_White_01.png',
+            //         ],
+            //         'initialIndex': 0,
+            //       },
+            //     );
+            //   },
+            //   child: const Text('U740WN2 (3D 뷰어)'),
+            // ),
+            // const SizedBox(height: 20),
+            // // Nike Air 1 버튼
+            // ElevatedButton(
+            //   onPressed: () {
+            //     Get.to(
+            //       () => const ProductDetail3D(),
+            //       arguments: {
+            //         'imageNames': [
+            //           'Nike_Air_1_Black_01.png',
+            //           'Nike_Air_1_Gray_01.png',
+            //           'Nike_Air_1_White_01.png',
+            //         ],
+            //         'initialIndex': 0,
+            //       },
+            //     );
+            //   },
+            //   child: const Text('Nike Air 1 (3D 뷰어)'),
+            // ),
+            // const SizedBox(height: 20),
+            // // Nike Pegasus 버튼
+            // ElevatedButton(
+            //   onPressed: () {
+            //     Get.to(
+            //       () => const ProductDetail3D(),
+            //       arguments: {
+            //         'imageNames': [
+            //           'Nike_Pegasus_Black_01.png',
+            //           'Nike_Pegasus_Gray_01.png',
+            //           'Nike_Pegasus_White_01.png',
+            //         ],
+            //         'initialIndex': 0,
+            //       },
+            //     );
+            //   },
+            //   child: const Text('Nike Pegasus (3D 뷰어)'),
+            // ),
+            // const SizedBox(height: 20),
+            // // Nike Shox TL 버튼
+            // ElevatedButton(
+            //   onPressed: () {
+            //     Get.to(
+            //       () => const ProductDetail3D(),
+            //       arguments: {
+            //         'imageNames': [
+            //           'Nike_Shox_TL_Black_01.png',
+            //           'Nike_Shox_TL_Gray_01.png',
+            //           'Nike_Shox_TL_White_01.png',
+            //         ],
+            //         'initialIndex': 0,
+            //       },
+            //     );
+            //   },
+            //   child: const Text('Nike Shox TL (3D 뷰어)'),
+            // ),
           ],
         ),
       ),

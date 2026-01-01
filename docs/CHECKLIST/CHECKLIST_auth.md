@@ -19,7 +19,7 @@
 
 ## 설명
 
-소셜 로그인(Google, Kakao) 및 회원가입 완료 처리를 위한 특수 API입니다.
+소셜 로그인(Google, Kakao) 처리를 위한 API입니다.
 
 ---
 
@@ -27,9 +27,7 @@
 
 | API | 엔드포인트 | 완료 |
 |-----|-----------|------|
-| 소셜 로그인 (1단계) | `POST /api/auth/social/login` | [ ] |
-| 회원가입 완료 (2단계) | `POST /api/users/{user_seq}/complete_registration` | [ ] |
-| 회원가입 상태 확인 | `GET /api/users/{user_seq}/registration_status` | [ ] |
+| 소셜 로그인 | `POST /api/auth/social/login` | [ ] |
 
 ---
 
@@ -42,16 +40,6 @@
 | `email` | STRING | | 이메일 주소 |
 | `name` | STRING | | 이름 |
 | `provider_issuer` | STRING | | 제공자 발급자 (iss) |
-
----
-
-## 회원가입 완료 요청 파라미터
-
-| 파라미터 | 타입 | 필수 | 설명 |
-|----------|------|------|------|
-| `u_name` | STRING | | 이름 (수정 가능) |
-| `u_phone` | STRING | ✅ | 전화번호 |
-| `u_address` | STRING | | 주소 |
 
 ---
 

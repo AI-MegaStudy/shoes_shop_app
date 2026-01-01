@@ -46,7 +46,7 @@ DROP TABLE IF EXISTS user;
 CREATE TABLE user (
   u_seq      INT AUTO_INCREMENT PRIMARY KEY COMMENT '고객 고유 ID(PK)',
   u_email    VARCHAR(255) NOT NULL COMMENT '고객 이메일 (로컬/소셜 모두 필수, UNIQUE)',
-  u_name     VARCHAR(255) NOT NULL COMMENT '고객 이름',
+  u_name     VARCHAR(255) NULL COMMENT '고객 이름 (선택 사항)',
   u_phone    VARCHAR(30)  NULL COMMENT '고객 전화번호 (선택 사항)',
   u_image    MEDIUMBLOB   NULL COMMENT '고객 프로필 이미지',
   u_address  VARCHAR(255) COMMENT '고객 주소',

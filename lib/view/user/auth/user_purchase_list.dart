@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:shoes_shop_app/config_pluralize.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
@@ -14,7 +14,6 @@ class UserPurchaseList extends StatefulWidget {
 
 class _UserPurchaseListState extends State<UserPurchaseList> {
   // Property
-  String ipAddress = "172.16.250.176"; //ip
   late List<PurchaseItemJoin> data; //유저의 구매 목록
   late TextEditingController searchController;
 
@@ -54,57 +53,73 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
         title: Text('주문 내역'),
         centerTitle: true,
       ),
-      body: data.isEmpty
-      ? Center(
-        child: SizedBox(
-          height: 100,
-          child: Text('데이터가 없습니다.')
-        ),
-      )
-      : Center(
-        child: Column(
-          children: [
-            TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                hintText: '검색어를 입력하세요',
-                isDense: true,
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    //selectedCategory = 0;
-                    //isSearching = true;
-                    setState(() {});
-                  }, 
-                  icon: Icon(Icons.search)
+      body: Padding(
+        padding: const EdgeInsets.all(edgeSpace),
+        child: Center(
+          child: data.isEmpty
+          ? SizedBox(
+            height: 100,
+            child: Text('데이터가 없습니다.')
+          )
+          : Column(
+            children: [
+              TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  hintText: '검색어를 입력하세요',
+                  isDense: true,
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      //selectedCategory = 0;
+                      //isSearching = true;
+                      setState(() {});
+                    }, 
+                    icon: Icon(Icons.search)
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(50),
+                  ),
                 ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(50),
-                ),
-              ),
-              onChanged: (value) {
-                // 자동검색
-              },
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: data.length,
-                itemBuilder: (context, index) {
-                  print("데이터: ${data[index].m_name}");
-                  return SizedBox(
-                    child: Row(
-                      children: [
-                        //Image.asset(data[index].p_image!),
-                        Text(data[index].b_date!),
-                        Text(data[index].b_status!)
-                      ]
-                    ),
-                  );
+                onChanged: (value) {
+                  // 자동검색
                 },
               ),
-            ),
-          ],
-        )
+              Expanded(
+                child: ListView.builder(
+                  itemCount: data.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(cardSpace),
+                      child: SizedBox(
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              'images/dummy-profile-pic.png',
+                              width: imageWidth,                            
+                              ),
+                            Column(
+                              children: [
+                                Text(data[index].b_date!),
+                                Text(data[index].b_price.toString())
+                              ],
+                            ),
+                            Text(data[index].b_status!)
+                          ]
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          )
+        ),
       )
+      
+      
+      
+      
+    
     );
   }
 }

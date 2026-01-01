@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_state_manager/src/simple/list_notifier.dart';
 import 'package:shoes_shop_app/model/product.dart';
 import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/view/user/product/detail_view.dart';
@@ -14,20 +16,33 @@ class ProductListView extends StatefulWidget {
 }
 
 class _ProductListViewState extends State<ProductListView> {
-  String mainUrl = "http://127.0.0.1:8000/";
+  // 보여지는 부분 height
+  final double searchBoxSize = 100;
+
+  final String mainUrl = "http://127.0.0.1:8000/api";
   List products = [];
+  bool isSearch = false;
+  TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getProducts();
+    getProducts(null);
   }
 
-  Future<void> getProducts() async {
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> getProducts(String? kwd) async {
     // 요청하여 값을 가져온다.
-    final url = Uri.parse(mainUrl + "api/products");
-    final response = await http.get(url);
+    String _url = mainUrl + "/products";
+
+    final url = Uri.parse(_url);
+    final response = await http.get(url, headers: {});
     final jsonData = json.decode(utf8.decode(response.bodyBytes));
 
     products = jsonData["results"].map((d) => Product.fromJson(d)).toList();
@@ -36,68 +51,115 @@ class _ProductListViewState extends State<ProductListView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Product Page')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                height: 300,
+    return products.length == 0
+        ? const Center(child: const CircularProgressIndicator())
+        : Scaffold(
+            appBar: AppBar(title: Text('Product Page')),
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: searchBoxSize,
 
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: Colors.green),
-
-                child: Text('aaa'),
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height - 430,
-                child: GridView.builder(
-                  itemCount: products.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10, // 가로
-                    mainAxisSpacing: 10, // 세로
-                  ),
-                  itemBuilder: (context, index) {
-                    return _displayProduct(products[index]);
-                  },
+                      child: TextField(
+                        controller: searchController,
+                        onSubmitted: (context) => _searchProduct(),
+                        decoration: InputDecoration(
+                          hintText: "원하는 신발을 찾아보세요",
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          prefixIcon: Icon(Icons.search),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height - (searchBoxSize + 130),
+                      child: isSearch
+                          ? _noResultWidget()
+                          : GridView.builder(
+                              itemCount: products.length,
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 10, // 가로
+                                mainAxisSpacing: 10, // 세로
+                              ),
+                              itemBuilder: (context, index) {
+                                return _displayProduct(products[index]);
+                              },
+                            ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
-
-      // body:Center(
-      //   // 물건 정보
-      //   child:
-      //       ListView.builder(
-      //       itemCount: products.length,
-      //       itemBuilder: (context, index) {
-      //           return _displayProduct(products[index]);
-      //       },),
-
-      // )
-    );
+            ),
+          );
   }
 
+  // == Functions
+  Future<void> _searchProduct() async {
+    // Search by product name
+    isSearch = true;
+    String _url = mainUrl + "/products/search/?kwds=${searchController.text.trim()}";
+
+    final url = Uri.parse(_url);
+    final response = await http.get(url);
+    final jsonData = json.decode(utf8.decode(response.bodyBytes));
+    print(jsonData);
+    print('================');
+    if (jsonData != null && jsonData["results"].length > 0) {
+      products = jsonData["results"].map((d) => Product.fromJson(d)).toList();
+      isSearch = false;
+    }
+    setState(() {});
+  }
+
+  // == Widgets
   Widget _displayProduct(Product p) {
     return GestureDetector(
       onTap: () => Get.to(() => ProductDetailView(), arguments: p),
       child: Card(
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            Image.asset('images/Nike_Air_1/Nike_Air_1_Black_01.avif', fit: BoxFit.contain),
+        child: Container(
+          // alignment: Alignment.bottomCenter,
+          width: 50,
 
-            Column(children: [Text(p.pName), Text("${p.pPrice}")]),
-          ],
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('images/Nike_Air_1/Nike_Air_1_Black_01.avif'),
+              fit: BoxFit.contain,
+              //
+            ),
+            // color: Colors.green,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(p.p_name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              Text(p.p_maker!, style: TextStyle(fontSize: 13, color: Colors.black54)),
+              Text("${p.p_price}원", style: TextStyle(decoration: TextDecoration.underline)),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _noResultWidget() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text('서치 결과가 없습니다.'),
+        IconButton(
+          onPressed: () {
+            isSearch = false;
+            searchController.text = '';
+            setState(() {});
+          },
+          icon: Icon(Icons.refresh),
+        ),
+      ],
     );
   }
 }

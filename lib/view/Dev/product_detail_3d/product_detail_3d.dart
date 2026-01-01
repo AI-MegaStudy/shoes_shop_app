@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:o3d/o3d.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:shoes_shop_app/utils/color_name_to_color.dart';
 
 class ProductDetail3D extends StatefulWidget {
   const ProductDetail3D({super.key});
@@ -14,11 +15,12 @@ class _ProductDetail3DState extends State<ProductDetail3D> {
   // arguments에서 받을 데이터
   late List<String> _imageNames; // 이미지 파일명 리스트
   late int _initialIndex; // 초기 로딩할 인덱스 번호
+  List<String>? _providedColorList; // 전달받은 색상 리스트 (선택적)
   
   // 이미지 파일명에서 추출한 모델 이름 리스트 (예: 'Newbalnce_U740WN2_Black')
   late List<String> _modelNameList;
   
-  // 이미지 파일명에서 추출한 색상 리스트 (예: 'Black')
+  // 사용할 색상 리스트 (전달받은 것이 있으면 사용, 없으면 이미지명에서 추출)
   late List<String> _colorList;
   
   // 현재 선택된 인덱스
@@ -63,9 +65,10 @@ class _ProductDetail3DState extends State<ProductDetail3D> {
     // initialIndex 추출 (선택적, 기본값: 0)
     _initialIndex = args['initialIndex'] as int? ?? 0;
     
-    debugPrint('📥 Get.arguments에서 데이터 수신:');
-    debugPrint('   imageNames: $_imageNames');
-    debugPrint('   initialIndex: $_initialIndex');
+    // colorList 추출 (선택적)
+    if (args['colorList'] != null && args['colorList'] is List) {
+      _providedColorList = List<String>.from(args['colorList']);
+    }
     
     // 이미지 파일명 리스트 파싱
     _parseImageNames();
@@ -73,13 +76,8 @@ class _ProductDetail3DState extends State<ProductDetail3D> {
     // 초기 인덱스 설정 (범위 체크)
     _currentIndex = _initialIndex;
     if (_currentIndex < 0 || _currentIndex >= _modelNameList.length) {
-      debugPrint('⚠️ 초기 인덱스($_initialIndex)가 범위를 벗어났습니다. 0으로 설정합니다.');
       _currentIndex = 0;
     }
-    
-    debugPrint('📋 파싱된 모델 이름 리스트: $_modelNameList');
-    debugPrint('🎨 파싱된 색상 리스트: $_colorList');
-    debugPrint('🔄 초기 모델 URL: $_modelUrl');
     
     // 초기 로딩 시작 (onWebViewCreated가 호출되면 onPageStarted에서 업데이트됨)
     _isLoading = true;
@@ -88,7 +86,6 @@ class _ProductDetail3DState extends State<ProductDetail3D> {
   // 이미지 파일명 파싱 함수
   void _parseImageNames() {
     _modelNameList = [];
-    _colorList = [];
     
     for (String imageName in _imageNames) {
       // 확장자 제거 (예: 'Newbalnce_U740WN2_Black_01.png' -> 'Newbalnce_U740WN2_Black_01')
@@ -97,12 +94,22 @@ class _ProductDetail3DState extends State<ProductDetail3D> {
       // 마지막 언더스코어와 숫자 제거 (예: 'Newbalnce_U740WN2_Black_01' -> 'Newbalnce_U740WN2_Black')
       String modelName = nameWithoutExt.replaceAll(RegExp(r'_\d+$'), '');
       
-      // 색상 추출 (마지막 언더스코어 이후 부분, 예: 'Black')
-      List<String> parts = modelName.split('_');
-      String color = parts.isNotEmpty ? parts.last : '';
-      
       _modelNameList.add(modelName);
-      _colorList.add(color);
+    }
+    
+    // 색상 리스트 설정: 전달받은 colorList가 있으면 사용, 없으면 이미지명에서 추출
+    if (_providedColorList != null && _providedColorList!.length == _imageNames.length) {
+      _colorList = List<String>.from(_providedColorList!);
+    } else {
+      // 이미지명에서 색상 추출
+      _colorList = [];
+      for (String imageName in _imageNames) {
+        String nameWithoutExt = imageName.replaceAll(RegExp(r'\.(png|jpg|jpeg|avif)$'), '');
+        String modelName = nameWithoutExt.replaceAll(RegExp(r'_\d+$'), '');
+        List<String> parts = modelName.split('_');
+        String color = parts.isNotEmpty ? parts.last : '';
+        _colorList.add(color);
+      }
     }
   }
 
@@ -110,25 +117,18 @@ class _ProductDetail3DState extends State<ProductDetail3D> {
   void _changeTextureColor(String color) {
     // 로딩 중이면 무시
     if (_isLoading) {
-      debugPrint('⏳ 모델 로딩 중입니다. 잠시 후 다시 시도해주세요.');
       return;
     }
     
     // 색상에 해당하는 인덱스 찾기
     int targetIndex = _colorList.indexOf(color);
     if (targetIndex == -1) {
-      debugPrint('⚠️ 색상을 찾을 수 없습니다: $color');
       return;
     }
     
     if (targetIndex == _currentIndex) {
-      debugPrint('ℹ️ 이미 선택된 색상입니다: $color');
       return;
     }
-    
-    debugPrint('🔄 모델 변경: ${_colorList[_currentIndex]} -> $color');
-    debugPrint('   모델 이름: ${_modelNameList[targetIndex]}');
-    debugPrint('   모델 URL: https://cheng80.myqnapcloud.com/glb_model.php?name=${_modelNameList[targetIndex]}');
     
     setState(() {
       _currentIndex = targetIndex;
@@ -143,12 +143,8 @@ class _ProductDetail3DState extends State<ProductDetail3D> {
   void _reloadInitialModel() {
     // 로딩 중이면 무시
     if (_isLoading) {
-      debugPrint('⏳ 모델 로딩 중입니다. 잠시 후 다시 시도해주세요.');
       return;
     }
-    
-    debugPrint('🔄 현재 모델 리로드: ${_colorList[_currentIndex]}');
-    debugPrint('   모델 이름: ${_modelNameList[_currentIndex]}');
     
     setState(() {
       _isLoading = true; // 로딩 시작
@@ -197,7 +193,6 @@ class _ProductDetail3DState extends State<ProductDetail3D> {
                           webViewController.setNavigationDelegate(
                             NavigationDelegate(
                               onPageStarted: (String url) {
-                                debugPrint('📄 페이지 로딩 시작: $url');
                                 if (mounted) {
                                   setState(() {
                                     _isLoading = true;
@@ -205,14 +200,12 @@ class _ProductDetail3DState extends State<ProductDetail3D> {
                                 }
                               },
                               onPageFinished: (String url) {
-                                debugPrint('✅ 페이지 로딩 완료: $url');
                                 // 페이지 로딩 완료 후 짧은 지연 (모델 렌더링 시간 고려)
                                 Future.delayed(const Duration(milliseconds: 500), () {
                                   if (mounted) {
                                     setState(() {
                                       _isLoading = false;
                                     });
-                                    debugPrint('✅ 모델 로딩 완료로 간주');
                                   }
                                 });
                               },
@@ -257,26 +250,8 @@ class _ProductDetail3DState extends State<ProductDetail3D> {
                   String color = entry.value;
                   bool isSelected = index == _currentIndex;
                   
-                  // 색상에 따른 Material 색상 결정
-                  Color buttonColor;
-                  if (color.toLowerCase().contains('black')) {
-                    buttonColor = isSelected 
-                        ? Colors.black 
-                        : Colors.black.withOpacity(0.6);
-                  } else if (color.toLowerCase().contains('white')) {
-                    buttonColor = isSelected 
-                        ? Colors.white 
-                        : Colors.white.withOpacity(0.6);
-                  } else if (color.toLowerCase().contains('gray') || 
-                             color.toLowerCase().contains('grey')) {
-                    buttonColor = isSelected 
-                        ? Colors.grey 
-                        : Colors.grey.withOpacity(0.6);
-                  } else {
-                    buttonColor = isSelected 
-                        ? Colors.grey[700]! 
-                        : Colors.grey.withOpacity(0.6);
-                  }
+                  // 색상 텍스트를 실제 Color로 변환
+                  Color buttonColor = colorNameToColor(color, isSelected: isSelected);
                   
                   return Padding(
                     padding: EdgeInsets.only(right: index < _colorList.length - 1 ? 8 : 0),
@@ -293,8 +268,8 @@ class _ProductDetail3DState extends State<ProductDetail3D> {
                             // 모든 버튼에 테두리 추가 (선택된 버튼은 두꺼운 파란색, 선택되지 않은 버튼은 얇은 회색)
                             border: Border.all(
                               color: isSelected 
-                                  ? Colors.red // 선택된 버튼: 파란색 테두리
-                                  : Colors.black, // 선택되지 않은 버튼: 회색 테두리
+                                  ? Colors.blue // 선택된 버튼: 파란색 테두리
+                                  : Colors.grey.shade400, // 선택되지 않은 버튼: 회색 테두리
                               width: isSelected ? 3.0 : 1.5, // 선택된 버튼: 두꺼운 테두리 (3px), 선택되지 않은 버튼: 얇은 테두리 (1.5px)
                             ),
                           ),
@@ -310,3 +285,18 @@ class _ProductDetail3DState extends State<ProductDetail3D> {
     );
   }
 }
+
+// ============================================
+// 변경 이력
+// ============================================
+// 2026-01-01: 김택권
+//   - 3D 모델 뷰어 화면 생성
+//   - o3d 패키지를 사용하여 GLB 모델 표시
+//   - 이미지 파일명 리스트를 파싱하여 모델 이름과 색상 추출
+//   - 색상 선택 버튼으로 모델 변경 기능
+//   - 현재 모델 리로드 기능 (카메라 초기화)
+//   - WebView NavigationDelegate를 통한 로딩 상태 감지
+//   - color_name_to_color.dart를 사용하여 색상 버튼 색상 지정
+//   - 정사각형 3D 뷰어 (화면 너비의 80%)
+//   - 선택된 버튼 표시를 위한 일관된 테두리 스타일 (파란색 두꺼운 테두리)
+

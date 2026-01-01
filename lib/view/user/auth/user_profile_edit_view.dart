@@ -187,9 +187,6 @@ class _UserProfileEditViewState extends State<UserProfileEditView> {
                                             File(_selectedImageFile!.path),
                                             fit: BoxFit.cover,
                                             errorBuilder: (context, error, stackTrace) {
-                                              if (kDebugMode) {
-                                                print('❌ [UserProfileEdit] 이미지 디코딩 오류: $error');
-                                              }
                                               return _buildDefaultProfileImage();
                                             },
                                           )
@@ -353,10 +350,6 @@ class _UserProfileEditViewState extends State<UserProfileEditView> {
     try {
       final uri = Uri.parse('${config.getApiBaseUrl()}/api/users/$userSeq/profile_image');
       
-      if (kDebugMode) {
-        print('🔵 [UserProfileEdit] 프로필 이미지 로드 시작: $uri');
-      }
-      
       final response = await http.get(uri);
       
       if (response.statusCode == 200) {
@@ -366,20 +359,10 @@ class _UserProfileEditViewState extends State<UserProfileEditView> {
             _serverProfileImageBytes = response.bodyBytes;
           });
         }
-        if (kDebugMode) {
-          print('✅ [UserProfileEdit] 프로필 이미지 로드 성공 (크기: ${response.bodyBytes.length} bytes)');
-        }
-      } else {
-        // 이미지가 없거나 에러인 경우 (404 등)
-        if (kDebugMode) {
-          print('⚠️ [UserProfileEdit] 프로필 이미지 없음 또는 에러: status=${response.statusCode}');
-        }
-        // 기본 이미지 사용 (상태 변경 불필요)
       }
+      // 이미지가 없거나 에러인 경우 (404 등) 기본 이미지 사용
     } catch (e) {
-      if (kDebugMode) {
-        print('❌ [UserProfileEdit] 프로필 이미지 로드 오류: $e');
-      }
+      // 에러 발생 시 기본 이미지 사용
       // 에러 발생 시 기본 이미지 사용
     }
   }
@@ -392,9 +375,6 @@ class _UserProfileEditViewState extends State<UserProfileEditView> {
         _serverProfileImageBytes!,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) {
-          if (kDebugMode) {
-            print('❌ [UserProfileEdit] 서버 이미지 디코딩 오류: $error');
-          }
           return _buildDefaultProfileImage();
         },
       );
@@ -436,15 +416,8 @@ class _UserProfileEditViewState extends State<UserProfileEditView> {
           _selectedImageFile = image;
           _isImageChanged = true;
         });
-        
-        if (kDebugMode) {
-          print('✅ [UserProfileEdit] 이미지 선택 완료: ${image.path}');
-        }
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('❌ [UserProfileEdit] 이미지 선택 오류: $e');
-      }
       CustomCommonUtil.showErrorSnackbar(
         context: context,
         message: '이미지 선택 중 오류가 발생했습니다.',
@@ -530,19 +503,11 @@ class _UserProfileEditViewState extends State<UserProfileEditView> {
     CustomCommonUtil.showLoadingOverlay(context, message: '정보 수정 중...');
 
     try {
-      if (kDebugMode) {
-        print('🔵 [UserProfileEdit] 사용자 정보 업데이트 시작: u_seq=${_currentUser!.uSeq}');
-      }
-
       // 2. 백엔드 API 호출하여 사용자 정보 업데이트
       // 이미지가 변경되었을 때만 이미지 포함 엔드포인트 사용
       final uri = _isImageChanged && _selectedImageFile != null
           ? Uri.parse('${config.getApiBaseUrl()}/api/users/${_currentUser!.uSeq}/with_image')
           : Uri.parse('${config.getApiBaseUrl()}/api/users/${_currentUser!.uSeq}');
-      
-      if (kDebugMode) {
-        print('🔵 [UserProfileEdit] 업데이트 URI: $uri (이미지 변경: $_isImageChanged)');
-      }
       
       final request = http.MultipartRequest('POST', uri);
 
@@ -559,30 +524,14 @@ class _UserProfileEditViewState extends State<UserProfileEditView> {
             _selectedImageFile!.path,
           ),
         );
-        if (kDebugMode) {
-          print('🔵 [UserProfileEdit] 선택한 이미지 사용: ${_selectedImageFile!.path}');
-        }
       }
-
-      if (kDebugMode) {
-        print('🔵 [UserProfileEdit] 업데이트 요청 필드: ${request.fields}');
-        print('🔵 [UserProfileEdit] 이미지 파일 추가 완료');
-      }
-
+      
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
-
-      if (kDebugMode) {
-        print('🔵 [UserProfileEdit] 업데이트 API 응답: status=${response.statusCode}');
-        print('🔵 [UserProfileEdit] 응답 본문: ${response.body}');
-      }
-
+      
       if (response.statusCode != 200) {
         final errorBody = jsonDecode(response.body);
         final errorMsg = errorBody['errorMsg'] ?? '사용자 정보 업데이트 실패';
-        if (kDebugMode) {
-          print('❌ [UserProfileEdit] 업데이트 API 실패: $errorMsg');
-        }
         CustomCommonUtil.showErrorSnackbar(
           context: context,
           message: '사용자 정보 업데이트 실패: $errorMsg',
@@ -594,18 +543,11 @@ class _UserProfileEditViewState extends State<UserProfileEditView> {
 
       if (responseData['result'] != 'OK') {
         final errorMsg = responseData['errorMsg'] ?? '사용자 정보 업데이트 실패';
-        if (kDebugMode) {
-          print('❌ [UserProfileEdit] 업데이트 API 에러: $errorMsg');
-        }
         CustomCommonUtil.showErrorSnackbar(
           context: context,
           message: '사용자 정보 업데이트 실패: $errorMsg',
         );
         return false;
-      }
-
-      if (kDebugMode) {
-        print('✅ [UserProfileEdit] 사용자 정보 업데이트 성공');
       }
 
       // 2. 로컬 로그인 사용자인 경우 비밀번호도 업데이트 (향후 구현)
@@ -677,3 +619,17 @@ class _UserProfileEditViewState extends State<UserProfileEditView> {
   }
 }
 
+// ============================================
+// 변경 이력
+// ============================================
+// 2025-12-31: 김택권
+//   - 사용자 프로필 수정 화면 생성
+//   - 프로필 이미지 변경 기능 (갤러리에서 선택)
+//   - 이름, 전화번호 수정 기능
+//   - 비밀번호 수정 기능 (로컬 로그인 사용자만)
+//   - 소셜 로그인 사용자 구분 (비밀번호 수정 불가 안내)
+//   - GetStorage를 사용한 사용자 정보 로드/저장
+//   - 서버에서 프로필 이미지 가져오기
+
+// 2026-01-01: 김택권
+//   - 디버그 메시지 정리 (과도한 로그 제거)

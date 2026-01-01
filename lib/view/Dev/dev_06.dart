@@ -2,7 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shoes_shop_app/view/Dev/cheng/product_detail_3d.dart';
+import 'package:shoes_shop_app/view/Dev/product_detail_3d/payment_preview.dart';
+import 'package:shoes_shop_app/view/Dev/product_detail_3d/product_detail_3d.dart';
 
 class Dev_06 extends StatefulWidget {
   const Dev_06({super.key});
@@ -15,10 +16,10 @@ class _Dev_06State extends State<Dev_06> {
   //Property
   //late 는 초기화를 나중으로 미룸
   
-  // 색상 옵션 리스트
-  static const List<String> colorOptions = ['Black', 'Gray', 'White'];
+  // 색상 옵션 리스트 (한글, 실제 제품 데이터에 있는 색상)
+  static const List<String> colorOptions = ['블랙', '그레이', '화이트'];
   
-  // 각 제품별 초기 색상 인덱스 (0: Black, 1: Gray, 2: White)
+  // 각 제품별 초기 색상 인덱스 (0: 블랙, 1: 그레이, 2: 화이트)
   int _u740wn2ColorIndex = 0;
   int _nikeAir1ColorIndex = 0;
   int _nikePegasusColorIndex = 0;
@@ -48,14 +49,15 @@ class _Dev_06State extends State<Dev_06> {
       ),
       body: Center(
         child: Column(
+          spacing: 40,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text("Hello"),
-            const SizedBox(height: 40),
+         
             // U740WN2 - 드롭다운 + 버튼
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
               child: Row(
+                spacing: 12,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // 색상 선택 드롭다운
@@ -75,7 +77,7 @@ class _Dev_06State extends State<Dev_06> {
                       }
                     },
                   ),
-                  const SizedBox(width: 12),
+                  
                   // 3D 뷰어 이동 버튼
                   Expanded(
                     child: ElevatedButton(
@@ -88,6 +90,7 @@ class _Dev_06State extends State<Dev_06> {
                               'Newbalnce_U740WN2_Gray_01.png',
                               'Newbalnce_U740WN2_White_01.png',
                             ],
+                            'colorList': ['블랙', '그레이', '화이트'],
                             'initialIndex': _u740wn2ColorIndex,
                           },
                         );
@@ -121,7 +124,7 @@ class _Dev_06State extends State<Dev_06> {
                       }
                     },
                   ),
-                  const SizedBox(width: 12),
+                  
                   // 3D 뷰어 이동 버튼
                   Expanded(
                     child: ElevatedButton(
@@ -134,6 +137,7 @@ class _Dev_06State extends State<Dev_06> {
                               'Nike_Air_1_Gray_01.png',
                               'Nike_Air_1_White_01.png',
                             ],
+                            'colorList': ['블랙', '그레이', '화이트'],
                             'initialIndex': _nikeAir1ColorIndex,
                           },
                         );
@@ -148,6 +152,7 @@ class _Dev_06State extends State<Dev_06> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
               child: Row(
+                spacing: 12,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // 색상 선택 드롭다운
@@ -167,7 +172,7 @@ class _Dev_06State extends State<Dev_06> {
                       }
                     },
                   ),
-                  const SizedBox(width: 12),
+                  
                   // 3D 뷰어 이동 버튼
                   Expanded(
                     child: ElevatedButton(
@@ -180,6 +185,7 @@ class _Dev_06State extends State<Dev_06> {
                               'Nike_Pegasus_Gray_01.png',
                               'Nike_Pegasus_White_01.png',
                             ],
+                            'colorList': ['블랙', '그레이', '화이트'],
                             'initialIndex': _nikePegasusColorIndex,
                           },
                         );
@@ -213,7 +219,7 @@ class _Dev_06State extends State<Dev_06> {
                       }
                     },
                   ),
-                  const SizedBox(width: 12),
+                  
                   // 3D 뷰어 이동 버튼
                   Expanded(
                     child: ElevatedButton(
@@ -226,6 +232,7 @@ class _Dev_06State extends State<Dev_06> {
                               'Nike_Shox_TL_Gray_01.png',
                               'Nike_Shox_TL_White_01.png',
                             ],
+                            'colorList': ['블랙', '그레이', '화이트'],
                             'initialIndex': _nikeShoxTLColorIndex,
                           },
                         );
@@ -235,6 +242,11 @@ class _Dev_06State extends State<Dev_06> {
                   ),
                 ],
               ),
+            ),
+
+            OutlinedButton(
+              onPressed: () => Get.to(() => const PaymentPreview()),
+              child: const Text('Payment Preview'),
             ),
           ],
         ),

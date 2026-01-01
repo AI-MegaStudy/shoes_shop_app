@@ -52,13 +52,30 @@ class Product(BaseModel):
 async def select_products():
     conn = connect_db()
     curs = conn.cursor()
+    
+    # original soruce
+    # curs.execute("""
+    #     SELECT p_seq, kc_seq, cc_seq, sc_seq, gc_seq, m_seq, p_name, p_price, p_stock, p_image, p_description, created_at 
+    #     FROM product 
+    #     ORDER BY p_seq
+    # """)
+    # rows = curs.fetchall()
+
     curs.execute("""
-        SELECT p_seq, kc_seq, cc_seq, sc_seq, gc_seq, m_seq, p_name, p_price, p_stock, p_image, p_description, created_at 
-        FROM product 
-        ORDER BY p_seq
+        select
+            p.p_seq, p.kc_seq, p.cc_seq, p.sc_seq, p.gc_seq, p.m_seq, p.p_name, p.p_price, p.p_stock, p.p_image, p.p_description, p.created_at  
+            ,cc.cc_name as p_color,sc.sc_name as p_size,gc.gc_name as p_gender, ma.m_name
+        from product p 
+        inner join color_category cc on p.cc_seq=cc.cc_seq
+        inner join gender_category gc on p.gc_seq=gc.gc_seq
+        inner join size_category sc on p.sc_seq=sc.sc_seq
+        inner join maker ma on p.m_seq=ma.m_seq
+        ORDER BY p.p_seq
     """)
+    
     rows = curs.fetchall()
-    conn.close()
+
+  
     result = [{
         'p_seq': row[0],
         'kc_seq': row[1],
@@ -71,7 +88,11 @@ async def select_products():
         'p_stock': row[8],
         'p_image': row[9],
         'p_description': row[10],
-        'created_at': row[11].isoformat() if row[11] else None
+        'created_at': row[11].isoformat() if row[11] else None,
+        'p_color': row[12],
+        'p_size': row[13],
+        'p_gender': row[14],
+        'p_maker': row[15],
     } for row in rows]
     return {"results": result}
 
@@ -79,15 +100,31 @@ async def select_products():
 # ============================================
 # ID로 제품 조회
 # ============================================
-@router.get("/{product_seq}")
+@router.get("/id/{product_seq}")
 async def select_product(product_seq: int):
     conn = connect_db()
     curs = conn.cursor()
+
+    # original source 
+    # curs.execute("""
+    #     SELECT p_seq, kc_seq, cc_seq, sc_seq, gc_seq, m_seq, p_name, p_price, p_stock, p_image, p_description, created_at 
+    #     FROM product 
+    #     WHERE p_seq = %s
+    # """, (product_seq,))
+
     curs.execute("""
-        SELECT p_seq, kc_seq, cc_seq, sc_seq, gc_seq, m_seq, p_name, p_price, p_stock, p_image, p_description, created_at 
-        FROM product 
-        WHERE p_seq = %s
-    """, (product_seq,))
+        select
+            p.p_seq, p.kc_seq, p.cc_seq, p.sc_seq, p.gc_seq, p.m_seq, p.p_name, p.p_price, p.p_stock, p.p_image, p.p_description, p.created_at  
+            ,cc.cc_name as p_color,sc.sc_name as p_size,gc.gc_name as p_gender, ma.m_name
+        from product p 
+        inner join color_category cc on p.cc_seq=cc.cc_seq
+        inner join gender_category gc on p.gc_seq=gc.gc_seq
+        inner join size_category sc on p.sc_seq=sc.sc_seq
+        inner join maker ma on p.m_seq=ma.m_seq
+        WHERE p.p_seq = %s
+        ORDER BY p.p_seq
+    """,(product_seq,))
+
     row = curs.fetchone()
     conn.close()
     if row is None:
@@ -104,7 +141,11 @@ async def select_product(product_seq: int):
         'p_stock': row[8],
         'p_image': row[9],
         'p_description': row[10],
-        'created_at': row[11].isoformat() if row[11] else None
+        'created_at': row[11].isoformat() if row[11] else None,
+        'p_color': row[12],
+        'p_size': row[13],
+        'p_gender': row[14],
+        'p_maker': row[15]
     }
     return {"result": result}
 
@@ -145,7 +186,7 @@ async def select_products_by_maker(maker_seq: int):
 # ============================================
 # Search (Read All)
 # ============================================
-@router.get("/search/")
+@router.get("/search")
 async def select_search(
   maker: Optional[str]=None,
   kwds: Optional[str]=None,

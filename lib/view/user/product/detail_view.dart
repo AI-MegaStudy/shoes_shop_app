@@ -41,9 +41,9 @@ class _ProductDetailViewState extends State<ProductDetailView> {
             _colorWidget(),
             // 제품 설명
             // Description
-            Text(product!.pName),
-            Text(product!.pDescription),
-            Text(product!.pPrice.toString()),
+            Text(product!.p_name),
+            Text(product!.p_description),
+            Text(product!.p_price.toString()),
           ],
         ),
       ),

@@ -33,6 +33,8 @@ from app.api import refund_join
 from app.api import receive_join
 from app.api import request_join
 
+from app.api import purchase_item_plus
+
 app = FastAPI(title="Shoes Store API - 새로운 ERD 구조")
 ip_address = '127.0.0.1'
 
@@ -62,6 +64,8 @@ app.include_router(pickup_join.router, prefix="/api/pickups", tags=["pickups-joi
 app.include_router(refund_join.router, prefix="/api/refunds", tags=["refunds-join"])
 app.include_router(receive_join.router, prefix="/api/receives", tags=["receives-join"])
 app.include_router(request_join.router, prefix="/api/requests", tags=["requests-join"])
+
+app.include_router(purchase_item_plus.router, prefix="/api/purchase_items", tags=["purchase_items-plus"])
 
 
 @app.get("/")

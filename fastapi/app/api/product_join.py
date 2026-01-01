@@ -16,7 +16,7 @@ router = APIRouter()
 # ============================================
 # Product + 모든 카테고리 + Maker (6테이블 JOIN)
 # ============================================
-@router.get("/products/{product_seq}/full_detail")
+@router.get("/{product_seq}/full_detail")
 async def get_product_full_detail(product_seq: int):
     """
     특정 Product의 전체 상세 정보
@@ -100,7 +100,7 @@ async def get_product_full_detail(product_seq: int):
 # ============================================
 # Product 목록 + 모든 카테고리 + Maker
 # ============================================
-@router.get("/products/with_categories")
+@router.get("/with_categories")
 async def get_products_with_categories(
     maker_seq: Optional[int] = Query(None, description="제조사 ID (없으면 전체)"),
     kind_seq: Optional[int] = Query(None, description="종류 카테고리 ID"),
@@ -187,7 +187,7 @@ async def get_products_with_categories(
 # ============================================
 # 제조사별 Product 목록 + 카테고리
 # ============================================
-@router.get("/products/by_maker/{maker_seq}/with_categories")
+@router.get("/by_maker/{maker_seq}/with_categories")
 async def get_products_by_maker_with_categories(maker_seq: int):
     """
     특정 제조사의 모든 Product + 카테고리 정보
@@ -245,7 +245,7 @@ async def get_products_by_maker_with_categories(maker_seq: int):
 # ============================================
 # 카테고리별 Product 목록
 # ============================================
-@router.get("/products/by_category")
+@router.get("/by_category")
 async def get_products_by_category(
     kind_seq: Optional[int] = Query(None, description="종류 카테고리 ID"),
     color_seq: Optional[int] = Query(None, description="색상 카테고리 ID"),
@@ -326,3 +326,14 @@ async def get_products_by_category(
 
 # ============================================
 # 개별 실행용 (테스트)
+
+
+# ============================================
+# 변경 이력
+# ============================================
+# 2026-01-01: 
+#   - 라우터 경로 수정: prefix(/api/products)를 고려하여 /products/...를 제거
+#     - /products/{product_seq}/full_detail → /{product_seq}/full_detail
+#     - /products/with_categories → /with_categories
+#     - /products/by_maker/{maker_seq}/with_categories → /by_maker/{maker_seq}/with_categories
+#     - /products/by_category → /by_category

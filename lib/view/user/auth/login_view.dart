@@ -100,6 +100,7 @@ class _LoginViewState extends State<LoginView> {
               titleTextStyle: config.boldLabelStyle.copyWith(color: p.textPrimary),
               backgroundColor: p.background,
               foregroundColor: p.textPrimary,
+              automaticallyImplyLeading: false,
             ),
             body: SafeArea(
               child: SingleChildScrollView(
@@ -230,7 +231,19 @@ class _LoginViewState extends State<LoginView> {
                           child: OutlinedButton(
                             onPressed: _navigateToTestPage,
                             child: const Text(
-                              '테스트 페이지로 이동',
+                              '회원가입(폼완성)',
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          height: config.defaultButtonHeight,
+                          child: OutlinedButton(
+                            onPressed: _handleHongGildongLogin,
+                            child: const Text(
+                              '홍길동 로그인',
                               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -688,6 +701,16 @@ class _LoginViewState extends State<LoginView> {
         builder: (context) => SignUpView(testData: testData),
       ),
     );
+  }
+
+  /// 홍길동 계정으로 자동 로그인
+  void _handleHongGildongLogin() {
+    // 입력 필드에 자동으로 값 채우기
+    _idController.text = 'user001@example.com';
+    _passwordController.text = 'qwer1234';
+    
+    // 자동 로그인 실행
+    _handleLogin();
   }
 
   /// 구글 소셜 로그인 처리

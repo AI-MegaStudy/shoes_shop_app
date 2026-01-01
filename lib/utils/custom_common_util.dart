@@ -122,11 +122,20 @@ class CustomCommonUtil {
       return baseUrl;
     }
     
-    // iOS 시뮬레이터: 127.0.0.1 사용
+    // iOS 시뮬레이터: 감지된 IP 우선 사용, 없으면 localhost 사용
     if (kDebugMode && Platform.isIOS) {
-      baseUrl = 'http://127.0.0.1:8000';
+      // 캐시된 로컬 IP가 있으면 사용 (실제 기기나 네트워크가 있는 경우)
+      if (_cachedLocalIP != null) {
+        baseUrl = 'http://$_cachedLocalIP:8000';
+        if (kDebugMode) {
+          print('🌐 [CustomCommonUtil] API Base URL: $baseUrl (iOS 시뮬레이터 - 로컬 IP 자동 감지)');
+        }
+        return baseUrl;
+      }
+      // IP 감지 실패 시 localhost 사용
+      baseUrl = 'http://localhost:8000';
       if (kDebugMode) {
-        print('🌐 [CustomCommonUtil] API Base URL: $baseUrl (iOS 시뮬레이터 - 자동 감지)');
+        print('🌐 [CustomCommonUtil] API Base URL: $baseUrl (iOS 시뮬레이터 - localhost 기본값)');
       }
       return baseUrl;
     }

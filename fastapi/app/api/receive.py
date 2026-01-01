@@ -79,7 +79,7 @@ async def select_receive(receive_seq: int):
 # ============================================
 # 제품별 입고 내역 조회
 # ============================================
-@router.get("/{product_seq}")
+@router.get("/by_product/{product_seq}")
 async def select_receives_by_product(product_seq: int):
     conn = connect_db()
     curs = conn.cursor()
@@ -168,7 +168,7 @@ async def update_receive(
 # ============================================
 # 입고 처리 (날짜 업데이트)
 # ============================================
-@router.post("/receive_seq/process")
+@router.post("/{receive_seq}/process")
 async def process_receive(receive_seq: int):
     try:
         rec_date_dt = datetime.now()

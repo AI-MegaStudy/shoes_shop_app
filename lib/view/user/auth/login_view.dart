@@ -57,6 +57,7 @@ class _LoginViewState extends State<LoginView> {
     
     // 로그인 화면 진입 시 기존 사용자 정보 삭제 (새로운 로그인을 위함)
     _clearStoredUserData();
+    
   }
   
   /// GetStorage에서 사용자 정보 삭제
@@ -99,6 +100,7 @@ class _LoginViewState extends State<LoginView> {
               titleTextStyle: config.boldLabelStyle.copyWith(color: p.textPrimary),
               backgroundColor: p.background,
               foregroundColor: p.textPrimary,
+              automaticallyImplyLeading: false,
             ),
             body: SafeArea(
               child: SingleChildScrollView(
@@ -229,7 +231,19 @@ class _LoginViewState extends State<LoginView> {
                           child: OutlinedButton(
                             onPressed: _navigateToTestPage,
                             child: const Text(
-                              '테스트 페이지로 이동',
+                              '회원가입(폼완성)',
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          height: config.defaultButtonHeight,
+                          child: OutlinedButton(
+                            onPressed: _handleHongGildongLogin,
+                            child: const Text(
+                              '홍길동 로그인',
                               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -429,7 +443,7 @@ class _LoginViewState extends State<LoginView> {
       if (kDebugMode) {
         print('═══════════════════════════════════════════════════════');
         print('🚨 [ERROR] 함수: _updateLoginTime');
-        print('📍 URL: ${config.apiBaseUrl}/api/user_auth_identities/$authSeq/update_login_time');
+        print('📍 URL: ${config.getApiBaseUrl()}/api/user_auth_identities/$authSeq/update_login_time');
         print('❌ 오류: $e');
         print('📚 스택 트레이스: $stackTrace');
         print('═══════════════════════════════════════════════════════');
@@ -478,7 +492,7 @@ class _LoginViewState extends State<LoginView> {
         if (kDebugMode) {
           print('═══════════════════════════════════════════════════════');
           print('🚨 [ERROR] 함수: _handleLogin - 인증 정보 조회 실패');
-          print('📍 URL: ${config.apiBaseUrl}/api/user_auth_identities/provider/local');
+          print('📍 URL: ${config.getApiBaseUrl()}/api/user_auth_identities/provider/local');
           print('❌ 오류: ${authResponse.error}');
           print('═══════════════════════════════════════════════════════');
         }
@@ -567,7 +581,7 @@ class _LoginViewState extends State<LoginView> {
         if (kDebugMode) {
           print('═══════════════════════════════════════════════════════');
           print('🚨 [ERROR] 함수: _handleLogin - 사용자 정보 조회 실패');
-          print('📍 URL: ${config.apiBaseUrl}/api/users/$uSeq');
+          print('📍 URL: ${config.getApiBaseUrl()}/api/users/$uSeq');
           print('❌ 오류: ${userResponse.error}');
           print('═══════════════════════════════════════════════════════');
         }
@@ -687,6 +701,16 @@ class _LoginViewState extends State<LoginView> {
         builder: (context) => SignUpView(testData: testData),
       ),
     );
+  }
+
+  /// 홍길동 계정으로 자동 로그인
+  void _handleHongGildongLogin() {
+    // 입력 필드에 자동으로 값 채우기
+    _idController.text = 'user001@example.com';
+    _passwordController.text = 'qwer1234';
+    
+    // 자동 로그인 실행
+    _handleLogin();
   }
 
   /// 구글 소셜 로그인 처리

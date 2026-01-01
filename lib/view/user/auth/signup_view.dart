@@ -496,20 +496,6 @@ class _SignUpViewState extends State<SignUpView> {
       return;
     }
 
-    // 전화번호 검증
-    if (_phoneController.text.trim().isEmpty) {
-      FocusScope.of(context).requestFocus(FocusNode());
-      CustomCommonUtil.showErrorSnackbar(context: context, message: '전화번호를 입력해주세요');
-      return;
-    }
-
-    // 이름 검증
-    if (_nameController.text.trim().isEmpty) {
-      FocusScope.of(context).requestFocus(FocusNode());
-      CustomCommonUtil.showErrorSnackbar(context: context, message: '이름을 입력해주세요');
-      return;
-    }
-
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     final passwordConfirm = _passwordConfirmController.text.trim();
@@ -551,7 +537,7 @@ class _SignUpViewState extends State<SignUpView> {
         if (kDebugMode) {
           print('═══════════════════════════════════════════════════════');
           print('🚨 [ERROR] 함수: _handleSignUp - 이메일 중복 확인');
-          print('📍 URL: ${config.apiBaseUrl}/api/users');
+          print('📍 URL: ${config.getApiBaseUrl()}/api/users');
           print('❌ 오류: ${usersResponse.error}');
           print('═══════════════════════════════════════════════════════');
         }
@@ -576,7 +562,7 @@ class _SignUpViewState extends State<SignUpView> {
       if (kDebugMode) {
         print('═══════════════════════════════════════════════════════');
         print('🚨 [ERROR] 함수: _handleSignUp - 이메일 중복 확인 예외');
-        print('📍 URL: ${config.apiBaseUrl}/api/users');
+        print('📍 URL: ${config.getApiBaseUrl()}/api/users');
         print('❌ 오류: $e');
         print('📚 스택 트레이스: $stackTrace');
         print('═══════════════════════════════════════════════════════');
@@ -605,7 +591,7 @@ class _SignUpViewState extends State<SignUpView> {
           if (kDebugMode) {
             print('═══════════════════════════════════════════════════════');
             print('🚨 [ERROR] 함수: _handleSignUp - 전화번호 중복 확인');
-            print('📍 URL: ${config.apiBaseUrl}/api/users');
+            print('📍 URL: ${config.getApiBaseUrl()}/api/users');
             print('❌ 오류: ${usersResponse.error}');
             print('═══════════════════════════════════════════════════════');
           }
@@ -630,7 +616,7 @@ class _SignUpViewState extends State<SignUpView> {
         if (kDebugMode) {
           print('═══════════════════════════════════════════════════════');
           print('🚨 [ERROR] 함수: _handleSignUp - 전화번호 중복 확인 예외');
-          print('📍 URL: ${config.apiBaseUrl}/api/users');
+          print('📍 URL: ${config.getApiBaseUrl()}/api/users');
           print('❌ 오류: $e');
           print('📚 스택 트레이스: $stackTrace');
           print('═══════════════════════════════════════════════════════');
@@ -658,12 +644,14 @@ class _SignUpViewState extends State<SignUpView> {
       final dummyImageBytes = _createDummyImageBytes();
       final request = http.MultipartRequest(
         'POST',
-        Uri.parse('${config.apiBaseUrl}/api/users'),
+        Uri.parse('${config.getApiBaseUrl()}/api/users'),
       );
       
       // Form 필드 추가
       request.fields['u_email'] = email;
-      request.fields['u_name'] = name;
+      if (name.isNotEmpty) {
+        request.fields['u_name'] = name;
+      }
       if (phone.isNotEmpty) {
         request.fields['u_phone'] = phone;
       }
@@ -710,7 +698,7 @@ class _SignUpViewState extends State<SignUpView> {
         if (kDebugMode) {
           print('═══════════════════════════════════════════════════════');
           print('🚨 [ERROR] 함수: _handleSignUp - 사용자 생성');
-          print('📍 URL: ${config.apiBaseUrl}/api/users');
+          print('📍 URL: ${config.getApiBaseUrl()}/api/users');
           print('📊 상태 코드: ${response.statusCode}');
           print('📤 요청 필드: ${request.fields}');
           print('📥 응답 본문: ${response.body}');
@@ -732,7 +720,7 @@ class _SignUpViewState extends State<SignUpView> {
         if (kDebugMode) {
           print('═══════════════════════════════════════════════════════');
           print('🚨 [ERROR] 함수: _handleSignUp - 사용자 생성 응답 파싱');
-          print('📍 URL: ${config.apiBaseUrl}/api/users');
+          print('📍 URL: ${config.getApiBaseUrl()}/api/users');
           print('📊 상태 코드: ${response.statusCode}');
           print('📥 응답 본문: ${response.body}');
           print('❌ 오류: $e');
@@ -751,7 +739,7 @@ class _SignUpViewState extends State<SignUpView> {
         if (kDebugMode) {
           print('═══════════════════════════════════════════════════════');
           print('🚨 [ERROR] 함수: _handleSignUp - 사용자 생성 실패');
-          print('📍 URL: ${config.apiBaseUrl}/api/users');
+          print('📍 URL: ${config.getApiBaseUrl()}/api/users');
           print('📊 상태 코드: ${response.statusCode}');
           print('📤 요청 필드: ${request.fields}');
           print('📥 응답 데이터: $responseData');
@@ -779,7 +767,7 @@ class _SignUpViewState extends State<SignUpView> {
       
       final authRequest = http.MultipartRequest(
         'POST',
-        Uri.parse('${config.apiBaseUrl}/api/user_auth_identities'),
+        Uri.parse('${config.getApiBaseUrl()}/api/user_auth_identities'),
       );
       
       authRequest.fields['u_seq'] = insertedUSeq.toString();
@@ -815,7 +803,7 @@ class _SignUpViewState extends State<SignUpView> {
         if (kDebugMode) {
           print('═══════════════════════════════════════════════════════');
           print('🚨 [ERROR] 함수: _handleSignUp - 인증 정보 생성');
-          print('📍 URL: ${config.apiBaseUrl}/api/user_auth_identities');
+          print('📍 URL: ${config.getApiBaseUrl()}/api/user_auth_identities');
           print('📊 상태 코드: ${authResponse.statusCode}');
           print('📤 요청 필드: ${authRequest.fields}');
           print('📥 응답 본문: ${authResponse.body}');
@@ -837,7 +825,7 @@ class _SignUpViewState extends State<SignUpView> {
         if (kDebugMode) {
           print('═══════════════════════════════════════════════════════');
           print('🚨 [ERROR] 함수: _handleSignUp - 인증 정보 생성 응답 파싱');
-          print('📍 URL: ${config.apiBaseUrl}/api/user_auth_identities');
+          print('📍 URL: ${config.getApiBaseUrl()}/api/user_auth_identities');
           print('📊 상태 코드: ${authResponse.statusCode}');
           print('📥 응답 본문: ${authResponse.body}');
           print('❌ 오류: $e');
@@ -856,7 +844,7 @@ class _SignUpViewState extends State<SignUpView> {
         if (kDebugMode) {
           print('═══════════════════════════════════════════════════════');
           print('🚨 [ERROR] 함수: _handleSignUp - 인증 정보 생성 실패');
-          print('📍 URL: ${config.apiBaseUrl}/api/user_auth_identities');
+          print('📍 URL: ${config.getApiBaseUrl()}/api/user_auth_identities');
           print('📊 상태 코드: ${authResponse.statusCode}');
           print('📤 요청 필드: ${authRequest.fields}');
           print('📥 응답 데이터: $authResponseData');

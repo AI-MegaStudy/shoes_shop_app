@@ -33,8 +33,10 @@ from app.api import refund_join
 from app.api import receive_join
 from app.api import request_join
 
+from app.api import purchase_item_plus
+
 app = FastAPI(title="Shoes Store API - 새로운 ERD 구조")
-ip_address = '127.0.0.1'
+ip_address = '0.0.0.0'  # 모든 인터페이스에서 접근 가능하도록 변경
 
 # 기본 CRUD 라우터 등록
 app.include_router(branch.router, prefix="/api/branches", tags=["branches"])
@@ -48,20 +50,22 @@ app.include_router(color_category.router, prefix="/api/color_categories", tags=[
 app.include_router(size_category.router, prefix="/api/size_categories", tags=["size_categories"])
 app.include_router(gender_category.router, prefix="/api/gender_categories", tags=["gender_categories"])
 app.include_router(refund_reason_category.router, prefix="/api/refund_reason_categories", tags=["refund_reason_categories"])
+# JOIN 라우터 등록 (더 구체적인 경로를 먼저 등록)
+app.include_router(product_join.router, prefix="/api/products", tags=["products-join"])
+app.include_router(purchase_item_join.router, prefix="/api/purchase_items", tags=["purchase_items-join"])
+
 app.include_router(product.router, prefix="/api/products", tags=["products"])
 app.include_router(purchase_item.router, prefix="/api/purchase_items", tags=["purchase_items"])
 app.include_router(pickup.router, prefix="/api/pickups", tags=["pickups"])
 app.include_router(refund.router, prefix="/api/refunds", tags=["refunds"])
 app.include_router(receive.router, prefix="/api/receives", tags=["receives"])
 app.include_router(request.router, prefix="/api/requests", tags=["requests"])
-
-# JOIN 라우터 등록
-app.include_router(product_join.router, prefix="/api/products", tags=["products-join"])
-app.include_router(purchase_item_join.router, prefix="/api/purchase_items", tags=["purchase_items-join"])
 app.include_router(pickup_join.router, prefix="/api/pickups", tags=["pickups-join"])
 app.include_router(refund_join.router, prefix="/api/refunds", tags=["refunds-join"])
 app.include_router(receive_join.router, prefix="/api/receives", tags=["receives-join"])
 app.include_router(request_join.router, prefix="/api/requests", tags=["requests-join"])
+
+app.include_router(purchase_item_plus.router, prefix="/api/purchase_items", tags=["purchase_items-plus"])
 
 
 @app.get("/")
@@ -113,4 +117,12 @@ async def health_check():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host=ip_address, port=8000)
+
+
+# ============================================
+# 변경 이력
+# ============================================
+# 2026-01-01: 
+#   - IP 주소를 0.0.0.0으로 변경하여 iOS 시뮬레이터 및 외부 접근 지원
+#   - 라우터 등록 순서 변경: 더 구체적인 경로(product_join, purchase_item_join)를 일반 경로보다 먼저 등록
 

@@ -37,7 +37,7 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
         setState(() {
           _currentUser = user;
         });
-        
+
         if (user.uSeq != null) {
           await _loadProfileImage(user.uSeq!);
         }
@@ -54,12 +54,12 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
     try {
       // TODO: CustomCommonUtil.getApiBaseUrl() 메서드 구현 필요
       // 임시로 config 사용
-      final baseUrl = kDebugMode 
-          ? 'http://10.0.2.2:5000'  // Android 에뮬레이터
+      final baseUrl = kDebugMode
+          ? 'http://10.0.2.2:5000' // Android 에뮬레이터
           : 'http://localhost:5000'; // 기타
       final uri = Uri.parse('$baseUrl/api/users/$userSeq/profile_image');
       final response = await http.get(uri);
-      
+
       if (response.statusCode == 200 && mounted) {
         setState(() {
           _profileImageBytes = response.bodyBytes;
@@ -77,7 +77,7 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
     return Builder(
       builder: (context) {
         final p = context.palette;
-        
+
         return Drawer(
           child: Container(
             color: p.background,
@@ -105,7 +105,10 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          _currentUser?.uName ?? '고객님',
+                          (_currentUser?.uName != null &&
+                                  _currentUser!.uName!.trim().isNotEmpty)
+                              ? _currentUser!.uName!
+                              : (_currentUser?.uEmail ?? '고객님'),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -123,7 +126,7 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                       ],
                     ),
                   ),
-                  
+
                   // 메뉴 목록
                   Expanded(
                     child: ListView(
@@ -135,7 +138,7 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                           title: '홈',
                           onTap: () => Navigator.pop(context),
                         ),
-                        
+
                         _buildMenuItem(
                           context,
                           icon: Icons.search,
@@ -143,11 +146,13 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                           onTap: () {
                             Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('상품 조회 화면 준비 중 (담당: 이광태)')),
+                              const SnackBar(
+                                content: Text('상품 조회 화면 준비 중 (담당: 이광태)'),
+                              ),
                             );
                           },
                         ),
-                        
+
                         _buildMenuItem(
                           context,
                           icon: Icons.shopping_cart,
@@ -155,11 +160,13 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                           onTap: () {
                             Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('장바구니 화면 준비 중 (담당: 이예은)')),
+                              const SnackBar(
+                                content: Text('장바구니 화면 준비 중 (담당: 이예은)'),
+                              ),
                             );
                           },
                         ),
-                        
+
                         _buildMenuItem(
                           context,
                           icon: Icons.shopping_bag,
@@ -167,11 +174,13 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                           onTap: () {
                             Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('주문 내역 화면 준비 중 (담당: 유다원)')),
+                              const SnackBar(
+                                content: Text('주문 내역 화면 준비 중 (담당: 유다원)'),
+                              ),
                             );
                           },
                         ),
-                        
+
                         _buildMenuItem(
                           context,
                           icon: Icons.receipt_long,
@@ -179,13 +188,15 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                           onTap: () {
                             Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('수령/반품 조회 화면 준비 중 (담당: 유다원)')),
+                              const SnackBar(
+                                content: Text('수령/반품 조회 화면 준비 중 (담당: 유다원)'),
+                              ),
                             );
                           },
                         ),
-                        
+
                         const Divider(height: 24),
-                        
+
                         _buildMenuItem(
                           context,
                           icon: Icons.person,
@@ -198,7 +209,7 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                       ],
                     ),
                   ),
-                  
+
                   // 로그아웃 버튼
                   Padding(
                     padding: const EdgeInsets.all(16),
@@ -209,7 +220,10 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
                         onPressed: _handleLogout,
                         child: const Text(
                           '로그아웃',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -247,7 +261,7 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
     required VoidCallback onTap,
   }) {
     final p = context.palette;
-    
+
     return ListTile(
       leading: Icon(icon, color: p.primary),
       title: Text(
@@ -259,9 +273,7 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
         ),
       ),
       onTap: onTap,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     );
   }
 
@@ -272,10 +284,10 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
     //   MaterialPageRoute(builder: (context) => const UserProfileEditView()),
     // );
     // if (result == true) await _loadUserData();
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('개인정보 수정 화면 준비 중')),
-    );
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('개인정보 수정 화면 준비 중')));
   }
 
   void _handleLogout() {
@@ -294,12 +306,12 @@ class _UserDrawerMenuState extends State<UserDrawerMenu> {
               final storage = GetStorage();
               storage.remove('user');
               storage.remove('user_auth_identity');
-              
+
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('로그아웃되었습니다.')),
-              );
-              
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('로그아웃되었습니다.')));
+
               Navigator.of(context).popUntil((route) => route.isFirst);
             },
             child: const Text('확인'),

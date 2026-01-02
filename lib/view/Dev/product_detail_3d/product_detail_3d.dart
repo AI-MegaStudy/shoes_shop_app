@@ -188,7 +188,10 @@ class _ProductDetail3DState extends State<ProductDetail3D> {
                         src: _modelUrl,
                         autoRotate: false, // 자동 회전 비활성화 (사용자가 직접 컨트롤)
                         cameraControls: true, // 카메라 컨트롤 활성화 (핀치 줌, 드래그 등)
-                        onWebViewCreated: (WebViewController webViewController) {
+                        onWebViewCreated: (WebViewController webViewController) async {
+                          // JavaScript 활성화 (3D 모델 렌더링에 필요)
+                          await webViewController.setJavaScriptMode(JavaScriptMode.unrestricted);
+                          
                           // NavigationDelegate를 설정하여 페이지 로딩 완료 감지
                           webViewController.setNavigationDelegate(
                             NavigationDelegate(
@@ -208,6 +211,10 @@ class _ProductDetail3DState extends State<ProductDetail3D> {
                                     });
                                   }
                                 });
+                              },
+                              onWebResourceError: (WebResourceError error) {
+                                // 에러 발생 시 로그 출력 (디버깅용)
+                                debugPrint('WebView 에러: ${error.description}');
                               },
                             ),
                           );
@@ -299,4 +306,5 @@ class _ProductDetail3DState extends State<ProductDetail3D> {
 //   - color_name_to_color.dart를 사용하여 색상 버튼 색상 지정
 //   - 정사각형 3D 뷰어 (화면 너비의 80%)
 //   - 선택된 버튼 표시를 위한 일관된 테두리 스타일 (파란색 두꺼운 테두리)
+//   - 안드로이드 WebView 설정 추가: JavaScript 활성화 및 에러 핸들링
 

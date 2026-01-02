@@ -220,9 +220,7 @@ class _CartViewState extends State<CartView> {
                             final lineTotal = unitPrice * qty;
                             final pImageRaw = (item['p_image'] as String?) ?? '';
                             final pImage = pImageRaw.isNotEmpty 
-                                ? (pImageRaw.startsWith('http://') || pImageRaw.startsWith('https://'))
-                                    ? pImageRaw
-                                    : 'https://cheng80.myqnapcloud.com/images/${pImageRaw.replaceFirst('images/', '')}'
+                                ? 'https://cheng80.myqnapcloud.com/images/$pImageRaw'
                                 : '';
 
                             return Card(
@@ -346,4 +344,7 @@ class _CartViewState extends State<CartView> {
 //   - 재고 확인 후 수량 증가 기능
 //   - 결제 화면으로 이동 기능
 //   - config.dart 상수를 payment_config.dart로 이동 (boldLabelStyle, bodyTextStyle, PurchaseErrorMessage 등)
+//
+// 2026-01-02:
+//   - 불필요한 디버그 print 제거
 

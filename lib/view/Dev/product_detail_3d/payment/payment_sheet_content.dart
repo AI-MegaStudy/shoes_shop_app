@@ -101,21 +101,19 @@ class _PaymentSheetContentState extends State<PaymentSheetContent> {
                 items: widget.branches
                     .map((branch) => DropdownMenuItem<Branch>(
                           value: branch,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  branch.br_name,
-                                  style: boldLabelStyle.copyWith(color: p.textPrimary),
-                                ),
-                                Text(
-                                  branch.br_address,
-                                  style: smallTextStyle.copyWith(color: p.textSecondary),
-                                ),
-                              ],
-                            ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                branch.br_name,
+                                style: boldLabelStyle.copyWith(color: p.textPrimary),
+                              ),
+                              Text(
+                                branch.br_address,
+                                style: smallTextStyle.copyWith(color: p.textSecondary),
+                              ),
+                            ],
                           ),
                         ))
                     .toList(),

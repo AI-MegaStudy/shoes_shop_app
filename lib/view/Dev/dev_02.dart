@@ -1,6 +1,11 @@
 //dev_02.dart (작업자 : 이예은)
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../user/auth/user_cart_view.dart';
+import '../user/auth/user_payment_view.dart';
+import 'product_detail_3d/payment/cart_view.dart';
 
 class Dev_02 extends StatefulWidget {
   const Dev_02({super.key});
@@ -40,6 +45,8 @@ class _Dev_02State extends State<Dev_02> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
              Text("Hello"),
+             ElevatedButton(onPressed: () => Get.to(() => UserPaymentView()), child: Text('제품')),
+             ElevatedButton(onPressed: () => Get.to(() => UserCartView()), child: Text('제품')),
           ],
         ),
       ),

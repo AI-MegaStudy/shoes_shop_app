@@ -31,6 +31,12 @@ const SizedBox defaultVerticalSpacing = SizedBox(height: 16);
 /// 작은 SizedBox 높이 (픽셀) - 작은 요소 간 수직 간격
 const SizedBox smallVerticalSpacing = SizedBox(height: 8);
 
+/// 매우 작은 SizedBox 높이 (픽셀) - 매우 작은 요소 간 수직 간격 (드롭다운 메뉴 내부 등)
+const SizedBox tinyVerticalSpacing = SizedBox(height: 2);
+
+/// 매우 작은 패딩 (픽셀) - 드롭다운 메뉴 항목 등 매우 작은 공간
+const EdgeInsets tinyPadding = EdgeInsets.symmetric(vertical: 2);
+
 //  UI Border Radius
 /// 기본 BorderRadius - 대부분의 카드, 다이얼로그
 const BorderRadius defaultBorderRadius = BorderRadius.all(Radius.circular(12));

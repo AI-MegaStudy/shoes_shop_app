@@ -345,9 +345,7 @@ class _PaymentViewState extends State<PaymentView> {
                 final lineTotal = unitPrice * qty;
                 final pImageRaw = (e['p_image'] as String?) ?? '';
                 final pImage = pImageRaw.isNotEmpty 
-                    ? (pImageRaw.startsWith('http://') || pImageRaw.startsWith('https://'))
-                        ? pImageRaw
-                        : 'https://cheng80.myqnapcloud.com/images/${pImageRaw.replaceFirst('images/', '')}'
+                    ? 'https://cheng80.myqnapcloud.com/images/$pImageRaw'
                     : '';
 
                 return Card(
@@ -458,4 +456,7 @@ class _PaymentViewState extends State<PaymentView> {
 //   - _savePurchaseItemsToDb 함수가 브랜치 객체를 직접 받도록 변경
 //   - GetX bottomSheet 사용
 //   - config.dart 상수를 payment_config.dart로 이동 (boldLabelStyle, bodyTextStyle, bottomSheetTopBorderRadius, district, PurchaseItemStatus, PurchaseErrorMessage 등)
+//
+// 2026-01-02:
+//   - 이미지 처리 로직 단순화: DB에서 파일명만 저장되므로 http/https 체크 및 replaceFirst 제거
 

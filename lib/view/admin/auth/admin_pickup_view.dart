@@ -67,7 +67,7 @@ class _AdminPickupViewState extends State<AdminPickupView> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('${pickup.b_seq}', style: config_testsy.titleStyle),
+                              Text('${pickup.pic_seq}', style: config_testsy.titleStyle),
                               Text('${config_testsy.pickupStatus[int.parse(pickup.b_status)]}'),
                             ],
                           ),
@@ -90,48 +90,46 @@ class _AdminPickupViewState extends State<AdminPickupView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Card(
-                    child: Padding(
+                  Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('구매 번호: ${dataSeq['b_seq']}', style: config_testsy.titleStyle),
-                    )
+                    child: Text('수령 번호 ${dataSeq['pic_seq']}', style: config_testsy.titleStyle),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('수령 일시 ${dataSeq['created_at'].toString().replaceAll('T', ' ')}', style: config_testsy.titleStyle),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                    child: Card(
-                      child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text('주문자 상세 정보',
-                              style: config_testsy.titleStyle,
-                            ),
-                            Text('이름: ${dataSeq['u_name']}\n연락처: ${dataSeq['u_phone']}\n이메일: ${dataSeq['u_email']}',
-                              style: config_testsy.mediumTextStyle,
-                            ),
-                          ],
-                        ),
-                      )
+                    child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text('주문자 상세 정보',
+                            style: config_testsy.titleStyle,
+                          ),
+                          Text('이름: ${dataSeq['u_name']}\n연락처: ${dataSeq['u_phone']}\n이메일: ${dataSeq['u_email']}',
+                            style: config_testsy.mediumTextStyle,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                    child: Card(
-                      child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text('주문 상품',
-                              style: config_testsy.titleStyle,
-                            ),
-                            Text('${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}  |  ${dataSeq['b_quantity']}개',
-                              style: config_testsy.mediumTextStyle,
-                            ),
-                          ],
-                        ),
-                      )
+                    child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text('주문 상품',
+                            style: config_testsy.titleStyle,
+                          ),
+                          Text('${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}  |  ${dataSeq['b_quantity']}개',
+                            style: config_testsy.mediumTextStyle,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   ElevatedButton(

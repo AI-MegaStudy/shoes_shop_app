@@ -11,13 +11,20 @@ router = APIRouter()
 # 관리자 페이지 - PurchaseItem 전체 목록 조회
 # ============================================
 @router.get("/all")
-async def get_purchase_items_all():
+async def get_purchase_items_all(search: Optional[str] = None):
     
     conn = connect_db()
     curs = conn.cursor()
+
+    where_sql = ''
+
+    if type(search) == str:
+        where_sql = 'where u.u_name like ${search}'
+    elif type(search) == int:
+        where_sql = 'where pi.b_seq like ${search}'
     
     try:
-        sql = """
+        sql = f"""
         SELECT 
             pi.b_seq,
             pi.b_price,
@@ -58,6 +65,7 @@ async def get_purchase_items_all():
         JOIN gender_category gc ON p.gc_seq = gc.gc_seq
         JOIN maker m ON p.m_seq = m.m_seq
 
+        {where_sql}
         ORDER BY pi.b_date DESC, pi.b_seq DESC
         """
         curs.execute(sql)

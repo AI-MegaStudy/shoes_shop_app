@@ -15,8 +15,14 @@ class AdminPurchaseView extends StatefulWidget {
 }
 
 class _AdminPurchaseViewState extends State<AdminPurchaseView> {
+  // 주문 목록 데이터
   late List data;
+
+  // 주문 상세 데이터
   late Map dataSeq;
+
+  // 검색
+  late TextEditingController _searchController;
 
   @override
   void initState() {
@@ -24,10 +30,11 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
     data = [];
     dataSeq = {};
     getJSONData();
+    _searchController = TextEditingController();
   }
 
   Future<void> getJSONData() async{
-    var url = Uri.parse('http://127.0.0.1:8000/api/purchase_items/admin/all');
+    var url = Uri.parse('http://127.0.0.1:8000/api/purchase_items/admin/all/${_searchController.text}');
     print(url);
     var response = await http.get(url);
     data.clear();
@@ -52,32 +59,47 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
             flex: 1,
             child: data.isEmpty
             ? Text('데이터가 없습니다.')
-            : ListView.builder(
-              itemCount: data.length,
-              itemBuilder: (context, index) {
-                final purchase_item = data[index];
-                return GestureDetector(
-                  onTap: () => getJSONbSeqData(data[index].b_seq),
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('${purchase_item.b_seq}', style: config_testsy.titleStyle),
-                              Text('${config_testsy.pickupStatus[int.parse(purchase_item.b_status)]}'),
-                            ],
-                          ),
-                          Text('${purchase_item.u_name}', style: config_testsy.mediumTextStyle),
-                        ],
-                      ),
-                    ),
+            : Column(
+              children: [
+                TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: '고객명/주문번호 찾기',
+                    prefixIcon: const Icon(Icons.search),
                   ),
-                );
-              }
+                  textInputAction: TextInputAction.go,
+                  onChanged: (_) => setState(() {}),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: data.length,
+                    itemBuilder: (context, index) {
+                      final purchase_item = data[index];
+                      return GestureDetector(
+                        onTap: () => getJSONbSeqData(data[index].b_seq),
+                        child: Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('${purchase_item.b_seq}', style: config_testsy.titleStyle),
+                                    Text('${config_testsy.pickupStatus[int.parse(purchase_item.b_status)]}'),
+                                  ],
+                                ),
+                                Text('${purchase_item.u_name}', style: config_testsy.mediumTextStyle),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                  ),
+                ),
+              ],
             )
           ),
           VerticalDivider(),
@@ -90,48 +112,46 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Card(
-                    child: Padding(
+                  Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('구매 번호: ${dataSeq['b_seq']}', style: config_testsy.titleStyle),
-                    )
+                    child: Text('구매 번호 ${dataSeq['b_seq']}', style: config_testsy.titleStyle),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('구매 일시 ${dataSeq['b_date'].toString().replaceAll('T', ' ')}', style: config_testsy.titleStyle),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                    child: Card(
-                      child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text('주문자 상세 정보',
-                              style: config_testsy.titleStyle,
-                            ),
-                            Text('이름: ${dataSeq['u_name']}\n연락처: ${dataSeq['u_phone']}\n이메일: ${dataSeq['u_email']}',
-                              style: config_testsy.mediumTextStyle,
-                            ),
-                          ],
-                        ),
-                      )
+                    child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text('주문자 상세 정보',
+                            style: config_testsy.titleStyle,
+                          ),
+                          Text('이름: ${dataSeq['u_name']}\n연락처: ${dataSeq['u_phone']}\n이메일: ${dataSeq['u_email']}',
+                            style: config_testsy.mediumTextStyle,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                    child: Card(
-                      child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text('주문 상품',
-                              style: config_testsy.titleStyle,
-                            ),
-                            Text('${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}  |  ${dataSeq['b_quantity']}개',
-                              style: config_testsy.mediumTextStyle,
-                            ),
-                          ],
-                        ),
-                      )
+                    child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text('주문 상품',
+                            style: config_testsy.titleStyle,
+                          ),
+                          Text('${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}  |  ${dataSeq['b_quantity']}개',
+                            style: config_testsy.mediumTextStyle,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   ElevatedButton(

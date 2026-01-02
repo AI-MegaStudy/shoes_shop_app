@@ -56,6 +56,7 @@ async def get_pickup_all():
         JOIN gender_category gc ON p.gc_seq = gc.gc_seq
         JOIN maker m ON p.m_seq = m.m_seq
         JOIN branch br ON pi.br_seq = br.br_seq
+        ORDER BY pic_seq DESC
         """
         curs.execute(sql)
         rows = curs.fetchall()

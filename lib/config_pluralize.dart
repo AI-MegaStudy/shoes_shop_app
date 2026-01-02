@@ -22,5 +22,6 @@ const double imageWidthBig = 200; // 이미지 가로
 const double cardSpace = 10; // 카드 여백
 
 const Color orderColor = Colors.grey; // 준비 중 색상
-const Color arriveColor = Colors.black; // 준비 완료, 수령 완료 색상
+const Color arriveColor = Color.fromARGB(255, 73, 73, 73); // 준비 완료, 수령 완료 색상
+const Color pickedupColor = Colors.black; // 준비 완료, 수령 완료 색상
 const Color refundColor = Color.fromARGB(255, 172, 33, 23); // 반품 완료 색상

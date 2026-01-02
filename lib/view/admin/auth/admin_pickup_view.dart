@@ -32,7 +32,7 @@ class _AdminPickupViewState extends State<AdminPickupView> {
     data.clear();
     var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
     var result = dataConvertedJSON['result'];
-    print(result);
+    print('☁️ 수령 목록 ☁️: ${result}');
     data = result.map((e) => PickupAdmin.fromJson(e)).toList(); // model의 factory형태
 
     setState(() {});
@@ -42,7 +42,7 @@ class _AdminPickupViewState extends State<AdminPickupView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('관리자'),
+        title: Text('수령 목록'),
         centerTitle: true,
         toolbarHeight: 48, // 앱바 높이 최소화
       ),
@@ -136,7 +136,7 @@ class _AdminPickupViewState extends State<AdminPickupView> {
                   ),
                   ElevatedButton(
                     onPressed: () => insertRefund(), 
-                    child: Text('수령 완료')
+                    child: Text('반품 신청')
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 8, 8, 0),
@@ -157,30 +157,35 @@ class _AdminPickupViewState extends State<AdminPickupView> {
 
   // --- functions ---
   Future<void> getJSONpicSeqData(int pic_seq) async{
-    var url = Uri.parse('http://127.0.0.1:8000/api/pickups/admin/${pic_seq}');
+    var url = Uri.parse('http://127.0.0.1:8000/api/pickups/admin/${pic_seq}/full_detail');
     print(url);
     var response = await http.get(url);
     var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
     var result = dataConvertedJSON['result'];
-    print(result);
+    print('☁️ 상세 페이지 ☁️: ${result}');
     dataSeq = result;
 
     setState(() {});
   }
 
   Future<void> insertRefund() async{
+    // Get.dialog(
+    //   AlertDialog(
+    //     title: Text('반품 사유 선택'),
+    //     actions: [
+
+    //     ],
+    //   )
+    // );
     var request = http.MultipartRequest(
       'POST', 
       Uri.parse('http://127.0.0.1:8000/api/refunds')
     );
 
     request.fields['u_seq'] = dataSeq['u_seq'].toString();
-    request.fields['s_seq'] = dataSeq['s_seq'].toString();
+    request.fields['s_seq'] = 1.toString(); // staff sequence 추가
     request.fields['pic_seq'] = dataSeq['pic_seq'].toString();
-    request.fields['ref_reason'] = dataSeq['ref_reason'].toString();
-    request.fields['ref_re_seq'] = dataSeq['ref_re_seq'].toString();
-    request.fields['ref_re_content'] = dataSeq['ref_re_content'].toString();
-    request.fields['ref_date'] = dataSeq['ref_date'].toString();
+    // 반품 사유 추가
 
     var res = await request.send();
     if(res.statusCode == 200){
@@ -191,8 +196,8 @@ class _AdminPickupViewState extends State<AdminPickupView> {
   }
   void _showDialog(){
     Get.defaultDialog(
-      title: '수령 결과',
-      middleText: '수령이 완료되었습니다.',
+      title: '반품 완료',
+      middleText: '반품이 완료되었습니다.',
       barrierDismissible: false,
       actions: [
         TextButton(
@@ -219,5 +224,5 @@ class _AdminPickupViewState extends State<AdminPickupView> {
 변경 이력
 2025-01-02: 임소연
   - 전체 수령내역, 수령내역 클릭시 상세 수령정보 제공
-
+  - 반품 신청 버튼 클릭시 refund 테이블에 정보 추가(수정필요)
 */

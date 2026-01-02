@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shoes_shop_app/view/Dev/product_detail_3d/payment/payment_view.dart';
 import 'package:shoes_shop_app/view/user/payment/user_cart_view.dart';
 import 'package:shoes_shop_app/view/user/payment/user_payment_view.dart';
 
@@ -50,6 +51,10 @@ class _Dev_02State extends State<Dev_02> {
               onPressed: () =>
                   Get.to(() => UserPaymentView()),
               child: Text('결제페이지'),
+            ),
+            TextButton(
+              onPressed: () => Get.to(() => PaymentView()),
+              child: Text('팝업페이지'),
             ),
           ],
         ),

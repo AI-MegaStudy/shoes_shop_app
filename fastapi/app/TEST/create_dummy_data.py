@@ -564,40 +564,47 @@ def create_products(conn, kind_ids, color_ids, size_ids, gender_ids, maker_ids):
 
 
 def create_purchase_items(conn, branch_ids, user_ids, product_ids):
-    """구매 내역 데이터 생성 (분 단위 그룹화)"""
+    """구매 내역 데이터 생성 (분 단위 그룹화, 고정 시드 랜덤)"""
     print("🛒 구매 내역 데이터 생성 중...")
     curs = conn.cursor()
     
     purchase_item_ids = []
     base_date = datetime.now() - timedelta(days=30)
     
+    # b_status 옵션: 0=준비중, 1=준비완료, 2=수령완료, 3=반품완료, None=상태미정
+    b_statuses = ['0', '1', '2', '3', None]
+    
     # 10개의 주문 그룹 생성 (각 그룹당 1-3개 항목)
     for order_num in range(10):
-        # 각 주문은 다른 분에 생성 (분 단위 그룹핑을 위해)
-        # 날짜는 랜덤하게 선택하되, 시간은 분 단위로 구분
+        # 날짜를 랜덤하게 선택 (고정 시드로 재현 가능)
         order_day = base_date + timedelta(days=random.randint(0, 29))
-        order_hour = random.randint(9, 20)  # 9시~20시
-        order_minute = random.randint(0, 59)  # 0~59분
-        # 초는 0~59초 중 랜덤 (같은 분이면 같은 주문으로 묶임)
-        order_second = random.randint(0, 59)
+        # 시간도 랜덤하게 선택 (9시~20시)
+        order_hour = random.randint(9, 20)
+        # 분도 랜덤하게 선택 (0~59분)
+        order_minute = random.randint(0, 59)
+        # 초는 0으로 고정 (같은 분이면 같은 주문으로 묶임)
+        order_second = 0
         
         # 같은 주문 그룹의 모든 항목은 같은 분에 주문 (초는 다를 수 있음)
         order_datetime = order_day.replace(hour=order_hour, minute=order_minute, second=order_second, microsecond=0)
         
+        # 사용자와 지점을 랜덤하게 선택 (고정 시드로 재현 가능)
         u_seq = random.choice(user_ids)
         br_seq = random.choice(branch_ids)
-        # b_status: '0'=준비중, '1'=준비완료, '2'=수령완료, '3'=반품완료, None=상태미정
-        b_status = random.choice(['0', '1', '2', '3', None])
+        # b_status를 랜덤하게 선택
+        b_status = random.choice(b_statuses)
         
-        # 각 주문당 1-3개 항목 (같은 분, 사용자, 지점)
+        # 각 주문당 1-3개 항목 (랜덤)
         item_count = random.randint(1, 3)
         for item_num in range(item_count):
+            # 제품을 랜덤하게 선택
             p_seq = random.choice(product_ids)
+            # 가격을 랜덤하게 선택 (50000원~200000원)
             b_price = random.randint(50000, 200000)
+            # 수량을 랜덤하게 선택 (1~3개)
             b_quantity = random.randint(1, 3)
             
             # 같은 주문 그룹의 항목들은 같은 분에 주문 (초만 약간 다름)
-            # 같은 분 내에서 0~59초 사이의 랜덤한 시간 사용
             item_second = random.randint(0, 59)
             item_datetime = order_datetime.replace(second=item_second)
             
@@ -609,75 +616,128 @@ def create_purchase_items(conn, branch_ids, user_ids, product_ids):
             purchase_item_ids.append(curs.lastrowid)
     
     conn.commit()
-    print(f"   ✅ {len(purchase_item_ids)}개 구매 내역 생성 완료 (10개 주문 그룹, 분 단위 그룹화)")
+    print(f"   ✅ {len(purchase_item_ids)}개 구매 내역 생성 완료 (10개 주문 그룹, 분 단위 그룹화, 고정 시드 랜덤)")
     return purchase_item_ids
 
 
 def create_pickups(conn, purchase_item_ids):
-    """수령 데이터 생성"""
+    """수령 데이터 생성 (고정 시드 랜덤)"""
     print("📦 수령 데이터 생성 중...")
     curs = conn.cursor()
     
     pickup_ids = []
-    # 일부 구매 내역만 수령 처리
-    picked_items = random.sample(purchase_item_ids, min(15, len(purchase_item_ids)))
+    # 일부 구매 내역만 수령 처리 (랜덤 샘플링, 고정 시드로 재현 가능)
+    pickup_count = min(15, len(purchase_item_ids))
+    picked_items = random.sample(purchase_item_ids, pickup_count)
     
-    for b_seq in picked_items:
-        # purchase_item에서 u_seq 조회
-        curs.execute("SELECT u_seq FROM purchase_item WHERE b_seq = %s", (b_seq,))
+    for idx, b_seq in enumerate(picked_items):
+        # purchase_item에서 u_seq와 b_date 조회
+        curs.execute("SELECT u_seq, b_date FROM purchase_item WHERE b_seq = %s", (b_seq,))
         result = curs.fetchone()
         if result:
             u_seq = result[0]
-            created_at = datetime.now() - timedelta(days=random.randint(0, 20))
+            b_date = result[1]
+            # 수령일은 주문일 이후로 설정 (주문일 + 1~7일 랜덤)
+            if isinstance(b_date, datetime):
+                pickup_date = b_date + timedelta(days=random.randint(1, 7))
+            else:
+                # 문자열인 경우 파싱
+                if isinstance(b_date, str):
+                    try:
+                        b_date_dt = datetime.strptime(b_date.split('.')[0], '%Y-%m-%d %H:%M:%S')
+                        pickup_date = b_date_dt + timedelta(days=random.randint(1, 7))
+                    except:
+                        pickup_date = datetime.now() - timedelta(days=random.randint(0, 20))
+                else:
+                    pickup_date = datetime.now() - timedelta(days=random.randint(0, 20))
+            
             sql = "INSERT INTO pickup (b_seq, u_seq, created_at) VALUES (%s, %s, %s)"
-            curs.execute(sql, (b_seq, u_seq, created_at))
+            curs.execute(sql, (b_seq, u_seq, pickup_date))
             pickup_ids.append(curs.lastrowid)
     
     conn.commit()
-    print(f"   ✅ {len(pickup_ids)}개 수령 기록 생성 완료")
+    print(f"   ✅ {len(pickup_ids)}개 수령 기록 생성 완료 (고정 시드 랜덤)")
     return pickup_ids
 
 
 def create_refunds(conn, user_ids, staff_ids, pickup_ids, refund_reason_ids):
-    """반품 데이터 생성"""
+    """반품 데이터 생성 (고정 시드 랜덤, 반품일은 픽업일 이후)"""
     print("↩️ 반품 데이터 생성 중...")
     curs = conn.cursor()
     
     refund_ids = []
-    # 일부 수령만 반품 처리
-    refunded_pickups = random.sample(pickup_ids, min(5, len(pickup_ids)))
+    # 일부 수령만 반품 처리 (랜덤 샘플링, 고정 시드로 재현 가능)
+    refund_count = min(5, len(pickup_ids))
+    refunded_pickups = random.sample(pickup_ids, refund_count)
     
-    for pic_seq in refunded_pickups:
-        # 해당 pickup의 user 찾기 (pickup 테이블의 u_seq 사용)
-        curs.execute("SELECT p.u_seq FROM pickup p WHERE p.pic_seq = %s", (pic_seq,))
+    for idx, pic_seq in enumerate(refunded_pickups):
+        # 해당 pickup의 user와 수령일 찾기
+        curs.execute("SELECT p.u_seq, p.created_at FROM pickup p WHERE p.pic_seq = %s", (pic_seq,))
         result = curs.fetchone()
-        u_seq = result[0] if result else random.choice(user_ids)
-        
-        s_seq = random.choice(staff_ids)
-        ref_date = datetime.now() - timedelta(days=random.randint(0, 10))
-        ref_re_seq = random.choice(refund_reason_ids) if refund_reason_ids else None
-        
-        # 반품 사유 카테고리에서 이름 조회
-        ref_reason = None
-        if ref_re_seq:
-            curs.execute("SELECT ref_re_name FROM refund_reason_category WHERE ref_re_seq = %s", (ref_re_seq,))
-            reason_result = curs.fetchone()
-            ref_reason = reason_result[0] if reason_result else '기타'
-        
-        sql = """
-            INSERT INTO refund (ref_date, ref_reason, u_seq, s_seq, pic_seq, ref_re_seq)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """
-        curs.execute(sql, (ref_date, ref_reason, u_seq, s_seq, pic_seq, ref_re_seq))
-        refund_ids.append(curs.lastrowid)
+        if result:
+            u_seq = result[0]
+            pickup_date = result[1]
+            
+            # 직원을 랜덤하게 선택
+            s_seq = random.choice(staff_ids)
+            
+            # 반품일은 픽업일 이후로 설정 (픽업일 + 1~10일 랜덤)
+            if isinstance(pickup_date, datetime):
+                ref_date = pickup_date + timedelta(days=random.randint(1, 10))
+            else:
+                # 문자열인 경우 파싱
+                if isinstance(pickup_date, str):
+                    try:
+                        pickup_date_dt = datetime.strptime(pickup_date.split('.')[0], '%Y-%m-%d %H:%M:%S')
+                        ref_date = pickup_date_dt + timedelta(days=random.randint(1, 10))
+                    except:
+                        ref_date = datetime.now() - timedelta(days=random.randint(0, 10))
+                else:
+                    ref_date = datetime.now() - timedelta(days=random.randint(0, 10))
+            
+            # 반품 사유를 랜덤하게 선택
+            ref_re_seq = random.choice(refund_reason_ids) if refund_reason_ids else None
+            
+            # 반품 사유 카테고리에서 이름 조회
+            ref_reason = None
+            if ref_re_seq:
+                curs.execute("SELECT ref_re_name FROM refund_reason_category WHERE ref_re_seq = %s", (ref_re_seq,))
+                reason_result = curs.fetchone()
+                ref_reason = reason_result[0] if reason_result else '기타'
+            
+            sql = """
+                INSERT INTO refund (ref_date, ref_reason, u_seq, s_seq, pic_seq, ref_re_seq)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """
+            curs.execute(sql, (ref_date, ref_reason, u_seq, s_seq, pic_seq, ref_re_seq))
+            refund_ids.append(curs.lastrowid)
+        else:
+            # pickup을 찾을 수 없는 경우 (예외 처리)
+            u_seq = random.choice(user_ids)
+            s_seq = random.choice(staff_ids)
+            ref_date = datetime.now() - timedelta(days=random.randint(0, 10))
+            ref_re_seq = random.choice(refund_reason_ids) if refund_reason_ids else None
+            
+            ref_reason = None
+            if ref_re_seq:
+                curs.execute("SELECT ref_re_name FROM refund_reason_category WHERE ref_re_seq = %s", (ref_re_seq,))
+                reason_result = curs.fetchone()
+                ref_reason = reason_result[0] if reason_result else '기타'
+            
+            sql = """
+                INSERT INTO refund (ref_date, ref_reason, u_seq, s_seq, pic_seq, ref_re_seq)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """
+            curs.execute(sql, (ref_date, ref_reason, u_seq, s_seq, pic_seq, ref_re_seq))
+            refund_ids.append(curs.lastrowid)
     
     conn.commit()
-    print(f"   ✅ {len(refund_ids)}개 반품 기록 생성 완료")
+    print(f"   ✅ {len(refund_ids)}개 반품 기록 생성 완료 (고정 시드 랜덤, 반품일은 픽업일 이후)")
     return refund_ids
 
 
 def create_receives(conn, staff_ids, product_ids, maker_ids):
-    """입고 데이터 생성"""
+    """입고 데이터 생성 (고정 시드 랜덤)"""
     print("📥 입고 데이터 생성 중...")
     curs = conn.cursor()
     
@@ -685,14 +745,18 @@ def create_receives(conn, staff_ids, product_ids, maker_ids):
     base_date = datetime.now() - timedelta(days=60)
     
     for i in range(20):
+        # 직원을 랜덤하게 선택
         s_seq = random.choice(staff_ids)
+        # 제품을 랜덤하게 선택
         p_seq = random.choice(product_ids)
         # 제품의 제조사 찾기
         curs.execute("SELECT m_seq FROM product WHERE p_seq = %s", (p_seq,))
         result = curs.fetchone()
         m_seq = result[0] if result else random.choice(maker_ids)
         
+        # 수량을 랜덤하게 선택 (10~100개)
         rec_quantity = random.randint(10, 100)
+        # 날짜를 랜덤하게 선택 (60일 전부터 현재까지)
         rec_date = base_date + timedelta(days=random.randint(0, 59))
         
         sql = """
@@ -703,12 +767,12 @@ def create_receives(conn, staff_ids, product_ids, maker_ids):
         receive_ids.append(curs.lastrowid)
     
     conn.commit()
-    print(f"   ✅ {len(receive_ids)}개 입고 기록 생성 완료")
+    print(f"   ✅ {len(receive_ids)}개 입고 기록 생성 완료 (고정 시드 랜덤)")
     return receive_ids
 
 
 def create_requests(conn, staff_ids, product_ids, maker_ids):
-    """발주 데이터 생성"""
+    """발주 데이터 생성 (고정 시드 랜덤)"""
     print("📋 발주 데이터 생성 중...")
     curs = conn.cursor()
     
@@ -724,22 +788,28 @@ def create_requests(conn, staff_ids, product_ids, maker_ids):
     ]
     
     for i in range(15):
+        # 직원을 랜덤하게 선택
         s_seq = random.choice(staff_ids)
+        # 제품을 랜덤하게 선택
         p_seq = random.choice(product_ids)
         # 제품의 제조사 찾기
         curs.execute("SELECT m_seq FROM product WHERE p_seq = %s", (p_seq,))
         result = curs.fetchone()
         m_seq = result[0] if result else random.choice(maker_ids)
         
+        # 수량을 랜덤하게 선택 (20~200개)
         req_quantity = random.randint(20, 200)
+        # 날짜를 랜덤하게 선택 (30일 전부터 현재까지)
         req_date = base_date + timedelta(days=random.randint(0, 29))
+        # 내용을 랜덤하게 선택
         req_content = random.choice(contents)
         
-        # 일부는 결재 완료
+        # 일부는 결재 완료 (50% 확률)
         req_manappdate = None
         req_dirappdate = None
         if random.random() > 0.5:
             req_manappdate = req_date + timedelta(days=random.randint(1, 5))
+            # 일부는 이중 결재 완료 (70% 확률)
             if random.random() > 0.3:
                 req_dirappdate = req_manappdate + timedelta(days=random.randint(1, 3))
         
@@ -753,7 +823,7 @@ def create_requests(conn, staff_ids, product_ids, maker_ids):
         request_ids.append(curs.lastrowid)
     
     conn.commit()
-    print(f"   ✅ {len(request_ids)}개 발주 기록 생성 완료")
+    print(f"   ✅ {len(request_ids)}개 발주 기록 생성 완료 (고정 시드 랜덤)")
     return request_ids
 
 
@@ -826,6 +896,10 @@ def main():
     print("=" * 60)
     print("🎯 새로운 ERD 구조 더미 데이터 생성 시작")
     print("=" * 60)
+    
+    # 랜덤 시드 고정 (재현 가능한 데이터 생성)
+    random.seed(42)
+    print("   📌 랜덤 시드 고정: 42 (재현 가능한 데이터 생성)")
     
     conn = connect_db()
     

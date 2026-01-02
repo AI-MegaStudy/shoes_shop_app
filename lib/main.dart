@@ -10,12 +10,12 @@ import 'package:shoes_shop_app/view/admin/auth/admin_mobile_block_view.dart';
 
 
 Future<void> main() async {
-  // GetStorage 초기화 (get_storage는 GetX와 독립적으로 사용 가능)
-  await GetStorage.init();
+  // Flutter 바인딩 초기화 (플러그인 사용 전 필수)
   WidgetsFlutterBinding.ensureInitialized();
   
-  // API Base URL 초기화 (로컬 IP 자동 감지 시도)
-  await config.initializeApiBaseUrl();
+  // GetStorage 초기화 (get_storage는 GetX와 독립적으로 사용 가능)
+  await GetStorage.init();
+  
 
   // GetStorage에서 DB 초기화 완료 여부 확인
   // TODO: DB 초기화 로직이 필요할 때 주석 해제

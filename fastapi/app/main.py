@@ -34,6 +34,11 @@ from app.api import receive_join
 from app.api import request_join
 
 from app.api import purchase_item_plus
+from app.api import pickup_plus
+from app.api import refund_plus
+from app.api import purchase_item_admin
+from app.api import pickup_admin
+from app.api import refund_admin
 
 app = FastAPI(title="Shoes Store API - 새로운 ERD 구조")
 ip_address = '0.0.0.0'  # 모든 인터페이스에서 접근 가능하도록 변경
@@ -43,7 +48,7 @@ app.include_router(branch.router, prefix="/api/branches", tags=["branches"])
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(user_auth_identities.router, prefix="/api/user_auth_identities", tags=["user_auth_identities"])
 app.include_router(auth.router, prefix="/api", tags=["auth"])
-app.include_router(staff.router, prefix="/api/staffs", tags=["staffs"])
+app.include_router(staff.router, prefix="/api/staff", tags=["staff"])
 app.include_router(maker.router, prefix="/api/makers", tags=["makers"])
 app.include_router(kind_category.router, prefix="/api/kind_categories", tags=["kind_categories"])
 app.include_router(color_category.router, prefix="/api/color_categories", tags=["color_categories"])
@@ -66,6 +71,11 @@ app.include_router(receive_join.router, prefix="/api/receives", tags=["receives-
 app.include_router(request_join.router, prefix="/api/requests", tags=["requests-join"])
 
 app.include_router(purchase_item_plus.router, prefix="/api/purchase_items", tags=["purchase_items-plus"])
+app.include_router(pickup_plus.router, prefix="/api/pickups", tags=["pickups-plus"])
+app.include_router(refund_plus.router, prefix="/api/refunds", tags=["refunds-plus"])
+app.include_router(purchase_item_admin.router, prefix="/api/purchase_items/admin", tags=["purchase_items-admin"])
+app.include_router(pickup_admin.router, prefix="/api/pickups/admin", tags=["pickups-admin"])
+app.include_router(refund_admin.router, prefix="/api/refunds/admin", tags=["refunds-admin"])
 
 
 @app.get("/")
@@ -78,7 +88,7 @@ async def root():
             "branches": "/api/branches",
             "users": "/api/users",
             "user_auth_identities": "/api/user_auth_identities",
-            "staffs": "/api/staffs",
+            "staff": "/api/staff",
             "makers": "/api/makers",
             "kind_categories": "/api/kind_categories",
             "color_categories": "/api/color_categories",

@@ -11,9 +11,9 @@
 
 | 항목 | 내용 |
 |------|------|
-| 작성자 | |
-| 작성일 | |
-| 완료일 | |
+| 작성자 | 김택권 |
+| 작성일 | 2026.01.01 |
+| 완료일 | 2026.01.01 |
 
 ---
 
@@ -41,14 +41,14 @@
 
 | API | 엔드포인트 | 완료 |
 |-----|-----------|------|
-| Read (전체) | `GET /api/user_auth_identities` | [ ] |
-| Read (단일) | `GET /api/user_auth_identities/{auth_seq}` | [ ] |
-| Read (사용자별) | `GET /api/user_auth_identities/user/{user_seq}` | [ ] |
-| Read (제공자별) | `GET /api/user_auth_identities/provider/{provider}` | [ ] |
-| Create | `POST /api/user_auth_identities` | [ ] |
-| Update | `POST /api/user_auth_identities/{auth_seq}` | [ ] |
-| 로그인 시간 업데이트 | `POST /api/user_auth_identities/{auth_seq}/update_login_time` | [ ] |
-| Delete | `DELETE /api/user_auth_identities/{auth_seq}` | [ ] |
+| Read (전체) | `GET /api/user_auth_identities` | [O] |
+| Read (단일) | `GET /api/user_auth_identities/{auth_seq}` | [O] |
+| Read (사용자별) | `GET /api/user_auth_identities/user/{user_seq}` | [O] |
+| Read (제공자별) | `GET /api/user_auth_identities/provider/{provider}` | [O] |
+| Create | `POST /api/user_auth_identities` | [O] |
+| Update | `POST /api/user_auth_identities/{auth_seq}` | [O] |
+| 로그인 시간 업데이트 | `POST /api/user_auth_identities/{auth_seq}/update_login_time` | [O] |
+| Delete | `DELETE /api/user_auth_identities/{auth_seq}` | [O] |
 
 ---
 
@@ -57,10 +57,10 @@
 | 날짜 | 작성자 | 내용 |
 |------|--------|------|
 | 2026-01-01 | 김택권 | 체크리스트 최초 작성 |
-
+| 2026-01-01 | 김택권 | 완표 체크 |
 ---
 
-**문서 버전**: 1.0  
+**문서 버전**: 1.1  
 **최종 수정일**: 2026-01-01  
 **최종 수정자**: 김택권
 

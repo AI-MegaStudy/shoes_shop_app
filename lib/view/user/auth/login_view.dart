@@ -66,13 +66,8 @@ class _LoginViewState extends State<LoginView> {
       final storage = GetStorage();
       storage.remove('user');
       storage.remove('user_auth_identity');
-      if (kDebugMode) {
-        print('🔵 [Login] 기존 사용자 정보 삭제 완료');
-      }
     } catch (e) {
-      if (kDebugMode) {
-        print('⚠️ [Login] 기존 사용자 정보 삭제 중 오류: $e');
-      }
+      // 기존 사용자 정보 삭제 중 오류 무시
     }
   }
 
@@ -377,9 +372,6 @@ class _LoginViewState extends State<LoginView> {
     try {
       if (authIdentity.lastLoginAt == null || authIdentity.lastLoginAt!.isEmpty) {
         // 마지막 로그인 기록이 없으면 정상 진행 (신규 회원일 수 있음)
-        if (kDebugMode) {
-          print('🔵 [Login] 마지막 로그인 기록 없음 - 신규 회원으로 간주');
-        }
         return false;
       }
       
@@ -388,28 +380,14 @@ class _LoginViewState extends State<LoginView> {
       final now = DateTime.now();
       final daysDifference = now.difference(lastLoginDateTime).inDays;
       
-      if (kDebugMode) {
-        print('🔵 [Login] 마지막 로그인: $lastLoginDateTime, 현재: $now, 차이: $daysDifference일');
-      }
-      
       // config.dormantAccountDays일 이상 미접속 시 휴면 회원 처리
       if (daysDifference >= config.dormantAccountDays) {
-        if (kDebugMode) {
-          print('⚠️ [Login] ${config.dormantAccountDays}일 이상 미접속 - 휴면 회원 처리, User u_seq: ${authIdentity.uSeq}');
-        }
         // _checkDormantAccount는 외부에서 호출되므로 loadingOverlayClosed를 전달할 수 없음
         // 이 경우는 finally 블록에서 처리하므로 여기서는 닫지 않음
         return true;
       }
       return false;
-    } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print('═══════════════════════════════════════════════════════');
-        print('🚨 [ERROR] 함수: _checkDormantAccount');
-        print('❌ 오류: $e');
-        print('📚 스택 트레이스: $stackTrace');
-        print('═══════════════════════════════════════════════════════');
-      }
+    } catch (e) {
       return false; // 에러 발생 시 로그인 진행
     }
   }
@@ -418,36 +396,12 @@ class _LoginViewState extends State<LoginView> {
   /// user_auth_identities 테이블의 last_login_at 필드를 업데이트
   Future<void> _updateLoginTime(int authSeq) async {
     try {
-      if (kDebugMode) {
-        print('🔵 [Login] 로그인 시간 업데이트 API 호출: auth_seq=$authSeq');
-      }
-      
-      final response = await CustomNetworkUtil.post<Map<String, dynamic>>(
+      await CustomNetworkUtil.post<Map<String, dynamic>>(
         '/api/user_auth_identities/$authSeq/update_login_time',
       );
-      
-      if (kDebugMode) {
-        print('🔵 [Login] 로그인 시간 업데이트 응답: success=${response.success}, error=${response.error}');
-      }
-      
-      if (!response.success) {
-        if (kDebugMode) {
-          print('⚠️ [Login] 로그인 시간 업데이트 실패: ${response.error}');
-        }
-      } else {
-        if (kDebugMode) {
-          print('✅ [Login] 로그인 시간 업데이트 성공');
-        }
-      }
-    } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print('═══════════════════════════════════════════════════════');
-        print('🚨 [ERROR] 함수: _updateLoginTime');
-        print('📍 URL: ${config.getApiBaseUrl()}/api/user_auth_identities/$authSeq/update_login_time');
-        print('❌ 오류: $e');
-        print('📚 스택 트레이스: $stackTrace');
-        print('═══════════════════════════════════════════════════════');
-      }
+      // 로그인 시간 업데이트 (실패해도 무시)
+    } catch (e) {
+      // 로그인 시간 업데이트 중 오류 무시
     }
   }
 
@@ -469,33 +423,13 @@ class _LoginViewState extends State<LoginView> {
     bool dialogShown = false;
 
     try {
-      if (kDebugMode) {
-        print('🔵 [Login] 로그인 시작');
-        print('   입력값: $input (이메일: $isEmail)');
-      }
-      
       // 1. user_auth_identities 테이블에서 provider='local'로 조회
-      if (kDebugMode) {
-        print('🔵 [Login] 인증 정보 조회 시작: provider=local');
-      }
-      
       final authResponse = await CustomNetworkUtil.get<Map<String, dynamic>>(
         '/api/user_auth_identities/provider/local',
         fromJson: (json) => json,
       );
 
-      if (kDebugMode) {
-        print('🔵 [Login] 인증 정보 조회 응답: success=${authResponse.success}, error=${authResponse.error}');
-      }
-
       if (!authResponse.success || authResponse.data == null) {
-        if (kDebugMode) {
-          print('═══════════════════════════════════════════════════════');
-          print('🚨 [ERROR] 함수: _handleLogin - 인증 정보 조회 실패');
-          print('📍 URL: ${config.getApiBaseUrl()}/api/user_auth_identities/provider/local');
-          print('❌ 오류: ${authResponse.error}');
-          print('═══════════════════════════════════════════════════════');
-        }
         CustomCommonUtil.showErrorSnackbar(
           context: context,
           message: '로그인 중 오류가 발생했습니다: ${authResponse.error}',
@@ -505,9 +439,6 @@ class _LoginViewState extends State<LoginView> {
 
       // 2. 이메일 형식 검증 (이중 체크)
       if (!isEmail) {
-        if (kDebugMode) {
-          print('❌ [Login] 이메일 형식이 아님: $input');
-        }
         CustomCommonUtil.showErrorSnackbar(
           context: context,
           message: '올바른 이메일 형식을 입력해주세요',
@@ -519,10 +450,6 @@ class _LoginViewState extends State<LoginView> {
       final List<dynamic> authList = authResponse.data!['results'] ?? [];
       Map<String, dynamic>? foundAuth;
       
-      if (kDebugMode) {
-        print('🔵 [Login] 인증 정보 목록 개수: ${authList.length}');
-      }
-      
       for (var auth in authList) {
         if (auth['provider_subject'] == input) {
           foundAuth = auth as Map<String, dynamic>;
@@ -531,25 +458,15 @@ class _LoginViewState extends State<LoginView> {
       }
 
       if (foundAuth == null) {
-        if (kDebugMode) {
-          print('❌ [Login] 일치하는 인증 정보 없음: $input');
-        }
         CustomCommonUtil.showErrorSnackbar(
           context: context,
           message: '이메일 또는 비밀번호가 올바르지 않습니다.',
         );
         return;
-      }
-
-      if (kDebugMode) {
-        print('✅ [Login] 인증 정보 찾음: id=${foundAuth['id']}, u_seq=${foundAuth['u_seq']}');
       }
 
       // 4. 비밀번호 검증 (평문 비교 - 임시, 보안상 백엔드에서 해시 비교해야 함)
       if (foundAuth['password'] != password) {
-        if (kDebugMode) {
-          print('❌ [Login] 비밀번호 불일치');
-        }
         CustomCommonUtil.showErrorSnackbar(
           context: context,
           message: '이메일 또는 비밀번호가 올바르지 않습니다.',
@@ -557,34 +474,15 @@ class _LoginViewState extends State<LoginView> {
         return;
       }
 
-      if (kDebugMode) {
-        print('✅ [Login] 비밀번호 검증 성공');
-      }
-
       // 5. user 테이블에서 사용자 정보 조회
       final int uSeq = foundAuth['u_seq'] as int;
-      
-      if (kDebugMode) {
-        print('🔵 [Login] 사용자 정보 조회 시작: u_seq=$uSeq');
-      }
       
       final userResponse = await CustomNetworkUtil.get<Map<String, dynamic>>(
         '/api/users/$uSeq',
         fromJson: (json) => json,
       );
 
-      if (kDebugMode) {
-        print('🔵 [Login] 사용자 정보 조회 응답: success=${userResponse.success}, error=${userResponse.error}');
-      }
-
       if (!userResponse.success || userResponse.data == null) {
-        if (kDebugMode) {
-          print('═══════════════════════════════════════════════════════');
-          print('🚨 [ERROR] 함수: _handleLogin - 사용자 정보 조회 실패');
-          print('📍 URL: ${config.getApiBaseUrl()}/api/users/$uSeq');
-          print('❌ 오류: ${userResponse.error}');
-          print('═══════════════════════════════════════════════════════');
-        }
         CustomCommonUtil.showErrorSnackbar(
           context: context,
           message: '사용자 정보를 불러올 수 없습니다: ${userResponse.error}',
@@ -605,13 +503,7 @@ class _LoginViewState extends State<LoginView> {
 
       // 6. 탈퇴 회원 체크
       if (_checkQuitUser(user)) {
-        if (kDebugMode) {
-          print('⚠️ [Login] 탈퇴 회원 로그인 시도: ${user.uEmail}');
-        }
         await _blockLogin('탈퇴한 회원입니다.', () => dialogShown = true);
-        if (kDebugMode) {
-          print('⚠️ [Login] 탈퇴 회원 체크 후 return - 로그인 프로세스 중단');
-        }
         return; // 로그인 프로세스 중단 (홈 화면으로 이동하지 않음)
       }
 
@@ -637,26 +529,12 @@ class _LoginViewState extends State<LoginView> {
 
       // 9. 로그인 시간 업데이트
       if (authIdentity.authSeq != null) {
-        if (kDebugMode) {
-          print('🔵 [Login] 로그인 시간 업데이트 시작: auth_seq=${authIdentity.authSeq}');
-        }
         await _updateLoginTime(authIdentity.authSeq!);
       }
 
       // 10. 로그인 성공 처리
-      if (kDebugMode) {
-        print('✅ [Login] 로그인 성공: ${user.uName} (${user.uEmail})');
-      }
-      
       _handleLoginSuccess(user, authIdentity: authIdentity);
-    } catch (error, stackTrace) {
-      if (kDebugMode) {
-        print('═══════════════════════════════════════════════════════');
-        print('🚨 [ERROR] 함수: _handleLogin - 전체 프로세스 예외');
-        print('❌ 오류: $error');
-        print('📚 스택 트레이스: $stackTrace');
-        print('═══════════════════════════════════════════════════════');
-      }
+    } catch (error) {
       CustomCommonUtil.showErrorSnackbar(
         context: context,
         message: '로그인 중 오류가 발생했습니다: $error',
@@ -719,37 +597,18 @@ class _LoginViewState extends State<LoginView> {
     bool dialogShown = false;
     
     try {
-      if (kDebugMode) {
-        print('🔵 [GoogleLogin] 구글 로그인 시작');
-      }
-      
       // 구글 로그인 시도
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       
       if (googleUser == null) {
-        // 사용자가 로그인을 취소한 경우
-        if (kDebugMode) {
-          print('⚠️ [GoogleLogin] 구글 로그인 취소됨 - 로그인 화면 유지');
-        }
-        // 취소 시 아무것도 하지 않고 로그인 화면에 머무름
+        // 사용자가 로그인을 취소한 경우 - 취소 시 아무것도 하지 않고 로그인 화면에 머무름
         return;
       }
 
       // 로딩 오버레이 표시 (통신 중 다른 버튼 클릭 방지)
       CustomCommonUtil.showLoadingOverlay(context, message: '구글 로그인 중...');
-
-      if (kDebugMode) {
-        print('✅ [GoogleLogin] 구글 로그인 성공');
-        print('   이메일: ${googleUser.email}');
-        print('   이름: ${googleUser.displayName}');
-        print('   ID: ${googleUser.id}');
-      }
       
       // 1. 백엔드 API에 소셜 로그인 요청 (Form 데이터)
-      if (kDebugMode) {
-        print('🔵 [GoogleLogin] 소셜 로그인 API 호출 시작');
-      }
-      
       final request = http.MultipartRequest(
         'POST',
         Uri.parse('${config.getApiBaseUrl()}/api/auth/social/login'),
@@ -763,17 +622,9 @@ class _LoginViewState extends State<LoginView> {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
       
-      if (kDebugMode) {
-        print('🔵 [GoogleLogin] 소셜 로그인 API 응답: status=${response.statusCode}');
-        print('🔵 [GoogleLogin] 응답 본문: ${response.body}');
-      }
-      
       if (response.statusCode != 200) {
         final errorBody = jsonDecode(response.body);
         final errorMsg = errorBody['errorMsg'] ?? '소셜 로그인 실패';
-        if (kDebugMode) {
-          print('❌ [GoogleLogin] 소셜 로그인 API 실패: $errorMsg');
-        }
         CustomCommonUtil.showErrorSnackbar(
           context: context,
           message: '소셜 로그인 실패: $errorMsg',
@@ -785,9 +636,6 @@ class _LoginViewState extends State<LoginView> {
       
       if (responseData['result'] == 'Error') {
         final errorMsg = responseData['errorMsg'] ?? '소셜 로그인 실패';
-        if (kDebugMode) {
-          print('❌ [GoogleLogin] 소셜 로그인 API 에러: $errorMsg');
-        }
         CustomCommonUtil.showErrorSnackbar(
           context: context,
           message: '소셜 로그인 실패: $errorMsg',
@@ -840,22 +688,9 @@ class _LoginViewState extends State<LoginView> {
       }
       
       // 7. 로그인 성공 처리
-      if (kDebugMode) {
-        print('✅ [GoogleLogin] 로그인 성공: ${user.uName} (${user.uEmail})');
-      }
-      
       _handleLoginSuccess(user, authIdentity: authIdentity);
       
-    } catch (error, stackTrace) {
-      // 에러 상세 정보 출력
-      if (kDebugMode) {
-        print('═══════════════════════════════════════════════════════');
-        print('🚨 [ERROR] 함수: _handleGoogleSignIn');
-        print('❌ 오류: $error');
-        print('📚 스택 트레이스: $stackTrace');
-        print('═══════════════════════════════════════════════════════');
-      }
-      
+    } catch (error) {
       // 에러 메시지 간소화 (너무 긴 에러 메시지 방지)
       String errorMessage = '구글 로그인 중 오류가 발생했습니다.';
       
@@ -884,3 +719,19 @@ class _LoginViewState extends State<LoginView> {
     }
   }
 }
+
+// ============================================
+// 변경 이력
+// ============================================
+// 2025-12-31: 김택권
+//   - 로그인 화면 생성
+//   - 이메일/비밀번호 로그인 기능
+//   - 구글 소셜 로그인 기능
+//   - 관리자 진입 기능 (로고 영역 5번 탭)
+//   - 탈퇴 회원 체크
+//   - 휴면 회원 체크 (6개월 미접속)
+//   - 로그인 시간 업데이트
+//   - GetStorage를 사용한 사용자 정보 저장/삭제
+
+// 2026-01-02: 김택권
+//   - 디버그 메시지 정리 (과도한 로그 제거)

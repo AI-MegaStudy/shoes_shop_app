@@ -1,6 +1,8 @@
 //dev_01.dart (작업자 : 이광태)
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shoes_shop_app/view/user/product/list_view.dart';
 
 class Dev_01 extends StatefulWidget {
   const Dev_01({super.key});
@@ -14,14 +16,13 @@ class _Dev_01State extends State<Dev_01> {
   //late 는 초기화를 나중으로 미룸
 
   @override
-  void initState() { //페이지가 새로 생성 될때 무조건 1번 사용 됨
+  void initState() {
+    //페이지가 새로 생성 될때 무조건 1번 사용 됨
     super.initState();
-    
   }
-  
+
   @override
   void dispose() {
-
     super.dispose();
   }
 
@@ -38,16 +39,13 @@ class _Dev_01State extends State<Dev_01> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-             Text("Hello"),
-          ],
+          children: [ElevatedButton(onPressed: () => Get.to(() => ProductListView()), child: Text('제품'))],
         ),
       ),
     );
   }
 
-
   //--------Functions ------------
-  
+
   //------------------------------
 }

@@ -40,14 +40,14 @@
 
 | API | 엔드포인트 | 완료 |
 |-----|-----------|------|
-| Read (전체) | `GET /api/users` | [ ] |
-| Read (단일) | `GET /api/users/{user_seq}` | [ ] |
-| Create | `POST /api/users` (이미지 필수) | [ ] |
-| Update (이미지 제외) | `POST /api/users/{user_seq}` | [ ] |
-| Update (이미지 포함) | `POST /api/users/{user_seq}/with_image` | [ ] |
-| 이미지 조회 | `GET /api/users/{user_seq}/profile_image` | [ ] |
-| 이미지 삭제 | `DELETE /api/users/{user_seq}/profile_image` | [ ] |
-| Delete | `DELETE /api/users/{user_seq}` | [ ] |
+| Read (전체) | `GET /api/users` | [O] |
+| Read (단일) | `GET /api/users/{user_seq}` | [O] |
+| Create | `POST /api/users` (이미지 필수) | [O] |
+| Update (이미지 제외) | `POST /api/users/{user_seq}` | [O] |
+| Update (이미지 포함) | `POST /api/users/{user_seq}/with_image` | [O] |
+| 이미지 조회 | `GET /api/users/{user_seq}/profile_image` | [O] |
+| 이미지 삭제 | `DELETE /api/users/{user_seq}/profile_image` | [O] |
+| Delete | `DELETE /api/users/{user_seq}` | [O] |
 
 ---
 
@@ -56,10 +56,10 @@
 | 날짜 | 작성자 | 내용 |
 |------|--------|------|
 | 2026-01-01 | 김택권 | 체크리스트 최초 작성 |
-
+| 2026-01-01 | 김택권 | 완표 체크 |
 ---
 
-**문서 버전**: 1.0  
+**문서 버전**: 1.1  
 **최종 수정일**: 2026-01-01  
 **최종 수정자**: 김택권
 

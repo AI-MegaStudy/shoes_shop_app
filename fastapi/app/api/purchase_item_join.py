@@ -341,30 +341,24 @@ async def get_purchase_item_full_detail(purchase_item_seq: int):
             'b_quantity': row[2],
             'b_date': row[3].isoformat() if row[3] else None,
             'b_status': row[4],
-            'user': {
-                'u_seq': row[5],
-                'u_email': row[6],
-                'u_name': row[7],
-                'u_phone': row[8]
-            },
-            'product': {
-                'p_seq': row[9],
-                'p_name': row[10],
-                'p_price': row[11],
-                'p_stock': row[12],
-                'p_image': row[13],
-                'kind_name': row[14],
-                'color_name': row[15],
-                'size_name': row[16],
-                'gender_name': row[17],
-                'maker_name': row[18]
-            },
-            'branch': {
-                'br_seq': row[19],
-                'br_name': row[20],
-                'br_address': row[21],
-                'br_phone': row[22]
-            }
+            'u_seq': row[5],
+            'u_email': row[6],
+            'u_name': row[7],
+            'u_phone': row[8],
+            'p_seq': row[9],
+            'p_name': row[10],
+            'p_price': row[11],
+            'p_stock': row[12],
+            'p_image': row[13],
+            'kind_name': row[14],
+            'color_name': row[15],
+            'size_name': row[16],
+            'gender_name': row[17],
+            'maker_name': row[18],
+            'br_seq': row[19],
+            'br_name': row[20],
+            'br_address': row[21],
+            'br_phone': row[22]
         }
         
         return {"result": result}

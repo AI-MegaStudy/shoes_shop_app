@@ -189,8 +189,8 @@ CREATE TABLE product (
   p_description TEXT COMMENT '제품 설명',
   created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '제품 등록일자',
   
-  CONSTRAINT uq_product_color_size_maker
-    UNIQUE (cc_seq, sc_seq, m_seq),
+  CONSTRAINT uq_product_color_size_maker_name
+    UNIQUE (cc_seq, sc_seq, m_seq, p_name),
   
   CONSTRAINT fk_product_kind   
     FOREIGN KEY (kc_seq) REFERENCES kind_category(kc_seq)

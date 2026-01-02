@@ -1,6 +1,10 @@
 //dev_04.dart (작업자 : 임소연)
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shoes_shop_app/view/admin/auth/admin_pickup_view.dart';
+import 'package:shoes_shop_app/view/admin/auth/admin_purchase_view.dart';
+import 'package:shoes_shop_app/view/admin/auth/admin_refund_view.dart';
 
 class Dev_04 extends StatefulWidget {
   const Dev_04({super.key});
@@ -39,7 +43,10 @@ class _Dev_04State extends State<Dev_04> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-             Text("Hello"),
+             ElevatedButton(onPressed: () => Get.to(() => AdminPurchaseView()), child: Text('관리자 구매목록')),
+             ElevatedButton(onPressed: () => Get.to(() => AdminPickupView()), child: Text('관리자 수령목록')),
+             ElevatedButton(onPressed: () => Get.to(() => AdminRefundView()), child: Text('관리자 반품목록')),
+
           ],
         ),
       ),

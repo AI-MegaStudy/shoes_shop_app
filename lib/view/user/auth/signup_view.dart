@@ -520,27 +520,12 @@ class _SignUpViewState extends State<SignUpView> {
 
     /// 이메일 중복 확인
     try {
-      if (kDebugMode) {
-        print('🔵 [SignUp] 이메일 중복 확인 시작: $email');
-      }
-      
       final usersResponse = await CustomNetworkUtil.get<Map<String, dynamic>>(
         '/api/users',
         fromJson: (json) => json,
       );
 
-      if (kDebugMode) {
-        print('🔵 [SignUp] 이메일 중복 확인 응답: success=${usersResponse.success}, error=${usersResponse.error}');
-      }
-
       if (!usersResponse.success) {
-        if (kDebugMode) {
-          print('═══════════════════════════════════════════════════════');
-          print('🚨 [ERROR] 함수: _handleSignUp - 이메일 중복 확인');
-          print('📍 URL: ${config.getApiBaseUrl()}/api/users');
-          print('❌ 오류: ${usersResponse.error}');
-          print('═══════════════════════════════════════════════════════');
-        }
         CustomCommonUtil.showErrorSnackbar(context: context, message: '이메일 중복 확인 중 오류가 발생했습니다: ${usersResponse.error}');
         return;
       }
@@ -549,24 +534,12 @@ class _SignUpViewState extends State<SignUpView> {
         final List<dynamic> users = usersResponse.data!['results'] ?? [];
         final emailExists = users.any((user) => user['u_email'] == email);
         
-        if (kDebugMode) {
-          print('🔵 [SignUp] 이메일 중복 여부: $emailExists');
-        }
-        
         if (emailExists) {
           CustomCommonUtil.showErrorSnackbar(context: context, message: '이미 사용 중인 이메일입니다');
           return;
         }
       }
-    } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print('═══════════════════════════════════════════════════════');
-        print('🚨 [ERROR] 함수: _handleSignUp - 이메일 중복 확인 예외');
-        print('📍 URL: ${config.getApiBaseUrl()}/api/users');
-        print('❌ 오류: $e');
-        print('📚 스택 트레이스: $stackTrace');
-        print('═══════════════════════════════════════════════════════');
-      }
+    } catch (e) {
       CustomCommonUtil.showErrorSnackbar(context: context, message: '회원가입 중 오류가 발생했습니다: $e');
       return;
     }
@@ -574,27 +547,12 @@ class _SignUpViewState extends State<SignUpView> {
     /// 전화번호 중복 확인 (전화번호가 있는 경우만)
     if (phone.isNotEmpty) {
       try {
-        if (kDebugMode) {
-          print('🔵 [SignUp] 전화번호 중복 확인 시작: $phone');
-        }
-        
         final usersResponse = await CustomNetworkUtil.get<Map<String, dynamic>>(
           '/api/users',
           fromJson: (json) => json,
         );
 
-        if (kDebugMode) {
-          print('🔵 [SignUp] 전화번호 중복 확인 응답: success=${usersResponse.success}, error=${usersResponse.error}');
-        }
-
         if (!usersResponse.success) {
-          if (kDebugMode) {
-            print('═══════════════════════════════════════════════════════');
-            print('🚨 [ERROR] 함수: _handleSignUp - 전화번호 중복 확인');
-            print('📍 URL: ${config.getApiBaseUrl()}/api/users');
-            print('❌ 오류: ${usersResponse.error}');
-            print('═══════════════════════════════════════════════════════');
-          }
           CustomCommonUtil.showErrorSnackbar(context: context, message: '전화번호 중복 확인 중 오류가 발생했습니다: ${usersResponse.error}');
           return;
         }
@@ -603,24 +561,12 @@ class _SignUpViewState extends State<SignUpView> {
           final List<dynamic> users = usersResponse.data!['results'] ?? [];
           final phoneExists = users.any((user) => user['u_phone'] == phone);
           
-          if (kDebugMode) {
-            print('🔵 [SignUp] 전화번호 중복 여부: $phoneExists');
-          }
-          
           if (phoneExists) {
             CustomCommonUtil.showErrorSnackbar(context: context, message: '이미 사용 중인 전화번호입니다');
             return;
           }
         }
-      } catch (e, stackTrace) {
-        if (kDebugMode) {
-          print('═══════════════════════════════════════════════════════');
-          print('🚨 [ERROR] 함수: _handleSignUp - 전화번호 중복 확인 예외');
-          print('📍 URL: ${config.getApiBaseUrl()}/api/users');
-          print('❌ 오류: $e');
-          print('📚 스택 트레이스: $stackTrace');
-          print('═══════════════════════════════════════════════════════');
-        }
+      } catch (e) {
         CustomCommonUtil.showErrorSnackbar(context: context, message: '회원가입 중 오류가 발생했습니다: $e');
         return;
       }
@@ -634,13 +580,6 @@ class _SignUpViewState extends State<SignUpView> {
     /// User 객체 생성 및 DB에 저장
     try {
       // 1. user 테이블에 사용자 정보 저장 (Form + File)
-      if (kDebugMode) {
-        print('🔵 [SignUp] 사용자 생성 시작');
-        print('   이메일: $email');
-        print('   이름: $name');
-        print('   전화번호: $phone');
-      }
-      
       final dummyImageBytes = _createDummyImageBytes();
       final request = http.MultipartRequest(
         'POST',
@@ -657,11 +596,6 @@ class _SignUpViewState extends State<SignUpView> {
       }
       // 주소는 선택 사항이므로 생략 (백엔드에서 Optional 처리)
       
-      if (kDebugMode) {
-        print('🔵 [SignUp] 요청 필드: ${request.fields}');
-        print('🔵 [SignUp] 요청 URL: ${request.url}');
-      }
-      
       // 파일 추가 (더미 이미지)
       request.files.add(
         http.MultipartFile.fromBytes(
@@ -671,40 +605,18 @@ class _SignUpViewState extends State<SignUpView> {
         ),
       );
       
-      if (kDebugMode) {
-        print('🔵 [SignUp] 파일 추가 완료 (크기: ${dummyImageBytes.length} bytes)');
-      }
-      
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
-      
-      if (kDebugMode) {
-        print('🔵 [SignUp] 사용자 생성 응답 상태 코드: ${response.statusCode}');
-        print('🔵 [SignUp] 사용자 생성 응답 본문: ${response.body}');
-      }
       
       if (response.statusCode != 200) {
         Map<String, dynamic>? errorData;
         try {
           errorData = jsonDecode(response.body) as Map<String, dynamic>;
         } catch (e) {
-          if (kDebugMode) {
-            print('❌ [SignUp] JSON 파싱 실패: $e');
-          }
+          // JSON 파싱 실패 무시
         }
         
         final errorMsg = errorData?['errorMsg'] ?? '회원가입에 실패했습니다. (상태 코드: ${response.statusCode})';
-        
-        if (kDebugMode) {
-          print('═══════════════════════════════════════════════════════');
-          print('🚨 [ERROR] 함수: _handleSignUp - 사용자 생성');
-          print('📍 URL: ${config.getApiBaseUrl()}/api/users');
-          print('📊 상태 코드: ${response.statusCode}');
-          print('📤 요청 필드: ${request.fields}');
-          print('📥 응답 본문: ${response.body}');
-          print('❌ 오류: $errorMsg');
-          print('═══════════════════════════════════════════════════════');
-        }
         
         setState(() {
           _isSigningUp = false;
@@ -713,19 +625,10 @@ class _SignUpViewState extends State<SignUpView> {
         return;
       }
       
-      Map<String, dynamic>? responseData;
+        Map<String, dynamic>? responseData;
       try {
         responseData = jsonDecode(response.body) as Map<String, dynamic>;
       } catch (e) {
-        if (kDebugMode) {
-          print('═══════════════════════════════════════════════════════');
-          print('🚨 [ERROR] 함수: _handleSignUp - 사용자 생성 응답 파싱');
-          print('📍 URL: ${config.getApiBaseUrl()}/api/users');
-          print('📊 상태 코드: ${response.statusCode}');
-          print('📥 응답 본문: ${response.body}');
-          print('❌ 오류: $e');
-          print('═══════════════════════════════════════════════════════');
-        }
         setState(() {
           _isSigningUp = false;
         });
@@ -736,17 +639,6 @@ class _SignUpViewState extends State<SignUpView> {
       if (responseData['result'] != 'OK') {
         final errorMsg = responseData['errorMsg'] ?? '회원가입에 실패했습니다.';
         
-        if (kDebugMode) {
-          print('═══════════════════════════════════════════════════════');
-          print('🚨 [ERROR] 함수: _handleSignUp - 사용자 생성 실패');
-          print('📍 URL: ${config.getApiBaseUrl()}/api/users');
-          print('📊 상태 코드: ${response.statusCode}');
-          print('📤 요청 필드: ${request.fields}');
-          print('📥 응답 데이터: $responseData');
-          print('❌ 오류: $errorMsg');
-          print('═══════════════════════════════════════════════════════');
-        }
-        
         setState(() {
           _isSigningUp = false;
         });
@@ -756,15 +648,7 @@ class _SignUpViewState extends State<SignUpView> {
       
       final insertedUSeq = responseData['u_seq'] as int;
       
-      if (kDebugMode) {
-        print('✅ [SignUp] 사용자 생성 성공: u_seq=$insertedUSeq');
-      }
-      
       // 2. user_auth_identities 테이블에 로컬 로그인 정보 저장 (Form)
-      if (kDebugMode) {
-        print('🔵 [SignUp] 인증 정보 생성 시작: u_seq=$insertedUSeq');
-      }
-      
       final authRequest = http.MultipartRequest(
         'POST',
         Uri.parse('${config.getApiBaseUrl()}/api/user_auth_identities'),
@@ -775,41 +659,18 @@ class _SignUpViewState extends State<SignUpView> {
       authRequest.fields['provider_subject'] = email;
       authRequest.fields['password'] = password; // 평문 비밀번호 (백엔드에서 해시화 필요)
       
-      if (kDebugMode) {
-        print('🔵 [SignUp] 인증 정보 요청 필드: ${authRequest.fields}');
-        print('🔵 [SignUp] 인증 정보 요청 URL: ${authRequest.url}');
-      }
-      
       final authStreamedResponse = await authRequest.send();
       final authResponse = await http.Response.fromStream(authStreamedResponse);
-      
-      if (kDebugMode) {
-        print('🔵 [SignUp] 인증 정보 생성 응답 상태 코드: ${authResponse.statusCode}');
-        print('🔵 [SignUp] 인증 정보 생성 응답 본문: ${authResponse.body}');
-      }
       
       if (authResponse.statusCode != 200) {
         Map<String, dynamic>? errorData;
         try {
           errorData = jsonDecode(authResponse.body) as Map<String, dynamic>;
         } catch (e) {
-          if (kDebugMode) {
-            print('❌ [SignUp] JSON 파싱 실패: $e');
-          }
+          // JSON 파싱 실패 무시
         }
         
         final errorMsg = errorData?['errorMsg'] ?? '인증 정보 저장에 실패했습니다. (상태 코드: ${authResponse.statusCode})';
-        
-        if (kDebugMode) {
-          print('═══════════════════════════════════════════════════════');
-          print('🚨 [ERROR] 함수: _handleSignUp - 인증 정보 생성');
-          print('📍 URL: ${config.getApiBaseUrl()}/api/user_auth_identities');
-          print('📊 상태 코드: ${authResponse.statusCode}');
-          print('📤 요청 필드: ${authRequest.fields}');
-          print('📥 응답 본문: ${authResponse.body}');
-          print('❌ 오류: $errorMsg');
-          print('═══════════════════════════════════════════════════════');
-        }
         
         setState(() {
           _isSigningUp = false;
@@ -822,15 +683,6 @@ class _SignUpViewState extends State<SignUpView> {
       try {
         authResponseData = jsonDecode(authResponse.body) as Map<String, dynamic>;
       } catch (e) {
-        if (kDebugMode) {
-          print('═══════════════════════════════════════════════════════');
-          print('🚨 [ERROR] 함수: _handleSignUp - 인증 정보 생성 응답 파싱');
-          print('📍 URL: ${config.getApiBaseUrl()}/api/user_auth_identities');
-          print('📊 상태 코드: ${authResponse.statusCode}');
-          print('📥 응답 본문: ${authResponse.body}');
-          print('❌ 오류: $e');
-          print('═══════════════════════════════════════════════════════');
-        }
         setState(() {
           _isSigningUp = false;
         });
@@ -841,17 +693,6 @@ class _SignUpViewState extends State<SignUpView> {
       if (authResponseData['result'] != 'OK') {
         final errorMsg = authResponseData['errorMsg'] ?? '인증 정보 저장에 실패했습니다.';
         
-        if (kDebugMode) {
-          print('═══════════════════════════════════════════════════════');
-          print('🚨 [ERROR] 함수: _handleSignUp - 인증 정보 생성 실패');
-          print('📍 URL: ${config.getApiBaseUrl()}/api/user_auth_identities');
-          print('📊 상태 코드: ${authResponse.statusCode}');
-          print('📤 요청 필드: ${authRequest.fields}');
-          print('📥 응답 데이터: $authResponseData');
-          print('❌ 오류: $errorMsg');
-          print('═══════════════════════════════════════════════════════');
-        }
-        
         setState(() {
           _isSigningUp = false;
         });
@@ -859,15 +700,7 @@ class _SignUpViewState extends State<SignUpView> {
         return;
       }
       
-      if (kDebugMode) {
-        print('✅ [SignUp] 인증 정보 생성 성공');
-      }
-      
       // 회원가입 성공
-      if (kDebugMode) {
-        print('✅ [SignUp] 회원가입 완료 성공');
-      }
-      
       CustomCommonUtil.showSuccessSnackbar(
         context: context,
         title: '회원가입 완료',
@@ -881,19 +714,11 @@ class _SignUpViewState extends State<SignUpView> {
         MaterialPageRoute(builder: (context) => const LoginView()),
         (route) => false,
       );
-    } catch (e, stackTrace) {
+    } catch (e) {
       setState(() {
         _isSigningUp = false;
       });
 
-      if (kDebugMode) {
-        print('═══════════════════════════════════════════════════════');
-        print('🚨 [ERROR] 함수: _handleSignUp - 전체 프로세스 예외');
-        print('❌ 오류: $e');
-        print('📚 스택 트레이스: $stackTrace');
-        print('═══════════════════════════════════════════════════════');
-      }
-      
       CustomCommonUtil.showErrorSnackbar(context: context, message: '회원가입 중 오류가 발생했습니다: $e');
     }
   }
@@ -1090,3 +915,19 @@ class _SignUpViewState extends State<SignUpView> {
 
   //----Function End----
 }
+
+// ============================================
+// 변경 이력
+// ============================================
+// 2025-12-31: 김택권
+//   - 회원가입 화면 생성
+//   - 약관 동의 기능 (전체 동의, 이용약관, 개인정보 처리방침, 마케팅 정보 수신)
+//   - 이메일/비밀번호 회원가입 기능
+//   - 이메일 중복 확인
+//   - 전화번호 중복 확인
+//   - 프로필 이미지 업로드 (더미 이미지)
+//   - user 테이블 및 user_auth_identities 테이블 저장
+//   - 테스트용 더미 데이터 자동 입력 기능
+
+// 2026-01-01: 김택권
+//   - 디버그 메시지 정리 (과도한 로그 제거)

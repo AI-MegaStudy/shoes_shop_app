@@ -139,17 +139,21 @@ const String routeAdminMobileBlock = '/admin-mobile-block';
 const String routeLogin = '/login';
 const String routeHome = '/';
 
+/// FastAPI 서버 기본 URL (커스텀 오버라이드)
+/// Windows + Android 에뮬레이터 사용자는 자신의 호스트 IP를 설정하세요
+/// 예: 'http://192.168.1.50:8000'
+/// null이면 플랫폼에 따라 자동 선택 (Android: 10.0.2.2, iOS: 127.0.0.1)
+const String? customApiBaseUrl = null;
+//윈도우 사용자는 윗줄 주석 처리 하고 아래 줄 주석 해제하여 자신의 호스트 IP를 설정하세요.
+// const String? customApiBaseUrl = 'http://192.168.1.50:8000'; 
+
 /// FastAPI 서버 기본 URL
-/// CustomCommonUtil.getApiBaseUrl()을 호출합니다.
+/// customApiBaseUrl이 설정되어 있으면 사용하고, 없으면 플랫폼에 따라 자동 선택
 String getApiBaseUrl() {
-  return CustomCommonUtil.getApiBaseUrl();
+  return CustomCommonUtil.getApiBaseUrl(customApiBaseUrl);
 }
 
-/// API Base URL 초기화 (로컬 IP 자동 감지 시도)
-/// CustomCommonUtil.initializeApiBaseUrl()을 호출합니다.
-Future<void> initializeApiBaseUrl() async {
-  return CustomCommonUtil.initializeApiBaseUrl();
-}
+
 
 
 // Pickup 상태

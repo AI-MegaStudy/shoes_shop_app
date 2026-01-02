@@ -90,6 +90,37 @@ async def select_staff(staff_seq: int):
 
 
 # ============================================
+# s_id로 직원 조회 (로그인용)
+# ============================================
+@router.get("/by_id/{staff_id}")
+async def select_staff_by_id(staff_id: str):
+    conn = connect_db()
+    curs = conn.cursor()
+    curs.execute("""
+        SELECT s_seq, s_id, br_seq, s_password, s_name, s_rank, s_phone, s_superseq, created_at, s_quit_date 
+        FROM staff 
+        WHERE s_id = %s AND (s_quit_date IS NULL OR s_quit_date > NOW())
+    """, (staff_id,))
+    row = curs.fetchone()
+    conn.close()
+    if row is None:
+        return {"result": "Error", "message": "Staff not found"}
+    result = {
+        's_seq': row[0],
+        's_id': row[1],
+        'br_seq': row[2],
+        's_password': row[3],
+        's_name': row[4],
+        's_rank': row[5],
+        's_phone': row[6],
+        's_superseq': row[7],
+        'created_at': row[8].isoformat() if row[8] else None,
+        's_quit_date': row[9].isoformat() if row[9] else None
+    }
+    return {"result": result}
+
+
+# ============================================
 # 지점별 직원 조회
 # ============================================
 @router.get("/by_branch/{branch_seq}")

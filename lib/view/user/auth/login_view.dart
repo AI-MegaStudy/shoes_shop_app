@@ -16,6 +16,7 @@ import 'package:shoes_shop_app/view/home.dart' as home;
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
 import 'package:shoes_shop_app/utils/admin_tablet_utils.dart';
 import 'package:shoes_shop_app/view/admin/auth/admin_login_view.dart';
+import 'package:shoes_shop_app/view/admin/auth/admin_login_view_dav/admin_login_view_dev.dart';
 import 'package:shoes_shop_app/view/admin/auth/admin_mobile_block_view.dart';
 
 class LoginView extends StatefulWidget {
@@ -239,6 +240,18 @@ class _LoginViewState extends State<LoginView> {
                             onPressed: _handleHongGildongLogin,
                             child: const Text(
                               '홍길동 로그인',
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          height: config.defaultButtonHeight,
+                          child: OutlinedButton(
+                            onPressed: _navigateToAdminLogin,
+                            child: const Text(
+                              '관리자 로그인',
                               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -589,6 +602,23 @@ class _LoginViewState extends State<LoginView> {
     
     // 자동 로그인 실행
     _handleLogin();
+  }
+
+  /// 관리자 로그인 화면으로 이동
+  void _navigateToAdminLogin() {
+    final isTabletDevice = isTablet(context);
+    
+    if (isTabletDevice) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AdminLoginViewDev()),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AdminMobileBlockView()),
+      );
+    }
   }
 
   /// 구글 소셜 로그인 처리

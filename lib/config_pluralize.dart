@@ -5,8 +5,8 @@
 // ---------시스템-----------
 import 'package:flutter/material.dart';
 
-//const String ipAddress = "172.30.1.15"; //ip
-const String ipAddress = "172.16.250.176"; //ip
+const String ipAddress = "172.30.1.24"; //ip
+// const String ipAddress = "172.16.250.176"; //ip
 
 Map productStatus = { // 제품 수령상태
   0 : '준비 중',

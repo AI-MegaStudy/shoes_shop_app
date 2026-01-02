@@ -1,4 +1,4 @@
-class refundJoin {
+class RefundJoin {
   // refund
   int? ref_seq;
   String? ref_date;
@@ -51,7 +51,7 @@ class refundJoin {
   String? br_address;
   String? br_phone;
 
-  refundJoin({
+  RefundJoin({
     this.ref_seq,
     this.ref_date,
     this.ref_re_count,
@@ -88,8 +88,8 @@ class refundJoin {
     this.br_phone,
   });
 
-  factory refundJoin.fromJson(Map<String, dynamic> json) {
-    return refundJoin(
+  factory RefundJoin.fromJson(Map<String, dynamic> json) {
+    return RefundJoin(
       ref_seq: json['ref_seq'],
       ref_date: json['ref_date'],
       ref_re_count: json['ref_re_count'],

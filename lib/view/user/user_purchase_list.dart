@@ -211,9 +211,13 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                               right: 10,
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: data[index].items!.first.b_status == "1"
-                                      ? arriveColor
-                                      : orderColor,
+                                  color: data[index].items!.first.b_status == "3"
+                                    ? refundColor
+                                    : data[index].items!.first.b_status == "2"
+                                        ? pickedupColor
+                                        : data[index].items!.first.b_status == "1"
+                                            ? arriveColor
+                                            : orderColor,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 padding: const EdgeInsets.symmetric(

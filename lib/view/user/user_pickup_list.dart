@@ -187,8 +187,8 @@ class _UserPickupListState extends State<UserPickupList> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(item.pic_created_at ?? ''),
-                                      Text(item.p_name ?? ''),
+                                      Text("${item.pic_created_at!.substring(0,10)}  ${item.pic_created_at!.substring(11,16)}"),
+                                      Text(item.p_name!),
                                       Text(
                                         "총 ${(item.b_price ?? 0) * (item.b_quantity ?? 0)}원",
                                       ),

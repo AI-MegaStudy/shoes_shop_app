@@ -46,7 +46,7 @@ class _UserPickupDetailState extends State<UserPickupDetail> {
                     children: [
                       Text("제품명: ${data.p_name!}"),
                       Text("수량: ${data.b_quantity}"),
-                      Text("주문 지점: ${data.br_name}"),
+                      Text("수령 지점: ${data.br_name}"),
                       Text("가격: 총 ${data.b_price}원"),
                     ],
                   ),

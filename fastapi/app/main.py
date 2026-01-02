@@ -43,7 +43,7 @@ app.include_router(branch.router, prefix="/api/branches", tags=["branches"])
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(user_auth_identities.router, prefix="/api/user_auth_identities", tags=["user_auth_identities"])
 app.include_router(auth.router, prefix="/api", tags=["auth"])
-app.include_router(staff.router, prefix="/api/staffs", tags=["staffs"])
+app.include_router(staff.router, prefix="/api/staff", tags=["staff"])
 app.include_router(maker.router, prefix="/api/makers", tags=["makers"])
 app.include_router(kind_category.router, prefix="/api/kind_categories", tags=["kind_categories"])
 app.include_router(color_category.router, prefix="/api/color_categories", tags=["color_categories"])
@@ -78,7 +78,7 @@ async def root():
             "branches": "/api/branches",
             "users": "/api/users",
             "user_auth_identities": "/api/user_auth_identities",
-            "staffs": "/api/staffs",
+            "staff": "/api/staff",
             "makers": "/api/makers",
             "kind_categories": "/api/kind_categories",
             "color_categories": "/api/color_categories",

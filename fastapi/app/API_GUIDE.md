@@ -35,7 +35,7 @@
 ### API 구조
 
 - **기본 CRUD API**: 15개 테이블에 대한 CRUD 작업
-  - branches, users, user_auth_identities, staffs, makers
+  - branches, users, user_auth_identities, staff, makers
   - kind_categories, color_categories, size_categories, gender_categories, refund_reason_categories
   - products, purchase_items, pickups, refunds, receives, requests
 - **인증 API**: 소셜 로그인 및 회원가입
@@ -281,18 +281,20 @@ curl -X POST "http://127.0.0.1:8000/api/user_auth_identities" \
 
 ### 4. 직원 (Staff)
 
-**기본 경로**: `/api/staffs`
+**기본 경로**: `/api/staff`
 
 | 메서드 | 엔드포인트 | 설명 |
 |--------|-----------|------|
-| GET | `/api/staffs` | 전체 직원 조회 |
-| GET | `/api/staffs/{s_seq}` | 직원 상세 조회 |
-| GET | `/api/staffs/by_branch/{branch_seq}` | 지점별 직원 조회 |
-| POST | `/api/staffs` | 직원 추가 (이미지 필수) |
-| POST | `/api/staffs/{id}` | 직원 수정 |
-| POST | `/api/staffs/{id}/with_image` | 직원 수정 (이미지 포함) |
-| GET | `/api/staffs/staff_seq/profile_image` | 프로필 이미지 조회 |
-| DELETE | `/api/staffs/{staff_seq}` | 직원 삭제 |
+| GET | `/api/staff` | 전체 직원 조회 |
+| GET | `/api/staff/{staff_seq}` | 직원 상세 조회 (s_seq로 조회) |
+| GET | `/api/staff/by_id/{staff_id}` | 직원 조회 (s_id로 조회, 로그인용) |
+| GET | `/api/staff/by_branch/{branch_seq}` | 지점별 직원 조회 |
+| POST | `/api/staff` | 직원 추가 (이미지 필수) |
+| POST | `/api/staff/{staff_seq}` | 직원 수정 (이미지 제외) |
+| POST | `/api/staff/{staff_seq}/with_image` | 직원 수정 (이미지 포함) |
+| GET | `/api/staff/{staff_seq}/profile_image` | 프로필 이미지 조회 |
+| DELETE | `/api/staff/{staff_seq}/profile_image` | 프로필 이미지 삭제 |
+| DELETE | `/api/staff/{staff_seq}` | 직원 삭제 |
 
 **데이터 모델:**
 ```json
@@ -312,7 +314,7 @@ curl -X POST "http://127.0.0.1:8000/api/user_auth_identities" \
 
 **직원 추가 예시:**
 ```bash
-curl -X POST "http://127.0.0.1:8000/api/staffs" \
+curl -X POST "http://127.0.0.1:8000/api/staff" \
   -F "s_id=staff001" \
   -F "br_seq=1" \
   -F "s_password=pass1234" \
@@ -321,6 +323,33 @@ curl -X POST "http://127.0.0.1:8000/api/staffs" \
   -F "s_rank=점장" \
   -F "file=@profile.jpg"
 ```
+
+**s_id로 직원 조회 예시 (로그인용):**
+```bash
+curl "http://127.0.0.1:8000/api/staff/by_id/staff001"
+```
+
+**응답 예시:**
+```json
+{
+  "result": {
+    "s_seq": 1,
+    "s_id": "staff001",
+    "br_seq": 1,
+    "s_password": "pass1234",
+    "s_name": "김점장",
+    "s_rank": "점장",
+    "s_phone": "010-1001-1001",
+    "s_superseq": null,
+    "created_at": "2025-01-15T10:30:00",
+    "s_quit_date": null
+  }
+}
+```
+
+**참고**: 
+- `/by_id/{staff_id}` 엔드포인트는 탈퇴하지 않은 직원만 조회합니다 (`s_quit_date IS NULL OR s_quit_date > NOW()`)
+- 로그인 시 이 엔드포인트를 사용하여 s_id로 직원을 조회하고 비밀번호를 검증합니다
 
 ---
 
@@ -997,6 +1026,14 @@ curl -X POST "http://127.0.0.1:8000/api/purchase_items" \
   - `{m_seq}` → `{maker_seq}`
 - 실행 방법 경로 수정 (`fastapi` 폴더에서 실행)
 - 제품 이미지 업로드/다운로드 API 추가
+
+### 2026-01-02 김택권
+- **Staff API 경로 수정**: `/api/staffs` → `/api/staff` (단수형으로 통일)
+- **Staff API 엔드포인트 추가**:
+  - `GET /api/staff/by_id/{staff_id}`: s_id로 직원 조회 (로그인용)
+  - `GET /api/staff/{staff_seq}/profile_image`: 프로필 이미지 조회
+  - `DELETE /api/staff/{staff_seq}/profile_image`: 프로필 이미지 삭제
+- Staff API 경로 파라미터 수정: `{s_seq}` → `{staff_seq}`, `{id}` → `{staff_seq}`
 
 ---
 

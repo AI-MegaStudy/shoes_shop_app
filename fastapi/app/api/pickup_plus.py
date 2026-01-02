@@ -11,7 +11,7 @@ router = APIRouter()
 # 고객별 Pickup 목록 + 상세 정보
 # ============================================
 
-router.get("/by_user/{user_seq}/all")
+@router.get("/by_user/{user_seq}/all")
 async def get_pickups_by_user_with_details(
     user_seq: int,
     keyword: Optional[str] = None,
@@ -43,7 +43,7 @@ async def get_pickups_by_user_with_details(
         sql = f"""
         SELECT
             pic.pic_seq,
-            pic.created at
+            pic.created_at,
 
             pi.b_seq,
             pi.b_price,
@@ -74,7 +74,7 @@ async def get_pickups_by_user_with_details(
             br.br_phone
 
         FROM pickup pic
-        JOIN purchase_item pic.pic_seq = pi.pic_seq
+        JOIN purchase_item pi ON pic.b_seq = pi.b_seq
         JOIN product p ON pi.p_seq = p.p_seq
         JOIN user u ON pi.u_seq = u.u_seq
         JOIN branch br ON pi.br_seq = br.br_seq

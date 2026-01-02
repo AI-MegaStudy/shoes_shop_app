@@ -20,6 +20,7 @@ const double edgeSpace = 20; // 세이프 에리어
 const double imageWidth = 100; // 이미지 가로
 const double imageWidthBig = 200; // 이미지 가로
 const double cardSpace = 10; // 카드 여백
+const double dropboxHeight = 30; // 정렬 드롭박스 높이
 
 const Color orderColor = Colors.grey; // 준비 중 색상
 const Color arriveColor = Color.fromARGB(255, 73, 73, 73); // 준비 완료, 수령 완료 색상

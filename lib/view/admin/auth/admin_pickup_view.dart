@@ -15,28 +15,56 @@ class AdminPickupView extends StatefulWidget {
 
 class _AdminPickupViewState extends State<AdminPickupView> {
   late List data;
+  late List refReasons;
+  late String dropDownValue;
+
   late Map dataSeq;
+  late TextEditingController _searchController;
+
 
   @override
   void initState() {
     super.initState();
     data = [];
+    refReasons = [];
     dataSeq = {};
     getJSONData();
+    getJSONrefReasonData();
+    dropDownValue = '';
+    _searchController = TextEditingController();
   }
 
-  Future<void> getJSONData() async{
-    var url = Uri.parse('http://127.0.0.1:8000/api/pickups/admin/all');
-    print(url);
+  Future<void> getJSONData({String? search}) async{
+    var urlStr = 'http://127.0.0.1:8000/api/pickups/admin/all';
+    if (search != null && search.isNotEmpty){
+      urlStr += '?search=$search';
+    }
+    var url = Uri.parse(urlStr);
+    print('Request URL: $url');
     var response = await http.get(url);
     data.clear();
     var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
     var result = dataConvertedJSON['result'];
-    print('☁️ 수령 목록 ☁️: ${result}');
-    data = result.map((e) => PickupAdmin.fromJson(e)).toList(); // model의 factory형태
+    // print('☁️ 수령 목록 ☁️: ${result}');
+    data = result.map((e) => PickupAdmin.fromJson(e)).toList();
 
     setState(() {});
   }
+
+  Future<void> getJSONrefReasonData() async{
+    var url = Uri.parse('http://127.0.0.1:8000/api/refund_reason_categories');
+    print('Request URL: $url');
+    var response = await http.get(url);
+    var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
+    List result = dataConvertedJSON['results'];
+    refReasons = List<String>.from(result.map((e) => e['ref_re_name'].toString())).toList();
+    print(refReasons);
+
+    dropDownValue = refReasons[0];
+
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -52,32 +80,62 @@ class _AdminPickupViewState extends State<AdminPickupView> {
             flex: 1,
             child: data.isEmpty
             ? Text('데이터가 없습니다.')
-            : ListView.builder(
-              itemCount: data.length,
-              itemBuilder: (context, index) {
-                final pickup = data[index];
-                return GestureDetector(
-                  onTap: () => getJSONpicSeqData(data[index].pic_seq),
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('${pickup.pic_seq}', style: config_testsy.titleStyle),
-                              Text('${config_testsy.pickupStatus[int.parse(pickup.b_status)]}'),
-                            ],
-                          ),
-                          Text('${pickup.u_name}', style: config_testsy.mediumTextStyle),
-                        ],
-                      ),
-                    ),
+            : Column(
+              children: [
+                TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: '고객명/구매번호 찾기',
+                    prefixIcon: const Icon(Icons.search),
                   ),
-                );
-              }
+                  textInputAction: TextInputAction.go,
+                  onSubmitted: (value) => getJSONData(search: value),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: data.length,
+                    itemBuilder: (context, index) {
+                      final pickup = data[index];
+                      return GestureDetector(
+                        onTap: () => getJSONpicSeqData(data[index].pic_seq),
+                        child: Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text('${pickup.pic_seq}', style: config_testsy.titleStyle),
+                                    pickup.b_status != null 
+                                    ? Container(
+                                      padding: EdgeInsets.all(8.0),
+                                      decoration: BoxDecoration(
+                                        color: config_testsy.StatusConfig.bStatusColor(pickup.b_status),
+                                        borderRadius: BorderRadius.circular(10)
+                                      ),
+                                      child: Text(
+                                        '${config_testsy.pickupStatus[int.parse(pickup.b_status)]}',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold
+                                        ),
+                                      ),
+                                    )
+                                    : Text('')
+                                  ],
+                                ),
+                                Text('${pickup.u_name}', style: config_testsy.mediumTextStyle),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                  ),
+                ),
+              ],
             )
           ),
           VerticalDivider(),
@@ -132,10 +190,12 @@ class _AdminPickupViewState extends State<AdminPickupView> {
                       ),
                     ),
                   ),
-                  ElevatedButton(
-                    onPressed: () => insertRefund(), 
+                  dataSeq['b_status'] == '2'
+                  ? ElevatedButton(
+                    onPressed: () => selectReason(),
                     child: Text('반품 신청')
-                  ),
+                  )
+                  : Text(''),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 8, 8, 0),
                     child: Align(
@@ -166,24 +226,55 @@ class _AdminPickupViewState extends State<AdminPickupView> {
     setState(() {});
   }
 
-  Future<void> insertRefund() async{
-    // Get.dialog(
-    //   AlertDialog(
-    //     title: Text('반품 사유 선택'),
-    //     actions: [
+  void selectReason(){
+    Get.dialog(
+      AlertDialog(
+        title: const Text('반품 사유 선택'),
+        content: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setDialogState) {
+            return DropdownButton<String>(
+              isExpanded: true,
+              value: refReasons.contains(dropDownValue) ? dropDownValue : (refReasons.isNotEmpty ? refReasons.first : null),
+              items: refReasons.map<DropdownMenuItem<String>>((value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                setDialogState(() {
+                  dropDownValue = newValue!;
+                });
+                setState(() {
+                  dropDownValue = newValue!;
+                });
+              },
+            );
+          },
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              insertRefund();
+              updatePurchaseItem(dataSeq['b_seq']);
+            }, 
+            child: Text('선택')
+          )
+        ],
+      )
+    );
+  }
 
-    //     ],
-    //   )
-    // );
+  Future<void> insertRefund() async{
     var request = http.MultipartRequest(
       'POST', 
       Uri.parse('http://127.0.0.1:8000/api/refunds')
     );
 
     request.fields['u_seq'] = dataSeq['u_seq'].toString();
-    request.fields['s_seq'] = 1.toString(); // staff sequence 추가
+    request.fields['s_seq'] = 16.toString(); // staff sequence 추가
     request.fields['pic_seq'] = dataSeq['pic_seq'].toString();
-    // 반품 사유 추가
+    request.fields['ref_re_name'] = dropDownValue;
 
     var res = await request.send();
     if(res.statusCode == 200){
@@ -192,6 +283,30 @@ class _AdminPickupViewState extends State<AdminPickupView> {
       errorSnackbar();
     }
   }
+
+  Future<void> updatePurchaseItem(int b_seq) async{
+    var request = http.MultipartRequest(
+      'POST', 
+      Uri.parse('http://127.0.0.1:8000/api/purchase_items/${b_seq}')
+    );
+
+    request.fields['br_seq'] = dataSeq['br_seq'].toString();
+    request.fields['u_seq'] = dataSeq['u_seq'].toString();
+    request.fields['p_seq'] = dataSeq['p_seq'].toString();
+    request.fields['b_price'] = dataSeq['b_price'].toString();
+    request.fields['b_quantity'] = dataSeq['b_quantity'].toString();
+    request.fields['b_date'] = dataSeq['b_date'];
+    request.fields['b_status'] = '3';
+
+    var res = await request.send();
+    if(res.statusCode == 200){
+      _showDialog();
+      getJSONData();
+    }else{
+      errorSnackbar();
+    }
+  }
+
   void _showDialog(){
     Get.defaultDialog(
       title: '반품 완료',
@@ -200,6 +315,7 @@ class _AdminPickupViewState extends State<AdminPickupView> {
       actions: [
         TextButton(
           onPressed: () {
+            Get.back();
             Get.back();
           }, 
           child: Text('OK')
@@ -223,4 +339,5 @@ class _AdminPickupViewState extends State<AdminPickupView> {
 2025-01-02: 임소연
   - 전체 수령내역, 수령내역 클릭시 상세 수령정보 제공
   - 반품 신청 버튼 클릭시 refund 테이블에 정보 추가(수정필요)
+  - 검색 기능 추가
 */

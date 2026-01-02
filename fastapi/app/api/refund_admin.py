@@ -11,12 +11,24 @@ router = APIRouter()
 # 관리자 페이지 - Refund 전체 목록 조회
 # ============================================
 @router.get("/all")
-async def get_refund_all():
+async def get_refund_all(search: Optional[str] = None):
     conn = connect_db()
     curs = conn.cursor()
+
+    where_sql = ''
+    params = []
+
+    if search:
+        if search.isdigit():
+            where_sql = 'WHERE ref.ref_seq = %s'
+            params.append(int(search))
+        else:
+            where_sql = 'WHERE u.u_name LIKE %s'
+            params.append(f"%{search}%")
+
     
     try:
-        sql = """
+        sql = f"""
         SELECT 
             ref.ref_seq,
             ref.ref_date,
@@ -56,9 +68,10 @@ async def get_refund_all():
         JOIN size_category sc ON p.sc_seq = sc.sc_seq
         JOIN gender_category gc ON p.gc_seq = gc.gc_seq
         JOIN maker m ON p.m_seq = m.m_seq
+        {where_sql}
         JOIN branch br ON pi.br_seq = br.br_seq
         """
-        curs.execute(sql)
+        curs.execute(sql, params)
         rows = curs.fetchall()
         
         if rows is None:

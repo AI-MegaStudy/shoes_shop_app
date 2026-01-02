@@ -11,7 +11,7 @@ router = APIRouter()
 # 관리자 페이지 - Pickup 전체 목록 조회
 # ============================================
 @router.get("/all")
-async def get_pickup_all():
+async def get_pickup_all(search: Optional[str] = None):
     """
     Pickup의 전체 상세 정보
     JOIN: Pickup + PurchaseItem + User + Product + Branch + 모든 카테고리 + Maker (10테이블)
@@ -20,8 +20,19 @@ async def get_pickup_all():
     conn = connect_db()
     curs = conn.cursor()
     
+    where_sql = ''
+    params = []
+
+    if search:
+        if search.isdigit():
+            where_sql = 'WHERE pic.pic_seq = %s'
+            params.append(int(search))
+        else:
+            where_sql = 'WHERE u.u_name LIKE %s'
+            params.append(f"%{search}%")
+
     try:
-        sql = """
+        sql = f"""
         SELECT 
             pic.pic_seq,
             pic.created_at,
@@ -56,9 +67,10 @@ async def get_pickup_all():
         JOIN gender_category gc ON p.gc_seq = gc.gc_seq
         JOIN maker m ON p.m_seq = m.m_seq
         JOIN branch br ON pi.br_seq = br.br_seq
+        {where_sql}
         ORDER BY pic_seq DESC
         """
-        curs.execute(sql)
+        curs.execute(sql, params)
         rows = curs.fetchall()
 
         result = [

@@ -2,15 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoes_shop_app/model/product.dart';
 import 'package:shoes_shop_app/utils/cart_storage.dart';
-import 'package:shoes_shop_app/view/Dev/product_detail_3d/payment/user_purchase_list.dart';
+import 'package:shoes_shop_app/view/user/payment/gt_user_cart_view.dart';
 import 'package:shoes_shop_app/view/user/product/detail_module_3d.dart';
 
-class ProductDetailView extends StatefulWidget {
-  const ProductDetailView({super.key});
-
-  @override
-  State<ProductDetailView> createState() => _ProductDetailViewState();
-}
 
 class CartItem {
   int p_seq;
@@ -20,6 +14,8 @@ class CartItem {
   String cc_name;
   int sc_seq;
   String sc_name;
+  int gc_seq;
+  String gc_name;
   int quantity;
   String p_image;
 
@@ -31,8 +27,10 @@ class CartItem {
     required this.cc_name,
     required this.sc_seq,
     required this.sc_name,
+    required this.gc_seq,
+    required this.gc_name,
     required this.quantity,
-    required this.p_image,
+    required this.p_image
   });
 
   Map<String, dynamic> toJson() {
@@ -44,14 +42,42 @@ class CartItem {
       'cc_name': cc_name,
       'sc_seq': sc_seq,
       'sc_name': sc_name,
+      'gc_seq' : gc_seq,
+      'gc_name' : gc_name,
       'quantity': quantity,
       'p_image': p_image,
     };
   }
+
+    factory CartItem.fromJson(Map<String,dynamic> json) {
+      return CartItem(
+        p_seq: json['p_seq'], 
+        p_name: json['p_name'], 
+        p_price: json['p_price'], 
+        cc_seq: json['cc_seq'], 
+        cc_name: json['cc_name'], 
+        sc_seq: json['sc_seq'], 
+        sc_name: json['sc_name'], 
+        gc_seq: json['gc_seq'],
+        gc_name: json['gc_name'],
+        quantity: json['quantity'], 
+        p_image: json['p_image']
+      );
+  }
+}
+
+
+class ProductDetailView extends StatefulWidget {
+  const ProductDetailView({super.key});
+
+  @override
+  State<ProductDetailView> createState() => _ProductDetailViewState();
 }
 
 class _ProductDetailViewState extends State<ProductDetailView> {
+  
   Product? product = Get.arguments;
+
   int selectedGender = 0;
   int selectedColor = 0;
   int selectedSize = 6;
@@ -147,13 +173,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
-                      onPressed: () {
-                        List xx = CartStorage.getCart();
-            
-                        for (var v in xx) {
-                          print("===${v}");
-                        }
-                      }, // => Get.to(() => const UserPurchaseList()),
+                      onPressed: () => Get.to(() => const GTUserCartView()),
             
                       child: Text("장바구니 보기"),
                     ),
@@ -193,6 +213,8 @@ class _ProductDetailViewState extends State<ProductDetailView> {
       cc_name: product!.p_color!,
       sc_seq: product!.sc_seq,
       sc_name: product!.p_size!,
+      gc_seq: product!.gc_seq,
+      gc_name: product!.p_gender!,
       quantity: quantity,
       p_image: product!.p_image,
     ).toJson();
@@ -200,7 +222,6 @@ class _ProductDetailViewState extends State<ProductDetailView> {
     print(item);
 
     CartStorage.addToCart(item);
-
     // Get Message
     Get.defaultDialog(
       title: "카트에 추가되었습니다.",
@@ -208,7 +229,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('성공적으로 추가 됬습니다.'),
-          Text('상품명: ${product!.p_name}'),
+          Text('상품명: ${product!.p_name} / ${product!.p_gender}'),
           Text('수 량: ${quantity}'),
           Text('가 격: ${product!.p_price*quantity}원')
         ],
@@ -241,6 +262,8 @@ class _ProductDetailViewState extends State<ProductDetailView> {
             (index) => ElevatedButton(
               onPressed: () {
                 selectedGender = index;
+                product!.gc_seq = selectedGender+1;
+                product!.p_gender = genderList[selectedGender];
                 setState(() {});
               },
 
@@ -299,6 +322,8 @@ class _ProductDetailViewState extends State<ProductDetailView> {
               (index) => ElevatedButton(
                 onPressed: () {
                   selectedSize = index;
+                  product!.sc_seq = selectedSize+1;
+                  product!.p_size = sizeList[selectedSize].toString();
                   setState(() {});
                 },
                 style: ElevatedButton.styleFrom(
@@ -346,6 +371,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
               (index) => ElevatedButton(
                 onPressed: () {
                   selectedColor = index;
+                  product!.cc_seq = selectedColor+1;
                   setState(() {});
                 },
                 style: ElevatedButton.styleFrom(

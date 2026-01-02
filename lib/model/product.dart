@@ -1,9 +1,9 @@
 class Product {
   final int? p_seq; // 고객 고유 ID(PK)
-  final int kc_seq;
-  final int cc_seq;
-  final int sc_seq;
-  final int gc_seq;
+  int kc_seq;
+  int cc_seq;
+  int sc_seq;
+  int gc_seq;
   final int m_seq;
   final String p_name;
   final int p_price;
@@ -11,10 +11,10 @@ class Product {
   final String p_image;
   final String p_description;
   final DateTime? created_at;
-  final String? p_color;
-  final String? p_size;
-  final String? p_gender;
-  final String? p_maker;
+  String? p_color;
+  String? p_size;
+  String? p_gender;
+  String? p_maker;
 
   Product({
     this.p_seq,

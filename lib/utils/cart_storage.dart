@@ -78,6 +78,8 @@ class CartStorage {
   /// - cc_name: 색상명
   /// - sc_seq: 사이즈 카테고리 ID
   /// - sc_name: 사이즈명
+  /// - 'gc_seq' : 성별 카테고리 ID,
+  /// - 'gc_name' : 성별명,
   /// - quantity: 수량 (기본값: 1)
   /// - p_image: 이미지 경로
   static void addToCart(Map<String, dynamic> item) {
@@ -87,7 +89,10 @@ class CartStorage {
     final existingIndex = cart.indexWhere((e) =>
         _asInt(e['p_seq']) == _asInt(item['p_seq']) &&
         _asInt(e['cc_seq']) == _asInt(item['cc_seq']) &&
-        _asInt(e['sc_seq']) == _asInt(item['sc_seq']));
+        _asInt(e['sc_seq']) == _asInt(item['sc_seq']) &&
+        _asInt(e['gc_seq']) == _asInt(item['gc_seq'])
+        
+        );
     
     if (existingIndex >= 0) {
       // 기존 항목의 수량 증가

@@ -114,12 +114,12 @@ class _ProductDetailViewState extends State<ProductDetailView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Container(
-                //   width: MediaQuery.of(context).size.width,
-                //   height: 450,
-                //   // color: Colors.green,
-                //   child: GTProductDetail3D()
-                // ),
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 450,
+                  // color: Colors.green,
+                  child: GTProductDetail3D()
+                ),
             
                 Text(
                   "상품명: ${product!.p_name}",

@@ -1,9 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shoes_shop_app/model/color_category.dart';
+import 'package:shoes_shop_app/model/gender_category.dart';
 import 'package:shoes_shop_app/model/product.dart';
+import 'package:shoes_shop_app/model/size_category.dart';
 import 'package:shoes_shop_app/utils/cart_storage.dart';
 import 'package:shoes_shop_app/view/user/payment/gt_user_cart_view.dart';
 import 'package:shoes_shop_app/view/user/product/detail_module_3d.dart';
+import 'package:http/http.dart' as http;
 
 
 class CartItem {
@@ -78,16 +84,18 @@ class _ProductDetailViewState extends State<ProductDetailView> {
   
   Product? product = Get.arguments;
 
-  int selectedGender = 0;
-  int selectedColor = 0;
-  int selectedSize = 6;
+  late int selectedGender=0;
+  late int selectedColor =0;
+  late int selectedSize =0;
   int quantity = 1;
   // Map<String, dynamic> genderList = {'남성': 1, '여성': 2, '공통': 3};
-  List<String> genderList = ['남성', '여성', '공통'];
-  List<String> colorList = ['블랙', '화이트', '그레이', '레드', '블루', '그린', '옐로우'];
+  // List<String> genderList = ['남성', '여성', '공통'];
+  List genderList = [];
+  List colorList = [];
+  // List<String> colorList = ['블랙', '화이트', '그레이', '레드', '블루', '그린', '옐로우'];
   // Map<String, dynamic> colorList = {'블랙': 1, '화이트': 2, '그레이': 3, '레드': 4, '블루': 5, '그린': 6, '옐로우': 7};
-  List<int> sizeList = [220, 225, 230, 235, 240, 250, 260, 270, 275, 280, 290];
-
+  // List<int> sizeList = [220, 225, 230, 235, 240, 250, 260, 270, 275, 280, 290];
+  List sizeList = [];
   // == UI관련 색깔
   // 선택 버튼 background
   final Color selectedBgColor = Colors.blue;
@@ -96,12 +104,64 @@ class _ProductDetailViewState extends State<ProductDetailView> {
   // Title Font Size
   final double titleFontSize = 15.0;
 
+  final String mainUrl =
+      'http://172.16.250.187:8000/api';
   @override
   void initState() {
     super.initState();
-    // 가능한 사이즈 리스트 가져오기
-    // sizeList = [220, 225, 230, 235, 240, 250, 260, 270, 275, 280, 290];
+
+    // Set default value before starting.
+   
+
+    // product!.gc_seq = selectedGender+1;
+    // product!.sc_seq = selectedSize+1;
+    // product!.p_gender = genderList[selectedGender];
+    // product!.p_color = colorList[selectedColor];
+    // product!.p_size = sizeList[selectedSize].toString();
+    initializedData();
+
   }
+
+  Future<void> initializedData() async {
+    // Get Gender Data from Search
+
+    String _url = mainUrl + "/gender_categories";
+
+    var url = Uri.parse(_url);
+    var response = await http.get(url, headers: {});
+    var jsonData = json.decode(utf8.decode(response.bodyBytes));
+
+    genderList.addAll(jsonData["results"].map((d) => GenderCategory.fromJson(d)).toList());
+
+    
+    
+    _url = mainUrl + "/color_categories";
+    url = Uri.parse(_url);
+    response = await http.get(url, headers: {});
+    jsonData = json.decode(utf8.decode(response.bodyBytes));
+    colorList.addAll(jsonData["results"].map((d) => ColorCategory.fromJson(d)).toList()); 
+    selectedColor = colorList.indexWhere((f) => f.cc_seq == product!.cc_seq);
+
+    _url = mainUrl + "/size_categories";
+    url = Uri.parse(_url);
+    response = await http.get(url, headers: {});
+    jsonData = json.decode(utf8.decode(response.bodyBytes));
+    sizeList.addAll(jsonData["results"].map((d) => SizeCategory.fromJson(d)).toList()); 
+
+    // Get Product with color,size,gender
+    // price must update
+    
+
+
+
+    setState(() {});
+
+
+  }
+
+
+  
+
 
   @override
   Widget build(BuildContext context) {
@@ -114,12 +174,12 @@ class _ProductDetailViewState extends State<ProductDetailView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 450,
-                  // color: Colors.green,
-                  child: GTProductDetail3D()
-                ),
+                // Container(
+                //   width: MediaQuery.of(context).size.width,
+                //   height: 450,
+                //   // color: Colors.green,
+                //   child: GTProductDetail3D()
+                // ),
             
                 Text(
                   "상품명: ${product!.p_name}",
@@ -205,6 +265,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
   // === Functions
   void _addCart() {
     // 카트에 추가
+
     final item = CartItem(
       p_seq: product!.p_seq!,
       p_name: product!.p_name,
@@ -262,8 +323,8 @@ class _ProductDetailViewState extends State<ProductDetailView> {
             (index) => ElevatedButton(
               onPressed: () {
                 selectedGender = index;
-                product!.gc_seq = selectedGender+1;
-                product!.p_gender = genderList[selectedGender];
+                product!.gc_seq = genderList[selectedGender].gc_seq;
+                product!.p_gender = genderList[selectedGender].gc_name;
                 setState(() {});
               },
 
@@ -276,7 +337,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                 ),
               ),
               child: Text(
-                genderList[index],
+                genderList[index].gc_name,
                 style: TextStyle(
                   color: selectedGender == index
                       ? selectedFgColor
@@ -285,17 +346,6 @@ class _ProductDetailViewState extends State<ProductDetailView> {
               ),
             ),
           ),
-
-          // genderList.entries
-          //     .map(
-          //       (entry) => ElevatedButton(
-          //         onPressed: () {
-          //           selectedGender = entry.value;
-          //         },
-          //         child: Text(entry.key),
-          //       ),
-          //     )
-          //     .toList(),
         ),
       ],
     );
@@ -322,8 +372,8 @@ class _ProductDetailViewState extends State<ProductDetailView> {
               (index) => ElevatedButton(
                 onPressed: () {
                   selectedSize = index;
-                  product!.sc_seq = selectedSize+1;
-                  product!.p_size = sizeList[selectedSize].toString();
+                  product!.sc_seq = sizeList[selectedSize].sc_seq; 
+                  product!.p_size = sizeList[selectedSize].sc_name;
                   setState(() {});
                 },
                 style: ElevatedButton.styleFrom(
@@ -335,7 +385,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                   ),
                 ),
                 child: Text(
-                  "${sizeList[index]}",
+                  "${sizeList[index].sc_name}",
                   style: TextStyle(
                     color: selectedSize == index
                         ? selectedFgColor
@@ -371,7 +421,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
               (index) => ElevatedButton(
                 onPressed: () {
                   selectedColor = index;
-                  product!.cc_seq = selectedColor+1;
+                  product!.cc_seq = colorList[selectedColor].cc_seq;
                   setState(() {});
                 },
                 style: ElevatedButton.styleFrom(
@@ -383,7 +433,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                   ),
                 ),
                 child: Text(
-                  "${colorList[index]}",
+                  "${colorList[index].cc_name}",
                   style: TextStyle(
                     color: selectedColor == index
                         ? selectedFgColor

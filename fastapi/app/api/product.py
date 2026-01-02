@@ -46,6 +46,60 @@ class Product(BaseModel):
 
 
 # ============================================
+# 전체 GROUP BY 제품 조회
+# ============================================
+@router.get("/group_by_name")
+async def select_products_by_name():
+    conn = connect_db()
+    curs = conn.cursor()
+    
+    # original soruce
+    # curs.execute("""
+    #     SELECT p_seq, kc_seq, cc_seq, sc_seq, gc_seq, m_seq, p_name, p_price, p_stock, p_image, p_description, created_at 
+    #     FROM product 
+    #     ORDER BY p_seq
+    # """)
+    # rows = curs.fetchall()
+    #      ,cc.cc_name as p_color,sc.sc_name as p_size,gc.gc_name as p_gender, ma.m_name
+    curs.execute("""
+                 
+        select p.p_name, p.cc_seq, p.m_seq, cc.cc_name, ma.m_name,p.p_image
+                
+        from product p 
+        inner join color_category cc on p.cc_seq=cc.cc_seq
+        inner join gender_category gc on p.gc_seq=gc.gc_seq
+        inner join size_category sc on p.sc_seq=sc.sc_seq
+        inner join maker ma on p.m_seq=ma.m_seq
+        group by p.p_name,p.cc_seq,p.m_seq,p.p_image                
+    """)
+    
+    rows = curs.fetchall()
+
+  
+    result = [{
+        'p_seq': -1,
+        'kc_seq': -1,
+        'cc_seq': row[1],
+        'sc_seq': -1,
+        'gc_seq': -1,
+        'm_seq': row[2],
+        'p_name': row[0],
+        'p_price': -1,
+        'p_stock': -1,
+        'p_image': row[5],
+        'p_description': '',
+        'created_at': None,
+        'p_color': row[3],
+        'p_size': '',
+        'p_gender': '',
+        'p_maker': row[4],
+    } for row in rows]
+    return {"results": result}
+
+
+
+
+# ============================================
 # 전체 제품 조회
 # ============================================
 @router.get("")
@@ -69,8 +123,7 @@ async def select_products():
         inner join color_category cc on p.cc_seq=cc.cc_seq
         inner join gender_category gc on p.gc_seq=gc.gc_seq
         inner join size_category sc on p.sc_seq=sc.sc_seq
-        inner join maker ma on p.m_seq=ma.m_seq
-        ORDER BY p.p_seq
+        inner join maker ma on p.m_seq=ma.m_seq                
     """)
     
     rows = curs.fetchall()

@@ -1,6 +1,10 @@
 //dev_05.dart (작업자 : 정진석)
 
 import 'package:flutter/material.dart';
+import 'package:shoes_shop_app/view/admin/auth/admin_drawer_menu.dart';
+import 'package:shoes_shop_app/view/admin/auth/admin_profile_edit_view.dart';
+import 'package:shoes_shop_app/view/user/auth/user_drawer_menu.dart';
+// 정진석님이 만든 페이지들 import
 
 class Dev_05 extends StatefulWidget {
   const Dev_05({super.key});
@@ -10,18 +14,14 @@ class Dev_05 extends StatefulWidget {
 }
 
 class _Dev_05State extends State<Dev_05> {
-  //Property
-  //late 는 초기화를 나중으로 미룸
 
   @override
-  void initState() { //페이지가 새로 생성 될때 무조건 1번 사용 됨
+  void initState() {
     super.initState();
-    
   }
   
   @override
   void dispose() {
-
     super.dispose();
   }
 
@@ -31,23 +31,72 @@ class _Dev_05State extends State<Dev_05> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text("정진석 페이지"),
-        backgroundColor: Colors.blue, // AppBar 배경색
-        foregroundColor: Colors.white, // AppBar 글자색
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
         centerTitle: true,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-             Text("Hello"),
+            // User Drawer Menu 버튼
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const UserDrawerMenu(),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+              ),
+              child: const Text("User Drawer Menu"),
+            ),
+            const SizedBox(height: 20),
+            
+            // Admin Drawer Menu 버튼
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AdminDrawerMenu(),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+              ),
+              child: const Text("Admin Drawer Menu"),
+            ),
+            const SizedBox(height: 20),
+            
+            // Admin Profile Edit 버튼
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AdminProfileEditView(),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+              ),
+              child: const Text("Admin Profile Edit"),
+            ),
           ],
         ),
       ),
     );
   }
-
-
-  //--------Functions ------------
-  
-  //------------------------------
 }

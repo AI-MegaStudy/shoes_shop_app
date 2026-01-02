@@ -166,7 +166,7 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                             children: [
                               SizedBox(
                                 child: Image.network(
-                                  'https://cheng80.myqnapcloud.com/${data[index].items!.first.p_image}',
+                                  'https://cheng80.myqnapcloud.com/images/${data[index].items!.first.p_image}',
                                   width: imageWidth,
                                   height: imageWidth,
                                   fit: BoxFit.cover,

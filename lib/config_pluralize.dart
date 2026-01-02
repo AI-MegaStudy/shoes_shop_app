@@ -18,6 +18,7 @@ Map productStatus = { // 제품 수령상태
 // ---------디자인-----------
 const double edgeSpace = 20; // 세이프 에리어
 const double imageWidth = 100; // 이미지 가로
+const double imageWidthBig = 200; // 이미지 가로
 const double cardSpace = 10; // 카드 여백
 
 const Color orderColor = Colors.grey; // 준비 중 색상

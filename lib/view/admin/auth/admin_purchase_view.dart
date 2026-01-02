@@ -42,7 +42,7 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('관리자'),
+        title: Text('구매 목록'),
         centerTitle: true,
         toolbarHeight: 48, // 앱바 높이 최소화
       ),

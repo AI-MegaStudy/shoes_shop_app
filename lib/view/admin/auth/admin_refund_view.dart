@@ -2,7 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shoes_shop_app/model/refund_detail.dart';
+import 'package:shoes_shop_app/config_testsy.dart' as config_testsy;
+import 'package:shoes_shop_app/model/refund_admin.dart';
 
 class AdminRefundView extends StatefulWidget {
   const AdminRefundView({super.key});
@@ -24,13 +25,13 @@ class _AdminRefundViewState extends State<AdminRefundView> {
   }
 
   Future<void> getJSONData() async{
-    var url = Uri.parse('http://127.0.0.1:8000/api/refunds/refunds/all');
+    var url = Uri.parse('http://127.0.0.1:8000/api/refunds/admin/all');
     print(url);
     var response = await http.get(url);
     data.clear();
     var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
-    var result = dataConvertedJSON['result'];
-    data = result.map((e) => RefundDetail.fromJson(e)).toList(); // model의 factory형태
+    var result = dataConvertedJSON['results'];
+    data = result.map((e) => RefundAdmin.fromJson(e)).toList(); // model의 factory형태
 
     setState(() {});
   }
@@ -38,7 +39,7 @@ class _AdminRefundViewState extends State<AdminRefundView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('관리자'),
+        title: Text('반품 목록'),
         centerTitle: true,
         toolbarHeight: 48, // 앱바 높이 최소화
       ),
@@ -53,14 +54,17 @@ class _AdminRefundViewState extends State<AdminRefundView> {
               itemBuilder: (context, index) {
                 final refund = data[index];
                 return GestureDetector(
-                  onTap: () => getJSONbSeqData(data[index].r_seq),
+                  onTap: () => getJSONrefSeqData(data[index].ref_seq),
                   child: Card(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('${refund.b_seq}'),
-                        Text('${refund.u_name}')
-                      ],
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('${refund.ref_seq}', style: config_testsy.titleStyle),
+                          Text('${refund.u_name}', style: config_testsy.mediumTextStyle)
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -68,18 +72,60 @@ class _AdminRefundViewState extends State<AdminRefundView> {
             )
           ),
           VerticalDivider(),
+
           Expanded(
             flex: 2,
             child: dataSeq.isEmpty
-            ? Text('데이터가 없습니다.')
-            : Card(
+            ? Text('')
+            : Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Card(child: Text('구매 번호: ${dataSeq['b_seq']}')),
-                  Card(child: Text('주문자 상세 정보\n이름: ${dataSeq['u_name']}\n연락처: ${dataSeq['u_phone']}\n이메일: ${dataSeq['u_email']}')),
-                  Card(child: Text('주문 상품들\n${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}')),
-
+                  Card(
+                    child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('반품 번호: ${dataSeq['ref_seq']}', style: config_testsy.titleStyle),
+                    )
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                    child: Card(
+                      child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text('고객 상세 정보',
+                              style: config_testsy.titleStyle,
+                            ),
+                            Text('이름: ${dataSeq['u_name']}\n연락처: ${dataSeq['u_phone']}\n이메일: ${dataSeq['u_email']}',
+                              style: config_testsy.mediumTextStyle,
+                            ),
+                          ],
+                        ),
+                      )
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                    child: Card(
+                      child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text('반품 상품',
+                              style: config_testsy.titleStyle,
+                            ),
+                            Text('${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}  |  ${dataSeq['b_quantity']}개',
+                              style: config_testsy.mediumTextStyle,
+                            ),
+                          ],
+                        ),
+                      )
+                    ),
+                  ),
                 ],
               ),
             )
@@ -92,14 +138,13 @@ class _AdminRefundViewState extends State<AdminRefundView> {
   // --- widgets ---
 
   // --- functions ---
-  Future<void> getJSONbSeqData(int r_seq) async{
-    var url = Uri.parse('http://127.0.0.1:8000/api/refunds/${r_seq}/full_detail');
+  Future<void> getJSONrefSeqData(int r_seq) async{
+    var url = Uri.parse('http://127.0.0.1:8000/api/refunds/admin/${r_seq}/full_detail');
     print(url);
     var response = await http.get(url);
     var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
-    var result = dataConvertedJSON['result'];
-    print(result);
-    dataSeq = result;
+    dataSeq = dataConvertedJSON['results'];
+    print(dataSeq);
 
     setState(() {});
   }
@@ -111,6 +156,6 @@ class _AdminRefundViewState extends State<AdminRefundView> {
 
 변경 이력
 2025-01-02: 임소연
-  - 전체 구매내역, 구매내역 클릭시 상세 구매정보 제공
+  - 전체 반품내역, 반품내역 클릭시 상세 반품정보 제공
 
 */

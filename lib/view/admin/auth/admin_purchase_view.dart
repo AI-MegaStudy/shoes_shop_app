@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/model/purchase_item_join.dart';
+import 'package:shoes_shop_app/config_testsy.dart' as config_testsy;
+
 
 class AdminPurchaseView extends StatefulWidget {
   const AdminPurchaseView({super.key});
@@ -12,30 +14,28 @@ class AdminPurchaseView extends StatefulWidget {
 }
 
 class _AdminPurchaseViewState extends State<AdminPurchaseView> {
-  late List<PurchaseItemJoin> data;
-  late int purchase_item_seq;
+  late List data;
+  late Map dataSeq;
 
   @override
   void initState() {
     super.initState();
     data = [];
-    purchase_item_seq = 1;
+    dataSeq = {};
     getJSONData();
   }
 
   Future<void> getJSONData() async{
-    var url = Uri.parse('http://127.0.0.1:8000/api/purchase_items/purchase_items/${purchase_item_seq}/full_detail');
+    var url = Uri.parse('http://127.0.0.1:8000/api/purchase_items/purchase_items/all');
     print(url);
     var response = await http.get(url);
     data.clear();
     var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
-    var result = dataConvertedJSON['result'];
+    var result = dataConvertedJSON['results'];
     print(result);
-    PurchaseItemJoin item = PurchaseItemJoin.fromJson(result);
-    data = [item];
-    print(data[0].b_seq);
-    setState(() {});
+    data = result.map((e) => PurchaseItemJoin.fromJson(e)).toList(); // model의 factory형태
 
+    setState(() {});
   }
   @override
   Widget build(BuildContext context) {
@@ -45,25 +45,139 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
         centerTitle: true,
         toolbarHeight: 48, // 앱바 높이 최소화
       ),
-      drawer: Drawer(
-        child: data.isEmpty
-        ? Text('데이터가 없습니다.')
-        : ListView.builder(
-          itemCount: data.length,
-          itemBuilder: (context, index) {
-            final purchase_item = data[index];
-            return Card(
+      body: Row(
+        children: [
+          Expanded(
+            flex: 1,
+            child: data.isEmpty
+            ? Text('데이터가 없습니다.')
+            : ListView.builder(
+              itemCount: data.length,
+              itemBuilder: (context, index) {
+                final purchase_item = data[index];
+                return GestureDetector(
+                  onTap: () => getJSONbSeqData(data[index].b_seq),
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('${purchase_item.b_seq}', style: config_testsy.titleStyle),
+                              Text('${config_testsy.pickupStatus[int.parse(purchase_item.b_status)]}'),
+                            ],
+                          ),
+                          Text('${purchase_item.u_name}', style: config_testsy.mediumTextStyle),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }
+            )
+          ),
+          VerticalDivider(),
+          Expanded(
+            flex: 2,
+            child: dataSeq.isEmpty
+            ? Text('')
+            : Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('${purchase_item.p_seq}'),
-                  Text('${purchase_item.u_name}')
+                  Card(
+                    child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('구매 번호: ${dataSeq['b_seq']}', style: config_testsy.titleStyle),
+                    )
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                    child: Card(
+                      child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text('주문자 상세 정보',
+                              style: config_testsy.titleStyle,
+                            ),
+                            Text('이름: ${dataSeq['u_name']}\n연락처: ${dataSeq['u_phone']}\n이메일: ${dataSeq['u_email']}',
+                              style: config_testsy.mediumTextStyle,
+                            ),
+                          ],
+                        ),
+                      )
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                    child: Card(
+                      child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text('주문 상품',
+                              style: config_testsy.titleStyle,
+                            ),
+                            Text('${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}  |  ${dataSeq['b_quantity']}개',
+                              style: config_testsy.mediumTextStyle,
+                            ),
+                          ],
+                        ),
+                      )
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => insertPickup(), 
+                    child: Text('수령 완료')
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 8, 8, 0),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text('총 가격: ${dataSeq['b_price']}', style: config_testsy.titleStyle)),
+                  )
                 ],
               ),
-            );
-          }
-        )
+            )
+          )
+        ],
       ),
     );
+  } // build
+
+  // --- widgets ---
+
+  // --- functions ---
+  Future<void> getJSONbSeqData(int b_seq) async{
+    var url = Uri.parse('http://127.0.0.1:8000/api/purchase_items/${b_seq}/full_detail');
+    print(url);
+    var response = await http.get(url);
+    var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
+    var result = dataConvertedJSON['result'];
+    print(result);
+    dataSeq = result;
+
+    setState(() {});
   }
+
+  void insertPickup(){
+    
+  }
+  
+
 }
+
+/*
+
+변경 이력
+2025-01-02: 임소연
+  - 전체 구매내역, 구매내역 클릭시 상세 구매정보 제공
+
+*/

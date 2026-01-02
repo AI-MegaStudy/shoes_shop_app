@@ -19,8 +19,7 @@ class _ProductListViewState extends State<ProductListView> {
   // 보여지는 부분 height
   final double searchBoxSize = 100;
 
-  final String mainUrl =
-      'http://172.16.250.187:8000/api'; //"http://127.0.0.1:8000/api";
+  final String mainUrl = "http://127.0.0.1:8000/api"; //'http://172.16.250.187:8000/api'; //"http://127.0.0.1:8000/api";
   List products = [];
   bool isSearch = false;
   TextEditingController searchController = TextEditingController();
@@ -40,7 +39,7 @@ class _ProductListViewState extends State<ProductListView> {
 
   Future<void> getProducts(String? kwd) async {
     // 요청하여 값을 가져온다.
-    // 전체 제품 가져오는 부분 
+    // 전체 제품 가져오는 부분
     // String _url = mainUrl + "/products";
     String _url = mainUrl + "/products/group_by_name";
 
@@ -62,7 +61,7 @@ class _ProductListViewState extends State<ProductListView> {
               onPressed: () => _openChatting(),
               foregroundColor: Colors.green,
               backgroundColor: Colors.white,
-             
+
               child: const Icon(Icons.chat),
             ),
             body: Center(
@@ -79,28 +78,23 @@ class _ProductListViewState extends State<ProductListView> {
                         onSubmitted: (context) => _searchProduct(),
                         decoration: InputDecoration(
                           hintText: "원하는 신발을 찾아보세요",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                           prefixIcon: Icon(Icons.search),
                         ),
                       ),
                     ),
                     SizedBox(
                       width: MediaQuery.of(context).size.width,
-                      height:
-                          MediaQuery.of(context).size.height -
-                          (searchBoxSize + 130),
+                      height: MediaQuery.of(context).size.height - (searchBoxSize + 130),
                       child: isSearch
                           ? _noResultWidget()
                           : GridView.builder(
                               itemCount: products.length,
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    crossAxisSpacing: 10, // 가로
-                                    mainAxisSpacing: 10, // 세로
-                                  ),
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 10, // 가로
+                                mainAxisSpacing: 10, // 세로
+                              ),
                               itemBuilder: (context, index) {
                                 return _displayProduct(products[index]);
                               },
@@ -117,14 +111,12 @@ class _ProductListViewState extends State<ProductListView> {
   Future<void> _searchProduct() async {
     // Search by product name
     isSearch = true;
-    String _url =
-        mainUrl + "/products/search/?kwds=${searchController.text.trim()}";
+    String _url = mainUrl + "/products/searchByMain/?kwds=${searchController.text.trim()}";
 
     final url = Uri.parse(_url);
     final response = await http.get(url);
     final jsonData = json.decode(utf8.decode(response.bodyBytes));
-    print(jsonData);
-    print('================');
+
     if (jsonData != null && jsonData["results"].length > 0) {
       products = jsonData["results"].map((d) => Product.fromJson(d)).toList();
       isSearch = false;
@@ -133,13 +125,8 @@ class _ProductListViewState extends State<ProductListView> {
   }
 
   void _openChatting() {
-
     // Get User Data
-
-
   }
-
-
 
   // == Widgets
   Widget _displayProduct(Product p) {
@@ -154,7 +141,7 @@ class _ProductListViewState extends State<ProductListView> {
               image: NetworkImage('https://cheng80.myqnapcloud.com/images/${p.p_image}'),
               // AssetImage('images/Nike_Air_1/Nike_Air_1_Black_01.avif'),
               fit: BoxFit.contain,
-            
+
               //
             ),
             // color: Colors.grey,
@@ -167,15 +154,9 @@ class _ProductListViewState extends State<ProductListView> {
               //                 'https://cheng80.myqnapcloud.com/images/${p.p_image}',
               //                 width: 100,
               //               ),
-              Text(
-                p.p_name,
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                "${p.p_maker!} / ${p.p_color}",
-                style: TextStyle(fontSize: 13, color: Colors.black54),
-              ),
-             
+              Text(p.p_name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              Text("${p.p_maker!} / ${p.p_color}", style: TextStyle(fontSize: 13, color: Colors.black54)),
+
               // Text(
               //   "${p.p_price}원",
               //   style: TextStyle(decoration: TextDecoration.underline),

@@ -6,7 +6,7 @@ class Product {
   int gc_seq;
   final int m_seq;
   final String p_name;
-  final int p_price;
+  int p_price;
   final int p_stock;
   final String p_image;
   final String p_description;

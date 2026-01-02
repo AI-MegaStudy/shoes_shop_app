@@ -11,7 +11,6 @@ import 'package:shoes_shop_app/view/user/payment/gt_user_cart_view.dart';
 import 'package:shoes_shop_app/view/user/product/detail_module_3d.dart';
 import 'package:http/http.dart' as http;
 
-
 class CartItem {
   int p_seq;
   String p_name;
@@ -36,7 +35,7 @@ class CartItem {
     required this.gc_seq,
     required this.gc_name,
     required this.quantity,
-    required this.p_image
+    required this.p_image,
   });
 
   Map<String, dynamic> toJson() {
@@ -48,30 +47,29 @@ class CartItem {
       'cc_name': cc_name,
       'sc_seq': sc_seq,
       'sc_name': sc_name,
-      'gc_seq' : gc_seq,
-      'gc_name' : gc_name,
+      'gc_seq': gc_seq,
+      'gc_name': gc_name,
       'quantity': quantity,
       'p_image': p_image,
     };
   }
 
-    factory CartItem.fromJson(Map<String,dynamic> json) {
-      return CartItem(
-        p_seq: json['p_seq'], 
-        p_name: json['p_name'], 
-        p_price: json['p_price'], 
-        cc_seq: json['cc_seq'], 
-        cc_name: json['cc_name'], 
-        sc_seq: json['sc_seq'], 
-        sc_name: json['sc_name'], 
-        gc_seq: json['gc_seq'],
-        gc_name: json['gc_name'],
-        quantity: json['quantity'], 
-        p_image: json['p_image']
-      );
+  factory CartItem.fromJson(Map<String, dynamic> json) {
+    return CartItem(
+      p_seq: json['p_seq'],
+      p_name: json['p_name'],
+      p_price: json['p_price'],
+      cc_seq: json['cc_seq'],
+      cc_name: json['cc_name'],
+      sc_seq: json['sc_seq'],
+      sc_name: json['sc_name'],
+      gc_seq: json['gc_seq'],
+      gc_name: json['gc_name'],
+      quantity: json['quantity'],
+      p_image: json['p_image'],
+    );
   }
 }
-
 
 class ProductDetailView extends StatefulWidget {
   const ProductDetailView({super.key});
@@ -81,12 +79,13 @@ class ProductDetailView extends StatefulWidget {
 }
 
 class _ProductDetailViewState extends State<ProductDetailView> {
-  
   Product? product = Get.arguments;
 
-  late int selectedGender=0;
-  late int selectedColor =0;
-  late int selectedSize =0;
+  late int selectedGender = 2;
+  late int selectedColor = 0;
+  late int selectedSize = 0;
+  bool isExist = true;
+
   int quantity = 1;
   // Map<String, dynamic> genderList = {'남성': 1, '여성': 2, '공통': 3};
   // List<String> genderList = ['남성', '여성', '공통'];
@@ -104,22 +103,20 @@ class _ProductDetailViewState extends State<ProductDetailView> {
   // Title Font Size
   final double titleFontSize = 15.0;
 
-  final String mainUrl =
-      'http://172.16.250.187:8000/api';
+  final String mainUrl = 'http://127.0.0.1:8000/api';
   @override
   void initState() {
     super.initState();
 
     // Set default value before starting.
-   
 
     // product!.gc_seq = selectedGender+1;
     // product!.sc_seq = selectedSize+1;
     // product!.p_gender = genderList[selectedGender];
     // product!.p_color = colorList[selectedColor];
     // product!.p_size = sizeList[selectedSize].toString();
-    initializedData();
 
+    initializedData();
   }
 
   Future<void> initializedData() async {
@@ -133,35 +130,56 @@ class _ProductDetailViewState extends State<ProductDetailView> {
 
     genderList.addAll(jsonData["results"].map((d) => GenderCategory.fromJson(d)).toList());
 
-    
-    
     _url = mainUrl + "/color_categories";
     url = Uri.parse(_url);
     response = await http.get(url, headers: {});
     jsonData = json.decode(utf8.decode(response.bodyBytes));
-    colorList.addAll(jsonData["results"].map((d) => ColorCategory.fromJson(d)).toList()); 
+    colorList.addAll(jsonData["results"].map((d) => ColorCategory.fromJson(d)).toList());
     selectedColor = colorList.indexWhere((f) => f.cc_seq == product!.cc_seq);
 
     _url = mainUrl + "/size_categories";
     url = Uri.parse(_url);
     response = await http.get(url, headers: {});
     jsonData = json.decode(utf8.decode(response.bodyBytes));
-    sizeList.addAll(jsonData["results"].map((d) => SizeCategory.fromJson(d)).toList()); 
+    sizeList.addAll(jsonData["results"].map((d) => SizeCategory.fromJson(d)).toList());
 
     // Get Product with color,size,gender
     // price must update
-    
-
-
-
-    setState(() {});
-
-
+    await getProduct("init");
   }
 
+  Future<void> getProduct(String type) async {
+    if (product!.p_seq == -1) {
+      String _url = mainUrl + "/products/getBySeqs/?m_seq=${product!.m_seq}&p_name=${product!.p_name}&cc_seq=${product!.cc_seq}";
 
-  
+      final url = Uri.parse(_url);
+      final response = await http.get(url);
+      final jsonData = json.decode(utf8.decode(response.bodyBytes));
 
+      if (jsonData != null && jsonData["results"].length > 0) {
+        product = Product.fromJson(jsonData['results'][0]);
+        selectedGender = genderList.indexWhere((f) => f.gc_seq == product!.gc_seq);
+      }
+    } else {
+      String _url =
+          mainUrl +
+          "/products/getBySeqs/?m_seq=${product!.m_seq}&p_name=${product!.p_name}&cc_seq=${product!.cc_seq}&sc_seq=${product!.sc_seq}&gc_seq=${product!.gc_seq}";
+
+      final url = Uri.parse(_url);
+      final response = await http.get(url);
+      final jsonData = json.decode(utf8.decode(response.bodyBytes));
+
+      if (jsonData != null && jsonData["results"].length > 0) {
+        product = Product.fromJson(jsonData['results'][0]);
+        selectedGender = genderList.indexWhere((f) => f.gc_seq == product!.gc_seq);
+        isExist = true;
+      } else {
+        isExist = false;
+        Get.snackbar("알림", "죄송합니다. 선택한 ${type}의 제품이 존재 하지 않습니다. ", backgroundColor: Colors.purple[200]);
+      }
+    }
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -180,80 +198,64 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                 //   // color: Colors.green,
                 //   child: GTProductDetail3D()
                 // ),
-            
                 Text(
                   "상품명: ${product!.p_name}",
-                  style: TextStyle(
-                    fontSize: titleFontSize,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: titleFontSize, fontWeight: FontWeight.bold),
                 ),
                 Text(
                   "가격: ${product!.p_price}원",
-                  style: TextStyle(
-                    fontSize: titleFontSize,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: titleFontSize, fontWeight: FontWeight.bold),
                 ),
-            
+
                 // 제품 설명
                 Container(
                   width: MediaQuery.of(context).size.width,
-            
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: Colors.grey[200],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(product!.p_description),
-                  ),
+
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: Colors.grey[200]),
+                  child: Padding(padding: const EdgeInsets.all(8.0), child: Text(product!.p_description)),
                 ),
-            
+
                 // Gender
                 _genderWidget(),
-            
+
                 // Size
                 _sizeWidget(),
                 // color
                 _colorWidget(),
                 // 수량
-                Row(
-                  spacing: 10,
-                  children: [
-                    _quantityWidget(),
-                    ElevatedButton(
-                      onPressed: () => _addCart(),
-                      child: Text("장바구니 추가"),
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 5,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => Get.to(() => const GTUserCartView()),
-            
-                      child: Text("장바구니 보기"),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        // 카트에 추가
-                      },
-                      child: Text("바로구매"),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        // 카트에서 삭제
-                        CartStorage.clearCart();
-                        List xx = CartStorage.getCart();
-                        print(xx.length);
-                      },
-                      child: Text("장바구니 clear"),
-                    ),
-                  ],
-                ),
+                isExist
+                    ? Row(
+                        spacing: 10,
+                        children: [
+                          _quantityWidget(),
+                          ElevatedButton(onPressed: () => _addCart(), child: Text("장바구니 추가")),
+                        ],
+                      )
+                    : Text(''),
+                isExist
+                    ? Row(
+                        spacing: 5,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(onPressed: () => Get.to(() => const GTUserCartView()), child: Text("장바구니 보기")),
+                          ElevatedButton(
+                            onPressed: () {
+                              // 카트에 추가
+                            },
+                            child: Text("바로구매"),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              // 카트에서 삭제
+                              CartStorage.clearCart();
+                              List xx = CartStorage.getCart();
+                              print(xx.length);
+                            },
+                            child: Text("장바구니 clear"),
+                          ),
+                        ],
+                      )
+                    : Text(''),
               ],
             ),
           ),
@@ -292,15 +294,17 @@ class _ProductDetailViewState extends State<ProductDetailView> {
           Text('성공적으로 추가 됬습니다.'),
           Text('상품명: ${product!.p_name} / ${product!.p_gender}'),
           Text('수 량: ${quantity}'),
-          Text('가 격: ${product!.p_price*quantity}원')
+          Text('가 격: ${product!.p_price * quantity}원'),
         ],
       ),
       actions: [
         TextButton(
-          onPressed: (){
-           Get.back(); 
-          }, child: Text("확인"))
-      ]
+          onPressed: () {
+            Get.back();
+          },
+          child: Text("확인"),
+        ),
+      ],
     );
   }
 
@@ -311,39 +315,25 @@ class _ProductDetailViewState extends State<ProductDetailView> {
       children: [
         Text(
           '성별',
-          style: TextStyle(
-            fontSize: titleFontSize,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: titleFontSize, fontWeight: FontWeight.bold),
         ),
         Row(
           spacing: 5,
           children: List.generate(
             genderList.length,
             (index) => ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 selectedGender = index;
                 product!.gc_seq = genderList[selectedGender].gc_seq;
                 product!.p_gender = genderList[selectedGender].gc_name;
-                setState(() {});
+                await getProduct(product!.p_gender!);
               },
 
               style: ElevatedButton.styleFrom(
-                backgroundColor: selectedGender == index
-                    ? selectedBgColor
-                    : selectedFgColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadiusGeometry.circular(5),
-                ),
+                backgroundColor: selectedGender == index ? selectedBgColor : selectedFgColor,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5)),
               ),
-              child: Text(
-                genderList[index].gc_name,
-                style: TextStyle(
-                  color: selectedGender == index
-                      ? selectedFgColor
-                      : Colors.black,
-                ),
-              ),
+              child: Text(genderList[index].gc_name, style: TextStyle(color: selectedGender == index ? selectedFgColor : Colors.black)),
             ),
           ),
         ),
@@ -357,10 +347,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
       children: [
         Text(
           'Size',
-          style: TextStyle(
-            fontSize: titleFontSize,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: titleFontSize, fontWeight: FontWeight.bold),
         ),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -370,28 +357,18 @@ class _ProductDetailViewState extends State<ProductDetailView> {
             children: List.generate(
               sizeList.length,
               (index) => ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   selectedSize = index;
-                  product!.sc_seq = sizeList[selectedSize].sc_seq; 
+                  product!.sc_seq = sizeList[selectedSize].sc_seq;
                   product!.p_size = sizeList[selectedSize].sc_name;
-                  setState(() {});
+                  print("${product!.m_seq},${product!.p_name}, ${product!.cc_seq},${product!.sc_seq}, ${product!.gc_seq}");
+                  await getProduct("사이즈(${product!.p_size})");
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: selectedSize == index
-                      ? selectedBgColor
-                      : selectedFgColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadiusGeometry.circular(5),
-                  ),
+                  backgroundColor: selectedSize == index ? selectedBgColor : selectedFgColor,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5)),
                 ),
-                child: Text(
-                  "${sizeList[index].sc_name}",
-                  style: TextStyle(
-                    color: selectedSize == index
-                        ? selectedFgColor
-                        : Colors.black,
-                  ),
-                ),
+                child: Text("${sizeList[index].sc_name}", style: TextStyle(color: selectedSize == index ? selectedFgColor : Colors.black)),
               ),
             ),
           ),
@@ -406,10 +383,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
       children: [
         Text(
           'Color',
-          style: TextStyle(
-            fontSize: titleFontSize,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: titleFontSize, fontWeight: FontWeight.bold),
         ),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -419,27 +393,19 @@ class _ProductDetailViewState extends State<ProductDetailView> {
             children: List.generate(
               colorList.length,
               (index) => ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   selectedColor = index;
                   product!.cc_seq = colorList[selectedColor].cc_seq;
-                  setState(() {});
+                  product!.p_color = colorList[selectedColor].cc_name;
+                  await getProduct("Color(${product!.p_color})");
+
+                  // setState(() {});
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: selectedColor == index
-                      ? selectedBgColor
-                      : selectedFgColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadiusGeometry.circular(5),
-                  ),
+                  backgroundColor: selectedColor == index ? selectedBgColor : selectedFgColor,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5)),
                 ),
-                child: Text(
-                  "${colorList[index].cc_name}",
-                  style: TextStyle(
-                    color: selectedColor == index
-                        ? selectedFgColor
-                        : Colors.black,
-                  ),
-                ),
+                child: Text("${colorList[index].cc_name}", style: TextStyle(color: selectedColor == index ? selectedFgColor : Colors.black)),
               ),
             ),
 
@@ -463,10 +429,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
     return Container(
       width: 150,
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5),
-        color: Colors.blue[100],
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: Colors.blue[100]),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

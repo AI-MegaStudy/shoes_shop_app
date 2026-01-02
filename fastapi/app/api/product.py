@@ -244,7 +244,8 @@ async def select_search(
   maker: Optional[str]=None,
   kwds: Optional[str]=None,
   color: Optional[str]=None,
-  kc_name: Optional[str]=None
+  size: Optional[str]=None,
+  isOneKwds: Optional[bool]=False
 ):
   
   #### 쿼리 조건문 만들기
@@ -255,14 +256,22 @@ async def select_search(
     data.append(maker)
   kwds_condition = ''
   if kwds is not None:
-    for kwd in kwds.split(' '):
-      kwds_condition += 'p.p_name like %s or '
-      data.append(f"%{kwd}%")
+    if isOneKwds :
+        kwds_condition += 'p.p_name =%s or '
+        data.append(kwds)
+    else :
+        for kwd in kwds.split(' '):
+            kwds_condition += 'p.p_name like %s or '
+            data.append(f"%{kwd}%")
   if kwds_condition != '':
     qry_condition += f'({kwds_condition[0:len(kwds_condition)-3]}) and '
   if color is not None:
     qry_condition += 'cc.cc_name=%s and '
     data.append(color)
+  if size is not None:
+    qry_condition += 'p.size=%s and '
+    data.append(size)
+
   qry_condition = qry_condition[0:len(qry_condition)-4]
   #### END OF 쿼리 조건문 만들기
 
@@ -281,6 +290,8 @@ async def select_search(
           """ + qry_condition
           ,data
     )
+
+
     rows = curs.fetchall()
     print(rows)
     results = [{
@@ -301,6 +312,7 @@ async def select_search(
         "p_gender": row[14],
         "p_maker": row[15]
     } for row in rows]
+   
   
     return {"results": results}
   except Exception as error:
@@ -308,6 +320,190 @@ async def select_search(
     return {"result": "Error", "errorMsg": str(error)}
   finally:
      conn.close()
+
+
+# GT: 추가함
+# ============================================
+# Search (Read All)
+# ============================================
+@router.get("/getBySeqs")
+async def select_search(
+  m_seq: Optional[int]=None,
+  p_name: Optional[str]=None,
+  cc_seq: Optional[int]=None,
+  gc_seq: Optional[int]=None,
+  sc_seq: Optional[int]=None
+
+):
+  
+  #### 쿼리 조건문 만들기
+  data = []
+  qry_condition = 'where 1=1 and '
+  if m_seq is not None:
+    qry_condition += 'p.m_seq=%s and '
+    data.append(m_seq)
+  kwds_condition = ''
+  if p_name is not None:
+
+    kwds_condition += 'p.p_name =%s or '
+    data.append(p_name)
+
+  if kwds_condition != '':
+    qry_condition += f'({kwds_condition[0:len(kwds_condition)-3]}) and '
+  if cc_seq is not None:
+    qry_condition += 'p.cc_seq=%s and '
+    data.append(cc_seq)
+  if sc_seq is not None:
+    qry_condition += 'p.sc_seq=%s and '
+    data.append(sc_seq)
+  if gc_seq is not None:
+    qry_condition += 'p.gc_seq=%s and '
+    data.append(gc_seq)
+
+  qry_condition = qry_condition[0:len(qry_condition)-4]
+  #### END OF 쿼리 조건문 만들기
+
+  conn = connect_db()
+  try:
+    curs = conn.cursor()
+    curs.execute("""
+          select 
+            p.p_seq, p.kc_seq, p.cc_seq, p.sc_seq, p.gc_seq, p.m_seq, p.p_name, p.p_price, p.p_stock, p.p_image, p.p_description, p.created_at      
+            ,cc.cc_name as p_color,sc.sc_name as p_size,gc.gc_name as p_gender, ma.m_name
+          from product p 
+          inner join color_category cc on p.cc_seq=cc.cc_seq
+          inner join gender_category gc on p.gc_seq=gc.gc_seq
+          inner join size_category sc on p.sc_seq=sc.sc_seq
+          inner join maker ma on p.m_seq=ma.m_seq 
+          """ + qry_condition
+          ,data
+    )
+
+
+    rows = curs.fetchall()
+
+    results = [{
+        "p_seq": row[0],
+        "kc_seq": row[1],
+        "cc_seq": row[2],
+        "sc_seq": row[3],
+        "gc_seq": row[4],
+        "m_seq": row[5],
+        "p_name": row[6],
+        "p_price": row[7],
+        "p_stock": row[8],
+        "p_image": row[9],
+        "p_description" : row[10],
+        'created_at': row[11].isoformat() if row[11] else None,
+        "p_color": row[12],
+        "p_size": row[13],
+        "p_gender": row[14],
+        "p_maker": row[15]
+    } for row in rows]
+   
+  
+    return {"results": results}
+  except Exception as error:
+    print(error)
+    return {"result": "Error", "errorMsg": str(error)}
+  finally:
+     conn.close()
+
+
+
+# GT: 추가함
+# ============================================
+# Search (Read All)
+# ============================================
+@router.get("/searchByMain")
+async def select_search_by_main(
+  maker: Optional[str]=None,
+  kwds: Optional[str]=None,
+  color: Optional[str]=None
+):
+  
+  #### 쿼리 조건문 만들기
+  data = []
+  qry_condition = 'where 1=1 and '
+  if maker is not None:
+    qry_condition += 'ma.m_name=%s and '
+    data.append(maker)
+  kwds_condition = ''
+  if kwds is not None:
+    for kwd in kwds.split(' '):
+      kwds_condition += 'p.p_name like %s or '
+      data.append(f"%{kwd}%")
+
+  if kwds_condition != '':
+    qry_condition += f'({kwds_condition[0:len(kwds_condition)-3]}) and '
+  if color is not None:
+    qry_condition += 'cc.cc_name=%s and '
+    data.append(color)
+  qry_condition = qry_condition[0:len(qry_condition)-4]
+  #### END OF 쿼리 조건문 만들기
+
+  conn = connect_db()
+  try:
+    curs = conn.cursor()
+    curs.execute("""
+             select p.p_name, p.cc_seq, p.m_seq, cc.cc_name, ma.m_name,p.p_image
+                
+            from product p 
+            inner join color_category cc on p.cc_seq=cc.cc_seq
+            inner join gender_category gc on p.gc_seq=gc.gc_seq
+            inner join size_category sc on p.sc_seq=sc.sc_seq
+            inner join maker ma on p.m_seq=ma.m_seq
+            
+          """ + qry_condition + " group by p.p_name,p.cc_seq,p.m_seq,p.p_image"
+          ,data
+    )
+         
+    rows = curs.fetchall()
+    print(rows)
+    # results = [{
+    #     "p_seq": row[0],
+    #     "kc_seq": row[1],
+    #     "cc_seq": row[2],
+    #     "sc_seq": row[3],
+    #     "gc_seq": row[4],
+    #     "m_seq": row[5],
+    #     "p_name": row[6],
+    #     "p_price": row[7],
+    #     "p_stock": row[8],
+    #     "p_image": row[9],
+    #     "p_description" : row[10],
+    #     'created_at': row[11].isoformat() if row[11] else None,
+    #     "p_color": row[12],
+    #     "p_size": row[13],
+    #     "p_gender": row[14],
+    #     "p_maker": row[15]
+    # } for row in rows]
+    results = [{
+        'p_seq': -1,
+        'kc_seq': -1,
+        'cc_seq': row[1],
+        'sc_seq': -1,
+        'gc_seq': -1,
+        'm_seq': row[2],
+        'p_name': row[0],
+        'p_price': -1,
+        'p_stock': -1,
+        'p_image': row[5],
+        'p_description': '',
+        'created_at': None,
+        'p_color': row[3],
+        'p_size': '',
+        'p_gender': '',
+        'p_maker': row[4],
+    } for row in rows]
+    return {"results": results}
+  except Exception as error:
+    print(error)
+    return {"result": "Error", "errorMsg": str(error)}
+  finally:
+     conn.close()
+
+
 
 # ============================================
 # 제품 추가

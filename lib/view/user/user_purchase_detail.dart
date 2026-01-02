@@ -73,7 +73,7 @@ class _UserPurchaseDetailState extends State<UserPurchaseDetail> {
                                       ),
                                       Container(
                                         decoration: BoxDecoration(
-                                          color: data[index].b_status == "제품 수령 완료"
+                                          color: data[index].b_status == "1"
                                               ? arriveColor
                                               : orderColor,
                                           borderRadius: BorderRadius.circular(20),
@@ -83,14 +83,14 @@ class _UserPurchaseDetailState extends State<UserPurchaseDetail> {
                                           vertical: 6,
                                         ),
                                         child: Text(
-                                          data[index].b_status ?? '',
+                                          productStatus[int.parse(data[index].b_status!)],
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 12,
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
-                                      ),
+                                      )
                                     ],
                                   )
                                 ],

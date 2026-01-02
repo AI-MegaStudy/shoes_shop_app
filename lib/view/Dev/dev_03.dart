@@ -1,6 +1,8 @@
 //dev_03.dart (작업자 : 유다원)
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shoes_shop_app/view/user/user_purchase_list.dart';
 
 class Dev_03 extends StatefulWidget {
   const Dev_03({super.key});
@@ -39,7 +41,10 @@ class _Dev_03State extends State<Dev_03> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-             Text("Hello"),
+            ElevatedButton(
+              onPressed: () => Get.to(UserPurchaseList()), 
+              child: Text('주문 목록')
+            ),
           ],
         ),
       ),

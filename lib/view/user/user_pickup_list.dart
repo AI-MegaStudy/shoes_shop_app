@@ -6,6 +6,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/model/pickup_join.dart';
 import 'package:shoes_shop_app/model/user.dart';
+import 'package:shoes_shop_app/view/user/user_pickup_detail.dart';
 
 class UserPickupList extends StatefulWidget {
   const UserPickupList({super.key});
@@ -15,7 +16,7 @@ class UserPickupList extends StatefulWidget {
 }
 
 class _UserPickupListState extends State<UserPickupList> {
-  late List<pickupJoin> data;
+  late List<PickupJoin> data;
   late TextEditingController searchController;
 
   late int userSeq;
@@ -46,7 +47,7 @@ class _UserPickupListState extends State<UserPickupList> {
       scheme: 'http',
       host: ipAddress,
       port: 8000,
-      path: '/api/pickup/by_user/$userSeq/all',
+      path: '/api/pickups/by_user/$userSeq/all',
       queryParameters: {
         'keyword': searchController.text.trim(),
         'order': selectedOrder
@@ -58,7 +59,7 @@ class _UserPickupListState extends State<UserPickupList> {
     data.clear();
     var decoded = json.decode(utf8.decode(response.bodyBytes));
     List result = decoded['results'] ?? [];
-    data = result.map((e) => pickupJoin.fromJson(e)).toList();
+    data = result.map((e) => PickupJoin.fromJson(e)).toList();
 
     setState(() {});
   }
@@ -67,7 +68,7 @@ class _UserPickupListState extends State<UserPickupList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('픽업 내역'),
+        title: Text('수령 내역'),
         centerTitle: true,
       ),
       body: Padding(
@@ -93,20 +94,55 @@ class _UserPickupListState extends State<UserPickupList> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: SizedBox(
-                  width: MediaQuery.of(context).size.width / 3,
-                  height: 30,
-                  child: DropdownButtonFormField<String>(
+                  width: MediaQuery.of(context).size.width/3,
+                  height: dropboxHeight,
+                  child: DropdownButtonFormField<String>( //정렬 드롭다운
                     initialValue: selectedOrder,
                     isDense: true,
-                    items: orderList
-                        .map((e) => DropdownMenuItem(
-                              value: e,
-                              child: Text(e, style: TextStyle(fontSize: 12)),
-                            ))
-                        .toList(),
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(
+                          color: Colors.grey,
+                          width: 1,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(
+                          color: Colors.grey,
+                          width: 1,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(
+                          color: Colors.grey,
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    items: orderList.map(
+                      (e) {
+                        return DropdownMenuItem(
+                          value: e,
+                          child: Text(
+                            e,
+                            style: TextStyle(
+                              fontSize: 12
+                            ),
+                            ),
+                        );
+                      }
+                    ).toList(), 
                     onChanged: (value) {
                       selectedOrder = value!;
                       getJSONData();
+                      setState(() {});
                     },
                   ),
                 ),
@@ -124,7 +160,12 @@ class _UserPickupListState extends State<UserPickupList> {
                     padding: const EdgeInsets.all(cardSpace),
                     child: GestureDetector(
                       onTap: () {
-                        
+                        Get.to(
+                            UserPickupDetail(),
+                            arguments: data[index]
+                          )!.then(
+                            (value) => setState(() {})
+                          );
                       },
                       child: Stack(
                         children: [

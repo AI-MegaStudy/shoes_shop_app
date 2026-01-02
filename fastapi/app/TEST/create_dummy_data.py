@@ -172,6 +172,40 @@ def create_categories(conn):
     return kind_ids, color_ids, size_ids, gender_ids
 
 
+def create_refund_reason_categories(conn):
+    """반품 사유 카테고리 데이터 생성 (중복 방지)"""
+    print("📋 반품 사유 카테고리 데이터 생성 중...")
+    curs = conn.cursor()
+    
+    refund_reason_categories = [
+        '사이즈 불일치',
+        '색상 불일치',
+        '제품 불량',
+        '단순 변심',
+        '배송 지연',
+        '제품 설명과 다름',
+        '주문 실수',
+        '교환 요청'
+    ]
+    
+    refund_reason_ids = []
+    for ref_re_name in refund_reason_categories:
+        # 중복 확인
+        curs.execute("SELECT ref_re_seq FROM refund_reason_category WHERE ref_re_name = %s", (ref_re_name,))
+        existing = curs.fetchone()
+        
+        if existing:
+            refund_reason_ids.append(existing[0])
+        else:
+            sql = "INSERT INTO refund_reason_category (ref_re_name) VALUES (%s)"
+            curs.execute(sql, (ref_re_name,))
+            refund_reason_ids.append(curs.lastrowid)
+    
+    conn.commit()
+    print(f"   ✅ {len(refund_reason_ids)}개 반품 사유 카테고리 생성 완료")
+    return refund_reason_ids
+
+
 def create_users(conn):
     """고객 데이터 생성 (소셜 로그인 구조 - 중복 방지)
     
@@ -488,26 +522,34 @@ def create_products(conn, kind_ids, color_ids, size_ids, gender_ids, maker_ids):
                 print(f"   ⚠️  사이즈 {size_str}를 찾을 수 없습니다. 건너뜁니다.")
                 continue
             
-            # UNIQUE 제약조건 체크: (cc_seq, sc_seq, m_seq)
+            # UNIQUE 제약조건 체크: (cc_seq, sc_seq, m_seq, p_name)
             combination = (cc_seq, sc_seq, m_seq)
             
-            # 데이터베이스에서 기존 제품 확인
+            p_name = product_base['pName']
+            p_description = product_base['pDescription']
+            p_price = config['basePrices'][size_idx]
+            p_stock = config['quantity']
+            p_image = product_base['image']
+            
+            # 데이터베이스에서 기존 제품 확인 (제품 이름도 함께 체크)
             curs.execute("""
                 SELECT p_seq FROM product 
-                WHERE cc_seq = %s AND sc_seq = %s AND m_seq = %s
-            """, combination)
+                WHERE cc_seq = %s AND sc_seq = %s AND m_seq = %s AND p_name = %s
+            """, (cc_seq, sc_seq, m_seq, p_name))
             existing = curs.fetchone()
             
             if existing:
-                product_ids.append(existing[0])
+                # 기존 제품이 있으면 업데이트
+                p_seq = existing[0]
+                update_sql = """
+                    UPDATE product 
+                    SET kc_seq = %s, gc_seq = %s, p_price = %s, p_stock = %s, p_image = %s, p_description = %s
+                    WHERE p_seq = %s
+                """
+                curs.execute(update_sql, (kc_seq, gc_seq, p_price, p_stock, p_image, p_description, p_seq))
+                product_ids.append(p_seq)
             else:
                 # 새 제품 생성
-                p_name = product_base['pName']
-                p_description = product_base['pDescription']
-                p_price = config['basePrices'][size_idx]
-                p_stock = config['quantity']
-                p_image = product_base['image']
-                
                 sql = """
                     INSERT INTO product (kc_seq, cc_seq, sc_seq, gc_seq, m_seq, p_name, p_price, p_stock, p_image, p_description)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -544,7 +586,8 @@ def create_purchase_items(conn, branch_ids, user_ids, product_ids):
         
         u_seq = random.choice(user_ids)
         br_seq = random.choice(branch_ids)
-        b_status = random.choice(['주문완료', '배송중', '배송완료', '수령완료', None])
+        # b_status: '0'=준비중, '1'=준비완료, '2'=수령완료, '3'=반품완료, None=상태미정
+        b_status = random.choice(['0', '1', '2', '3', None])
         
         # 각 주문당 1-3개 항목 (같은 분, 사용자, 지점)
         item_count = random.randint(1, 3)
@@ -595,7 +638,7 @@ def create_pickups(conn, purchase_item_ids):
     return pickup_ids
 
 
-def create_refunds(conn, user_ids, staff_ids, pickup_ids):
+def create_refunds(conn, user_ids, staff_ids, pickup_ids, refund_reason_ids):
     """반품 데이터 생성"""
     print("↩️ 반품 데이터 생성 중...")
     curs = conn.cursor()
@@ -603,8 +646,6 @@ def create_refunds(conn, user_ids, staff_ids, pickup_ids):
     refund_ids = []
     # 일부 수령만 반품 처리
     refunded_pickups = random.sample(pickup_ids, min(5, len(pickup_ids)))
-    
-    reasons = ['사이즈 불일치', '색상 불일치', '제품 불량', '단순 변심', '배송 지연']
     
     for pic_seq in refunded_pickups:
         # 해당 pickup의 user 찾기 (pickup 테이블의 u_seq 사용)
@@ -614,13 +655,20 @@ def create_refunds(conn, user_ids, staff_ids, pickup_ids):
         
         s_seq = random.choice(staff_ids)
         ref_date = datetime.now() - timedelta(days=random.randint(0, 10))
-        ref_reason = random.choice(reasons)
+        ref_re_seq = random.choice(refund_reason_ids) if refund_reason_ids else None
+        
+        # 반품 사유 카테고리에서 이름 조회
+        ref_reason = None
+        if ref_re_seq:
+            curs.execute("SELECT ref_re_name FROM refund_reason_category WHERE ref_re_seq = %s", (ref_re_seq,))
+            reason_result = curs.fetchone()
+            ref_reason = reason_result[0] if reason_result else '기타'
         
         sql = """
-            INSERT INTO refund (ref_date, ref_reason, u_seq, s_seq, pic_seq)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO refund (ref_date, ref_reason, u_seq, s_seq, pic_seq, ref_re_seq)
+            VALUES (%s, %s, %s, %s, %s, %s)
         """
-        curs.execute(sql, (ref_date, ref_reason, u_seq, s_seq, pic_seq))
+        curs.execute(sql, (ref_date, ref_reason, u_seq, s_seq, pic_seq, ref_re_seq))
         refund_ids.append(curs.lastrowid)
     
     conn.commit()
@@ -758,7 +806,7 @@ def clear_all_data(conn):
     tables = [
         'request', 'receive', 'refund', 'pickup', 'purchase_item',
         'product', 'user_auth_identities', 'staff', 'user', 'gender_category', 'size_category',
-        'color_category', 'kind_category', 'maker', 'branch'
+        'color_category', 'kind_category', 'refund_reason_category', 'maker', 'branch'
     ]
     
     for table in tables:
@@ -789,12 +837,13 @@ def main():
         branch_ids = create_branches(conn)
         maker_ids = create_makers(conn)
         kind_ids, color_ids, size_ids, gender_ids = create_categories(conn)
+        refund_reason_ids = create_refund_reason_categories(conn)
         user_ids = create_users(conn)
         staff_ids = create_staffs(conn, branch_ids)
         product_ids = create_products(conn, kind_ids, color_ids, size_ids, gender_ids, maker_ids)
         purchase_item_ids = create_purchase_items(conn, branch_ids, user_ids, product_ids)
         pickup_ids = create_pickups(conn, purchase_item_ids)
-        refund_ids = create_refunds(conn, user_ids, staff_ids, pickup_ids)
+        refund_ids = create_refunds(conn, user_ids, staff_ids, pickup_ids, refund_reason_ids)
         receive_ids = create_receives(conn, staff_ids, product_ids, maker_ids)
         request_ids = create_requests(conn, staff_ids, product_ids, maker_ids)
         
@@ -805,6 +854,7 @@ def main():
         print(f"   - 지점: {len(branch_ids)}개")
         print(f"   - 제조사: {len(maker_ids)}개")
         print(f"   - 카테고리: 종류 {len(kind_ids)}개, 색상 {len(color_ids)}개, 사이즈 {len(size_ids)}개, 성별 {len(gender_ids)}개")
+        print(f"   - 반품 사유 카테고리: {len(refund_reason_ids)}개")
         print(f"   - 고객: {len(user_ids)}개")
         print(f"   - 직원: {len(staff_ids)}개")
         print(f"   - 제품: {len(product_ids)}개")

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/model/purchase_item_join.dart';
 import 'package:shoes_shop_app/config_testsy.dart' as config_testsy;
@@ -26,7 +27,7 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
   }
 
   Future<void> getJSONData() async{
-    var url = Uri.parse('http://127.0.0.1:8000/api/purchase_items/purchase_items/all');
+    var url = Uri.parse('http://127.0.0.1:8000/api/purchase_items/admin/all');
     print(url);
     var response = await http.get(url);
     data.clear();
@@ -156,21 +157,57 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
 
   // --- functions ---
   Future<void> getJSONbSeqData(int b_seq) async{
-    var url = Uri.parse('http://127.0.0.1:8000/api/purchase_items/${b_seq}/full_detail');
+    var url = Uri.parse('http://127.0.0.1:8000/api/purchase_items/admin/${b_seq}/full_detail');
     print(url);
     var response = await http.get(url);
     var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
     var result = dataConvertedJSON['result'];
     print(result);
     dataSeq = result;
-
+  
     setState(() {});
   }
 
-  void insertPickup(){
-    
+  Future<void> insertPickup() async{
+    var request = http.MultipartRequest( // Form 쓸려면 multipartrequest 써야 함
+      'POST', 
+      Uri.parse('http://127.0.0.1:8000/api/pickups')
+    );
+
+    request.fields['b_seq'] = dataSeq['b_seq'].toString();
+    request.fields['u_seq'] = dataSeq['u_seq'].toString();
+
+    var res = await request.send();
+    if(res.statusCode == 200){
+      _showDialog();
+    }else{
+      errorSnackbar();
+    }
   }
   
+
+  void _showDialog(){
+    Get.defaultDialog(
+      title: '수령 결과',
+      middleText: '수령이 완료되었습니다.',
+      barrierDismissible: false,
+      actions: [
+        TextButton(
+          onPressed: () {
+            Get.back();
+          }, 
+          child: Text('OK')
+        )
+      ]
+    );
+  }
+
+  void errorSnackbar(){
+    Get.snackbar(
+      'Error', 
+      '문제가 발생했습니다.'
+    );
+  }
 
 }
 
@@ -179,5 +216,5 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
 변경 이력
 2025-01-02: 임소연
   - 전체 구매내역, 구매내역 클릭시 상세 구매정보 제공
-
+  - 수령 완료 버튼 클릭시 pickup 테이블에 정보 추가
 */

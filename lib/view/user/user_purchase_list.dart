@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/model/purchase_item_bundle.dart';
+import 'package:shoes_shop_app/model/user.dart';
 import 'package:shoes_shop_app/view/user/user_purchase_detail.dart';
 
 class UserPurchaseList extends StatefulWidget {
@@ -37,8 +38,9 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
   }
 
   void initStorage(){
-    //userSeq = storage.read('user');
-    userSeq = 4;
+    final userJson = storage.read<String>('user');
+    final user = User.fromJson(jsonDecode(userJson!));
+    userSeq = user.uSeq!;
   }
 
   Future<void> getJSONData() async{
@@ -162,12 +164,13 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                         child: SizedBox(
                           child: Row(
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-                                child: Image.asset(
-                                  'images/dummy-profile-pic.png',
-                                  width: imageWidth,                            
-                                  ),
+                              SizedBox(
+                                child: Image.network(
+                                  'https://cheng80.myqnapcloud.com/images/${data[index].items!.first.p_image}',
+                                  width: imageWidth,
+                                  height: imageWidth,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                               SizedBox( //주문 묶음 한 개
                                 width: MediaQuery.of(context).size.width/3,
@@ -183,7 +186,7 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                               ),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: data[index].items!.first.b_status == "제품 수령 완료"
+                                  color: data[index].items!.first.b_status == "1"
                                       ? arriveColor
                                       : orderColor,
                                   borderRadius: BorderRadius.circular(20),
@@ -193,7 +196,7 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                                   vertical: 6,
                                 ),
                                 child: Text(
-                                  data[index].items!.first.b_status ?? '',
+                                  productStatus[int.parse(data[index].items!.first.b_status!)],
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 12,

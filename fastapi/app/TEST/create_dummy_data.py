@@ -392,29 +392,29 @@ def create_products(conn, kind_ids, color_ids, size_ids, gender_ids, maker_ids):
     # 이전 SQLite 프로젝트의 제품 기본 정보
     product_bases = [
         # 0: U740WN2 - Black
-        {'pName': 'U740WN2', 'pDescription': '2000년대 러닝화 스타일을 기반으로한 오픈형 니트 메쉬 어퍼는 물론 세분화된 ABZORB 미드솔 그리고 날렵한 실루엣으로 투톤 커러 메쉬와 각진 오버레이로 독특한 시각적 정체성 강조 및 현대적인 컬러웨이들을 담았으며, 기존 팬들과 새로운 세대에게 사랑받는 신발로 새롭게 출시됩니다.', 'pColor': 'Black', 'pGender': 'Unisex', 'pCategory': 'Running', 'mfid': 1, 'image': 'images/Newbalnce_U740WN2_Black_01.png'},
+        {'pName': 'U740WN2', 'pDescription': '2000년대 러닝화 스타일을 기반으로한 오픈형 니트 메쉬 어퍼는 물론 세분화된 ABZORB 미드솔 그리고 날렵한 실루엣으로 투톤 커러 메쉬와 각진 오버레이로 독특한 시각적 정체성 강조 및 현대적인 컬러웨이들을 담았으며, 기존 팬들과 새로운 세대에게 사랑받는 신발로 새롭게 출시됩니다.', 'pColor': 'Black', 'pGender': 'Unisex', 'pCategory': 'Running', 'mfid': 1, 'image': 'Newbalnce_U740WN2_Black_01.png'},
         # 1: U740WN2 - Gray
-        {'pName': 'U740WN2', 'pDescription': '2000년대 러닝화 스타일을 기반으로한 오픈형 니트 메쉬 어퍼는 물론 세분화된 ABZORB 미드솔 그리고 날렵한 실루엣으로 투톤 커러 메쉬와 각진 오버레이로 독특한 시각적 정체성 강조 및 현대적인 컬러웨이들을 담았으며, 기존 팬들과 새로운 세대에게 사랑받는 신발로 새롭게 출시됩니다.', 'pColor': 'Gray', 'pGender': 'Unisex', 'pCategory': 'Running', 'mfid': 1, 'image': 'images/Newbalnce_U740WN2_Gray_01.png'},
+        {'pName': 'U740WN2', 'pDescription': '2000년대 러닝화 스타일을 기반으로한 오픈형 니트 메쉬 어퍼는 물론 세분화된 ABZORB 미드솔 그리고 날렵한 실루엣으로 투톤 커러 메쉬와 각진 오버레이로 독특한 시각적 정체성 강조 및 현대적인 컬러웨이들을 담았으며, 기존 팬들과 새로운 세대에게 사랑받는 신발로 새롭게 출시됩니다.', 'pColor': 'Gray', 'pGender': 'Unisex', 'pCategory': 'Running', 'mfid': 1, 'image': 'Newbalnce_U740WN2_Gray_01.png'},
         # 2: U740WN2 - White
-        {'pName': 'U740WN2', 'pDescription': '2000년대 러닝화 스타일을 기반으로한 오픈형 니트 메쉬 어퍼는 물론 세분화된 ABZORB 미드솔 그리고 날렵한 실루엣으로 투톤 커러 메쉬와 각진 오버레이로 독특한 시각적 정체성 강조 및 현대적인 컬러웨이들을 담았으며, 기존 팬들과 새로운 세대에게 사랑받는 신발로 새롭게 출시됩니다.', 'pColor': 'White', 'pGender': 'Unisex', 'pCategory': 'Running', 'mfid': 1, 'image': 'images/Newbalnce_U740WN2_White_01.png'},
+        {'pName': 'U740WN2', 'pDescription': '2000년대 러닝화 스타일을 기반으로한 오픈형 니트 메쉬 어퍼는 물론 세분화된 ABZORB 미드솔 그리고 날렵한 실루엣으로 투톤 커러 메쉬와 각진 오버레이로 독특한 시각적 정체성 강조 및 현대적인 컬러웨이들을 담았으며, 기존 팬들과 새로운 세대에게 사랑받는 신발로 새롭게 출시됩니다.', 'pColor': 'White', 'pGender': 'Unisex', 'pCategory': 'Running', 'mfid': 1, 'image': 'Newbalnce_U740WN2_White_01.png'},
         # 3: 나이키 샥스 TL - Black
-        {'pName': '나이키 샥스 TL', 'pDescription': '나이키 샥스 TL은 한 단계 진화된 역학적 쿠셔닝을 선사합니다. 2003년의 아이콘을 재해석한 버전으로, 통기성이 우수한 갑피의 메쉬와 전체적으로 적용된 나이키 샥스 기술이 최고의 충격 흡수 기능과 과감한 스트리트 룩을 제공합니다.', 'pColor': 'Black', 'pGender': 'Female', 'pCategory': 'Running', 'mfid': 0, 'image': 'images/Nike_Shox_TL_Black_01.png'},
+        {'pName': '나이키 샥스 TL', 'pDescription': '나이키 샥스 TL은 한 단계 진화된 역학적 쿠셔닝을 선사합니다. 2003년의 아이콘을 재해석한 버전으로, 통기성이 우수한 갑피의 메쉬와 전체적으로 적용된 나이키 샥스 기술이 최고의 충격 흡수 기능과 과감한 스트리트 룩을 제공합니다.', 'pColor': 'Black', 'pGender': 'Female', 'pCategory': 'Running', 'mfid': 0, 'image': 'Nike_Shox_TL_Black_01.png'},
         # 4: 나이키 샥스 TL - Gray
-        {'pName': '나이키 샥스 TL', 'pDescription': '나이키 샥스 TL은 한 단계 진화된 역학적 쿠셔닝을 선사합니다. 2003년의 아이콘을 재해석한 버전으로, 통기성이 우수한 갑피의 메쉬와 전체적으로 적용된 나이키 샥스 기술이 최고의 충격 흡수 기능과 과감한 스트리트 룩을 제공합니다.', 'pColor': 'Gray', 'pGender': 'Female', 'pCategory': 'Running', 'mfid': 0, 'image': 'images/Nike_Shox_TL_Gray_01.png'},
+        {'pName': '나이키 샥스 TL', 'pDescription': '나이키 샥스 TL은 한 단계 진화된 역학적 쿠셔닝을 선사합니다. 2003년의 아이콘을 재해석한 버전으로, 통기성이 우수한 갑피의 메쉬와 전체적으로 적용된 나이키 샥스 기술이 최고의 충격 흡수 기능과 과감한 스트리트 룩을 제공합니다.', 'pColor': 'Gray', 'pGender': 'Female', 'pCategory': 'Running', 'mfid': 0, 'image': 'Nike_Shox_TL_Gray_01.png'},
         # 5: 나이키 샥스 TL - White
-        {'pName': '나이키 샥스 TL', 'pDescription': '나이키 샥스 TL은 한 단계 진화된 역학적 쿠셔닝을 선사합니다. 2003년의 아이콘을 재해석한 버전으로, 통기성이 우수한 갑피의 메쉬와 전체적으로 적용된 나이키 샥스 기술이 최고의 충격 흡수 기능과 과감한 스트리트 룩을 제공합니다.', 'pColor': 'White', 'pGender': 'Female', 'pCategory': 'Running', 'mfid': 0, 'image': 'images/Nike_Shox_TL_White_01.png'},
+        {'pName': '나이키 샥스 TL', 'pDescription': '나이키 샥스 TL은 한 단계 진화된 역학적 쿠셔닝을 선사합니다. 2003년의 아이콘을 재해석한 버전으로, 통기성이 우수한 갑피의 메쉬와 전체적으로 적용된 나이키 샥스 기술이 최고의 충격 흡수 기능과 과감한 스트리트 룩을 제공합니다.', 'pColor': 'White', 'pGender': 'Female', 'pCategory': 'Running', 'mfid': 0, 'image': 'Nike_Shox_TL_White_01.png'},
         # 6: 나이키 에어포스 1 - Black
-        {'pName': '나이키 에어포스 1', 'pDescription': '편안하고 내구성이 뛰어나며 유행을 타지 않는 고급스러운 스니커즈로, 프리미엄 가죽과 적절하게 배치된 미니 스우시가 클래식 아이템에 세련된 감각을 더해줍니다. 물론 1980년대를 떠올리게 하는 구조와 나이키 에어 쿠셔닝 등 모두가 사랑하는 전설적인 AF1의 룩과 감성은 고스란히 재현했습니다.', 'pColor': 'Black', 'pGender': 'Female', 'pCategory': 'Sneakers', 'mfid': 0, 'image': 'images/Nike_Air_1_Black_01.png'},
+        {'pName': '나이키 에어포스 1', 'pDescription': '편안하고 내구성이 뛰어나며 유행을 타지 않는 고급스러운 스니커즈로, 프리미엄 가죽과 적절하게 배치된 미니 스우시가 클래식 아이템에 세련된 감각을 더해줍니다. 물론 1980년대를 떠올리게 하는 구조와 나이키 에어 쿠셔닝 등 모두가 사랑하는 전설적인 AF1의 룩과 감성은 고스란히 재현했습니다.', 'pColor': 'Black', 'pGender': 'Female', 'pCategory': 'Sneakers', 'mfid': 0, 'image': 'Nike_Air_1_Black_01.png'},
         # 7: 나이키 에어포스 1 - Gray
-        {'pName': '나이키 에어포스 1', 'pDescription': '편안하고 내구성이 뛰어나며 유행을 타지 않는 고급스러운 스니커즈로, 프리미엄 가죽과 적절하게 배치된 미니 스우시가 클래식 아이템에 세련된 감각을 더해줍니다. 물론 1980년대를 떠올리게 하는 구조와 나이키 에어 쿠셔닝 등 모두가 사랑하는 전설적인 AF1의 룩과 감성은 고스란히 재현했습니다.', 'pColor': 'Gray', 'pGender': 'Female', 'pCategory': 'Sneakers', 'mfid': 0, 'image': 'images/Nike_Air_1_Gray_01.png'},
+        {'pName': '나이키 에어포스 1', 'pDescription': '편안하고 내구성이 뛰어나며 유행을 타지 않는 고급스러운 스니커즈로, 프리미엄 가죽과 적절하게 배치된 미니 스우시가 클래식 아이템에 세련된 감각을 더해줍니다. 물론 1980년대를 떠올리게 하는 구조와 나이키 에어 쿠셔닝 등 모두가 사랑하는 전설적인 AF1의 룩과 감성은 고스란히 재현했습니다.', 'pColor': 'Gray', 'pGender': 'Female', 'pCategory': 'Sneakers', 'mfid': 0, 'image': 'Nike_Air_1_Gray_01.png'},
         # 8: 나이키 에어포스 1 - White
-        {'pName': '나이키 에어포스 1', 'pDescription': '편안하고 내구성이 뛰어나며 유행을 타지 않는 고급스러운 스니커즈로, 프리미엄 가죽과 적절하게 배치된 미니 스우시가 클래식 아이템에 세련된 감각을 더해줍니다. 물론 1980년대를 떠올리게 하는 구조와 나이키 에어 쿠셔닝 등 모두가 사랑하는 전설적인 AF1의 룩과 감성은 고스란히 재현했습니다.', 'pColor': 'White', 'pGender': 'Female', 'pCategory': 'Sneakers', 'mfid': 0, 'image': 'images/Nike_Air_1_White_01.png'},
+        {'pName': '나이키 에어포스 1', 'pDescription': '편안하고 내구성이 뛰어나며 유행을 타지 않는 고급스러운 스니커즈로, 프리미엄 가죽과 적절하게 배치된 미니 스우시가 클래식 아이템에 세련된 감각을 더해줍니다. 물론 1980년대를 떠올리게 하는 구조와 나이키 에어 쿠셔닝 등 모두가 사랑하는 전설적인 AF1의 룩과 감성은 고스란히 재현했습니다.', 'pColor': 'White', 'pGender': 'Female', 'pCategory': 'Sneakers', 'mfid': 0, 'image': 'Nike_Air_1_White_01.png'},
         # 9: 나이키 페가수스 플러스 - Black
-        {'pName': '나이키 페가수스 플러스', 'pDescription': '페가수스 플러스로 차원이 다른 반응성과 쿠셔닝을 느껴보세요. 전체적으로 적용된 초경량 줌X 폼이 일상의 러닝에 높은 에너지 반환력을 제공하기 때문에 활력 있게 달릴 수 있습니다. 그리고 신축성 좋은 플라이니트 갑피가 발을 꼭 맞게 감싸 매끄러운 핏을 선사합니다.', 'pColor': 'Black', 'pGender': 'Male', 'pCategory': 'Running', 'mfid': 0, 'image': 'images/Nike_Pegasus_Black_01.png'},
+        {'pName': '나이키 페가수스 플러스', 'pDescription': '페가수스 플러스로 차원이 다른 반응성과 쿠셔닝을 느껴보세요. 전체적으로 적용된 초경량 줌X 폼이 일상의 러닝에 높은 에너지 반환력을 제공하기 때문에 활력 있게 달릴 수 있습니다. 그리고 신축성 좋은 플라이니트 갑피가 발을 꼭 맞게 감싸 매끄러운 핏을 선사합니다.', 'pColor': 'Black', 'pGender': 'Male', 'pCategory': 'Running', 'mfid': 0, 'image': 'Nike_Pegasus_Black_01.png'},
         # 10: 나이키 페가수스 플러스 - Gray
-        {'pName': '나이키 페가수스 플러스', 'pDescription': '페가수스 플러스로 차원이 다른 반응성과 쿠셔닝을 느껴보세요. 전체적으로 적용된 초경량 줌X 폼이 일상의 러닝에 높은 에너지 반환력을 제공하기 때문에 활력 있게 달릴 수 있습니다. 그리고 신축성 좋은 플라이니트 갑피가 발을 꼭 맞게 감싸 매끄러운 핏을 선사합니다.', 'pColor': 'Gray', 'pGender': 'Male', 'pCategory': 'Running', 'mfid': 0, 'image': 'images/Nike_Pegasus_Gray_01.png'},
+        {'pName': '나이키 페가수스 플러스', 'pDescription': '페가수스 플러스로 차원이 다른 반응성과 쿠셔닝을 느껴보세요. 전체적으로 적용된 초경량 줌X 폼이 일상의 러닝에 높은 에너지 반환력을 제공하기 때문에 활력 있게 달릴 수 있습니다. 그리고 신축성 좋은 플라이니트 갑피가 발을 꼭 맞게 감싸 매끄러운 핏을 선사합니다.', 'pColor': 'Gray', 'pGender': 'Male', 'pCategory': 'Running', 'mfid': 0, 'image': 'Nike_Pegasus_Gray_01.png'},
         # 11: 나이키 페가수스 플러스 - White
-        {'pName': '나이키 페가수스 플러스', 'pDescription': '페가수스 플러스로 차원이 다른 반응성과 쿠셔닝을 느껴보세요. 전체적으로 적용된 초경량 줌X 폼이 일상의 러닝에 높은 에너지 반환력을 제공하기 때문에 활력 있게 달릴 수 있습니다. 그리고 신축성 좋은 플라이니트 갑피가 발을 꼭 맞게 감싸 매끄러운 핏을 선사합니다.', 'pColor': 'White', 'pGender': 'Male', 'pCategory': 'Running', 'mfid': 0, 'image': 'images/Nike_Pegasus_White_01.png'},
+        {'pName': '나이키 페가수스 플러스', 'pDescription': '페가수스 플러스로 차원이 다른 반응성과 쿠셔닝을 느껴보세요. 전체적으로 적용된 초경량 줌X 폼이 일상의 러닝에 높은 에너지 반환력을 제공하기 때문에 활력 있게 달릴 수 있습니다. 그리고 신축성 좋은 플라이니트 갑피가 발을 꼭 맞게 감싸 매끄러운 핏을 선사합니다.', 'pColor': 'White', 'pGender': 'Male', 'pCategory': 'Running', 'mfid': 0, 'image': 'Nike_Pegasus_White_01.png'},
     ]
     
     # 제품 설정 (사이즈별 가격 정보)

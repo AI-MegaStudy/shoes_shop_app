@@ -1,6 +1,9 @@
 //dev_02.dart (작업자 : 이예은)
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shoes_shop_app/view/user/payment/user_cart_view.dart';
+import 'package:shoes_shop_app/view/user/payment/user_payment_view.dart';
 
 class Dev_02 extends StatefulWidget {
   const Dev_02({super.key});
@@ -14,14 +17,13 @@ class _Dev_02State extends State<Dev_02> {
   //late 는 초기화를 나중으로 미룸
 
   @override
-  void initState() { //페이지가 새로 생성 될때 무조건 1번 사용 됨
+  void initState() {
+    //페이지가 새로 생성 될때 무조건 1번 사용 됨
     super.initState();
-    
   }
-  
+
   @override
   void dispose() {
-
     super.dispose();
   }
 
@@ -39,15 +41,22 @@ class _Dev_02State extends State<Dev_02> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-             Text("Hello"),
+            Text("Hello"),
+            TextButton(
+              onPressed: () => Get.to(() => UserCartView()),
+              child: Text('카트페이지'),
+            ),
+            TextButton(
+              onPressed: () =>
+                  Get.to(() => UserPaymentView()),
+              child: Text('결제페이지'),
+            ),
           ],
         ),
       ),
     );
   }
-
-
   //--------Functions ------------
-  
+
   //------------------------------
 }

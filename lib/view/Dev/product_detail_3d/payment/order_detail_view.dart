@@ -39,7 +39,13 @@ class _OrderDetailViewState extends State<OrderDetailView> {
 
   /// 주문 상세 정보 조회
   Future<void> _loadOrderDetail() async {
+    // 이미 로딩 중이면 중복 요청 방지
+    if (isLoading) {
+      return;
+    }
+
     try {
+      if (!mounted) return;
       setState(() {
         isLoading = true;
         errorMessage = null;
@@ -75,6 +81,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
           }
         }
         
+        if (!mounted) return;
         setState(() {
           isLoading = false;
           errorMessage = detailedError;
@@ -84,6 +91,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
 
       final result = response.data!['result'] as Map<String, dynamic>?;
       if (result == null) {
+        if (!mounted) return;
         setState(() {
           isLoading = false;
           errorMessage = PurchaseErrorMessage.orderNotFound;
@@ -91,11 +99,13 @@ class _OrderDetailViewState extends State<OrderDetailView> {
         return;
       }
 
+      if (!mounted) return;
       setState(() {
         orderInfo = result;
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         isLoading = false;
         errorMessage = '${PurchaseErrorMessage.loadDetailError}: $e';
@@ -220,9 +230,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                               final productName = product?['p_name'] as String? ?? PurchaseDefaultValue.productNameMissing;
                               final productImageRaw = product?['p_image'] as String? ?? '';
                               final productImage = productImageRaw.isNotEmpty 
-                                  ? (productImageRaw.startsWith('http://') || productImageRaw.startsWith('https://'))
-                                      ? productImageRaw
-                                      : 'https://cheng80.myqnapcloud.com/images/${productImageRaw.replaceFirst('images/', '')}'
+                                  ? 'https://cheng80.myqnapcloud.com/images/$productImageRaw'
                                   : '';
                               final colorName = product?['color_name'] as String? ?? '';
                               final sizeName = product?['size_name'] as String? ?? '';
@@ -401,4 +409,8 @@ class _OrderDetailViewState extends State<OrderDetailView> {
 //   - 주문 정보, 각 항목 상세 정보, 총 주문 금액 표시
 //   - 색상 및 사이즈 정보 표시 추가
 //   - config.dart 상수를 payment_config.dart로 이동 (boldLabelStyle, bodyTextStyle, titleStyle, screenPadding, mediumPadding, defaultSpacing, defaultBorderRadius, smallBorderRadius, smallTextStyle, mediumTextStyle, PurchaseErrorMessage, PurchaseLabel, PurchaseDefaultValue, getPurchaseItemStatusText 등)
+//
+// 2026-01-02:
+//   - 이미지 처리 로직 단순화: DB에서 파일명만 저장되므로 http/https 체크 및 replaceFirst 제거
+//   - RefreshIndicator 중복 호출 방지 및 mounted 체크 추가
 

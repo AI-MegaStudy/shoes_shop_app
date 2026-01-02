@@ -56,10 +56,12 @@ class _UserPurchaseDetailState extends State<UserPurchaseDetail> {
                                 children: [
                                   Padding(
                                     padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-                                    child: Image.asset(
-                                      'images/dummy-profile-pic.png',
-                                      width: MediaQuery.of(context).size.width-150,                            
-                                      ),
+                                    child: Image.network(
+                                      'https://cheng80.myqnapcloud.com/images/${data[index].p_image}',
+                                      width: imageWidthBig,
+                                      height: imageWidthBig,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                   Row(
                                     children: [
@@ -73,7 +75,7 @@ class _UserPurchaseDetailState extends State<UserPurchaseDetail> {
                                       ),
                                       Container(
                                         decoration: BoxDecoration(
-                                          color: data[index].b_status == "제품 수령 완료"
+                                          color: data[index].b_status == "1"
                                               ? arriveColor
                                               : orderColor,
                                           borderRadius: BorderRadius.circular(20),
@@ -83,14 +85,14 @@ class _UserPurchaseDetailState extends State<UserPurchaseDetail> {
                                           vertical: 6,
                                         ),
                                         child: Text(
-                                          data[index].b_status ?? '',
+                                          productStatus[int.parse(data[index].b_status!)],
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 12,
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
-                                      ),
+                                      )
                                     ],
                                   )
                                 ],

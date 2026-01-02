@@ -13,7 +13,8 @@ class UserCartView extends StatefulWidget {
 
 class _UserCartViewState extends State<UserCartView> {
   // Property
-  String ipAddress = "127.0.0.1"; //ip
+  //String ipAddress = "127.0.0.1"; //ip
+  String ipAddress = "172.16.250.175"; //ip
   List<ProductJoin> data = [];
   int productSeq = 1;
   //late List<ProductJoin> data; //유저의 카트 목록
@@ -34,17 +35,23 @@ class _UserCartViewState extends State<UserCartView> {
   Future<void> getJSONData() async {
     try {
       var url = Uri.parse(
-        'http://$ipAddress:8000/api/products/$productSeq/full_details',
+        'http://$ipAddress:8000/api/products/',
       );
-      var response = await http.get(url).timeout(const Duration(seconds: 5));
+      var response = await http
+          .get(url)
+          .timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
-        var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
+        var dataConvertedJSON = json.decode(
+          utf8.decode(response.bodyBytes),
+        );
         List result = dataConvertedJSON['results'] ?? [];
 
         if (mounted) {
           setState(() {
-            data = result.map((e) => ProductJoin.fromJson(e)).toList();
+            data = result
+                .map((e) => ProductJoin.fromJson(e))
+                .toList();
           });
         }
       }
@@ -78,40 +85,54 @@ class _UserCartViewState extends State<UserCartView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  color: const Color(0xFFF5F5F7),
+                  color: Colors.white,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
                       children: [
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius:
+                              BorderRadius.circular(12),
                           child: Container(
                             width: 90,
                             height: 90,
                             color: Colors.white,
-                            child: Image.asset(
-                              "assets/images/shoes_sample.png", //data[index].p_image
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(
-                                    Icons.image_not_supported,
-                                    size: 40,
-                                    color: Colors.grey,
-                                  ),
+                            child: Image.network(
+                              //'http://172.16.250.175:8000/api/products/?t=${DateTime.now().microsecondsSinceEpoch}',
+                              'https://cheng80.myqnapcloud.com/images/Newbalnce_U740WN2_Black_01.png',
+                              width: 100,
                             ),
+                            // child: Image.asset(
+                            //   "assets/images/shoes_sample.png", //data[index].p_image
+                            //   fit: BoxFit.contain,
+                            //   errorBuilder:
+                            //       (
+                            //         context,
+                            //         error,
+                            //         stackTrace,
+                            //       ) => const Icon(
+                            //         Icons
+                            //             .image_not_supported,
+                            //         size: 40,
+                            //         color: Colors.grey,
+                            //       ),
+                            // ),
                           ),
                         ),
                         SizedBox(width: 16),
                         Expanded(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
                             children: [
                               Text(
                                 "U740WN2", //data[index].p_name
                                 style: TextStyle(
                                   fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight:
+                                      FontWeight.bold,
                                 ),
                               ),
                               SizedBox(height: 4),
@@ -125,7 +146,9 @@ class _UserCartViewState extends State<UserCartView> {
                               SizedBox(height: 8),
                               Text(
                                 "단가: ${data[index].p_price ?? 0}원",
-                                style: TextStyle(fontSize: 14),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                ),
                               ),
                               SizedBox(height: 4),
                               // Text(
@@ -140,16 +163,24 @@ class _UserCartViewState extends State<UserCartView> {
                         ),
 
                         Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment:
+                              MainAxisAlignment
+                                  .spaceBetween,
                           children: [
                             Row(
                               children: [
                                 GestureDetector(
                                   // onTap: () => _dec(index),
-                                  child: Icon(Icons.remove, size: 20),
+                                  child: Icon(
+                                    Icons.remove,
+                                    size: 20,
+                                  ),
                                 ),
                                 Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  padding:
+                                      EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                      ),
                                   // child: Text(
                                   //   "${data[index].cc_quantity ?? 1}",
                                   //   style: TextStyle(
@@ -160,13 +191,17 @@ class _UserCartViewState extends State<UserCartView> {
                                 ),
                                 GestureDetector(
                                   //onTap: () => _inc(index),
-                                  child: Icon(Icons.add, size: 20),
+                                  child: Icon(
+                                    Icons.add,
+                                    size: 20,
+                                  ),
                                 ),
                               ],
                             ),
                             SizedBox(height: 25),
                             IconButton(
-                              onPressed: () => _remove(index),
+                              onPressed: () =>
+                                  _remove(index),
                               icon: Icon(
                                 Icons.delete_outline,
                                 color: Colors.black54,

@@ -102,7 +102,7 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                   alignment: Alignment.centerLeft,
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width/3,
-                    height: 30,
+                    height: dropboxHeight,
                     child: DropdownButtonFormField<String>( //정렬 드롭다운
                       initialValue: selectedOrder,
                       isDense: true,

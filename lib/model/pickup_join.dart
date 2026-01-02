@@ -1,4 +1,4 @@
-class pickupJoin {
+class PickupJoin {
   // pickup
   int? pic_seq;
   String? pic_created_at;
@@ -36,7 +36,7 @@ class pickupJoin {
   String? br_address;
   String? br_phone;
 
-  pickupJoin({
+  PickupJoin({
     this.pic_seq,
     this.pic_created_at,
     this.b_seq,
@@ -64,8 +64,8 @@ class pickupJoin {
     this.br_phone,
   });
 
-  factory pickupJoin.fromJson(Map<String, dynamic> json) {
-    return pickupJoin(
+  factory PickupJoin.fromJson(Map<String, dynamic> json) {
+    return PickupJoin(
       pic_seq: json['pic_seq'],
       pic_created_at: json['pic_created_at'],
 

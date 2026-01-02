@@ -17,11 +17,15 @@ async def get_purchase_items_all(search: Optional[str] = None):
     curs = conn.cursor()
 
     where_sql = ''
+    params = []
 
-    if type(search) == str:
-        where_sql = 'where u.u_name like ${search}'
-    elif type(search) == int:
-        where_sql = 'where pi.b_seq like ${search}'
+    if search:
+        if search.isdigit():
+            where_sql = 'WHERE pi.b_seq = %s'
+            params.append(int(search))
+        else:
+            where_sql = 'WHERE u.u_name LIKE %s'
+            params.append(f"%{search}%")
     
     try:
         sql = f"""
@@ -68,7 +72,7 @@ async def get_purchase_items_all(search: Optional[str] = None):
         {where_sql}
         ORDER BY pi.b_date DESC, pi.b_seq DESC
         """
-        curs.execute(sql)
+        curs.execute(sql, params)
         rows = curs.fetchall()
         
         result = [

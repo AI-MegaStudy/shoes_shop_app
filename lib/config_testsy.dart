@@ -20,6 +20,21 @@ const TextStyle smallTextStyle = TextStyle(fontSize: 12, fontWeight: FontWeight.
 /// 색상은 copyWith(color: ...)로 테마에 맞게 설정해야 함
 const TextStyle boldLabelStyle = TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
 
+class StatusConfig {
+  static Color bStatusColor(dynamic status) {
+    // int.parse는 에러 발생 위험이 있으므로 안전하게 처리
+    final intValue = int.tryParse(status?.toString() ?? '');
+
+    return switch (intValue) {
+      0 => Colors.grey,
+      1 => Colors.blue,
+      2 => Colors.orange,
+      3 => Colors.green,
+      _ => Colors.red,
+    };
+  }
+}
+
 
 // Pickup 상태
 Map pickupStatus = {

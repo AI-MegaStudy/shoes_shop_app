@@ -15,6 +15,7 @@ class AdminRefundView extends StatefulWidget {
 class _AdminRefundViewState extends State<AdminRefundView> {
   late List data;
   late Map dataSeq;
+  late TextEditingController _searchController;
 
   @override
   void initState() {
@@ -22,11 +23,16 @@ class _AdminRefundViewState extends State<AdminRefundView> {
     data = [];
     dataSeq = {};
     getJSONData();
+    _searchController = TextEditingController();
   }
 
-  Future<void> getJSONData() async{
-    var url = Uri.parse('http://127.0.0.1:8000/api/refunds/admin/all');
-    print(url);
+  Future<void> getJSONData({String? search}) async{
+    var urlStr = 'http://127.0.0.1:8000/api/refunds/admin/all';
+    if (search != null && search.isNotEmpty){
+      urlStr += '?search=$search';
+    }
+    var url = Uri.parse(urlStr);
+    print('Request URL: $url');
     var response = await http.get(url);
     data.clear();
     var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
@@ -49,26 +55,41 @@ class _AdminRefundViewState extends State<AdminRefundView> {
             flex: 1,
             child: data.isEmpty
             ? Text('데이터가 없습니다.')
-            : ListView.builder(
-              itemCount: data.length,
-              itemBuilder: (context, index) {
-                final refund = data[index];
-                return GestureDetector(
-                  onTap: () => getJSONrefSeqData(data[index].ref_seq),
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('${refund.ref_seq}', style: config_testsy.titleStyle),
-                          Text('${refund.u_name}', style: config_testsy.mediumTextStyle)
-                        ],
-                      ),
-                    ),
+            : Column(
+              children: [
+                TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: '고객명/반품번호 찾기',
+                    prefixIcon: const Icon(Icons.search),
                   ),
-                );
-              }
+                  textInputAction: TextInputAction.go,
+                  onSubmitted: (value) => getJSONData(search: value),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: data.length,
+                    itemBuilder: (context, index) {
+                      final refund = data[index];
+                      return GestureDetector(
+                        onTap: () => getJSONrefSeqData(data[index].ref_seq),
+                        child: Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('${refund.ref_seq}', style: config_testsy.titleStyle),
+                                Text('${refund.u_name}', style: config_testsy.mediumTextStyle)
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                  ),
+                ),
+              ],
             )
           ),
           VerticalDivider(),
@@ -157,5 +178,5 @@ class _AdminRefundViewState extends State<AdminRefundView> {
 변경 이력
 2025-01-02: 임소연
   - 전체 반품내역, 반품내역 클릭시 상세 반품정보 제공
-
+  - 검색 기능 추가
 */

@@ -31,11 +31,16 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
     dataSeq = {};
     getJSONData();
     _searchController = TextEditingController();
+    print(_searchController.text);
   }
 
-  Future<void> getJSONData() async{
-    var url = Uri.parse('http://127.0.0.1:8000/api/purchase_items/admin/all/${_searchController.text}');
-    print(url);
+  Future<void> getJSONData({String? search}) async{
+    var urlStr = 'http://127.0.0.1:8000/api/purchase_items/admin/all';
+    if (search != null && search.isNotEmpty){
+      urlStr += '?search=$search';
+    }
+    var url = Uri.parse(urlStr);
+    print('Request URL: $url');
     var response = await http.get(url);
     data.clear();
     var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
@@ -64,11 +69,11 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
                 TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: '고객명/주문번호 찾기',
+                    hintText: '고객명/구매번호 찾기',
                     prefixIcon: const Icon(Icons.search),
                   ),
                   textInputAction: TextInputAction.go,
-                  onChanged: (_) => setState(() {}),
+                  onSubmitted: (value) => getJSONData(search: value),
                 ),
                 Expanded(
                   child: ListView.builder(
@@ -87,7 +92,22 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text('${purchase_item.b_seq}', style: config_testsy.titleStyle),
-                                    Text('${config_testsy.pickupStatus[int.parse(purchase_item.b_status)]}'),
+                                    purchase_item.b_status != null 
+                                    ? Container(
+                                      padding: EdgeInsets.all(8.0),
+                                      decoration: BoxDecoration(
+                                        color: config_testsy.StatusConfig.bStatusColor(purchase_item.b_status),
+                                        borderRadius: BorderRadius.circular(10)
+                                      ),
+                                      child: Text(
+                                        '${config_testsy.pickupStatus[int.parse(purchase_item.b_status)]}',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold
+                                        ),
+                                      ),
+                                    )
+                                    : Text('')
                                   ],
                                 ),
                                 Text('${purchase_item.u_name}', style: config_testsy.mediumTextStyle),
@@ -154,10 +174,15 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
                       ),
                     ),
                   ),
-                  ElevatedButton(
-                    onPressed: () => insertPickup(), 
+                  dataSeq['b_status'] == '1'
+                  ? ElevatedButton(
+                    onPressed: () {
+                      insertPickup();
+                      updatePurchaseItem(dataSeq['b_seq']);
+                    }, 
                     child: Text('수령 완료')
-                  ),
+                  )
+                  : Text(''),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 8, 8, 0),
                     child: Align(
@@ -204,6 +229,28 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
       errorSnackbar();
     }
   }
+
+  Future<void> updatePurchaseItem(int b_seq) async{
+    var request = http.MultipartRequest(
+      'POST', 
+      Uri.parse('http://127.0.0.1:8000/api/purchase_items/${b_seq}')
+    );
+
+    request.fields['br_seq'] = dataSeq['br_seq'].toString();
+    request.fields['u_seq'] = dataSeq['u_seq'].toString();
+    request.fields['p_seq'] = dataSeq['p_seq'].toString();
+    request.fields['b_price'] = dataSeq['b_price'].toString();
+    request.fields['b_quantity'] = dataSeq['b_quantity'].toString();
+    request.fields['b_date'] = dataSeq['b_date'];
+    request.fields['b_status'] = '2';
+
+    var res = await request.send();
+    if(res.statusCode == 200){
+      _showDialog();
+    }else{
+      errorSnackbar();
+    }
+  }
   
 
   void _showDialog(){
@@ -213,8 +260,10 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
       barrierDismissible: false,
       actions: [
         TextButton(
-          onPressed: () {
+          onPressed: () async{
             Get.back();
+            await getJSONData();
+            setState(() {});
           }, 
           child: Text('OK')
         )
@@ -237,4 +286,6 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
 2025-01-02: 임소연
   - 전체 구매내역, 구매내역 클릭시 상세 구매정보 제공
   - 수령 완료 버튼 클릭시 pickup 테이블에 정보 추가
+  - 검색 기능 추가
+  - b_status = 1(제품 준비 완료)일때만 수령 완료 버튼 노출
 */

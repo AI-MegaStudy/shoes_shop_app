@@ -6,7 +6,7 @@ class Product {
   int gc_seq;
   final int m_seq;
   final String p_name;
-  final int p_price;
+  int p_price;
   final int p_stock;
   final String p_image;
   final String p_description;
@@ -71,7 +71,7 @@ class Product {
       p_stock: json["p_stock"],
       p_image: json["p_image"],
       p_description: json["p_description"] != null ? json["p_description"] : '',
-      created_at: DateTime.parse(json["created_at"].toString()),
+      created_at: DateTime.now(),
       p_color: json["p_color"],
       p_size: json["p_size"],
       p_gender: json["p_gender"],

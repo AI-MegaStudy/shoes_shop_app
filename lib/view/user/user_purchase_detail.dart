@@ -36,73 +36,90 @@ class _UserPurchaseDetailState extends State<UserPurchaseDetail> {
         child: Center(
           child: Column(
             children: [
-              Text("${data[0].b_date!.substring(0,11)}  ${data[0].b_date!.substring(11)}"),
-              Text("주문자: ${data[0].u_name}"),
-              Text("연락처: ${data[0].u_phone}"),
-              Text("email: ${data[0].u_email}"),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 50),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    children: [
+                      Text("${data[0].b_date!.substring(0,11)}  ${data[0].b_date!.substring(11)}"),
+                      Text("주문자: ${data[0].u_name}"),
+                      Text("연락처: ${data[0].u_phone}"),
+                      Text("email: ${data[0].u_email}"),
+                    ],
+                  ),
+                ),
+              ),
               Expanded(
                 child: ListView.builder(
                   itemCount: data.length,
                   itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.all(cardSpace),
-                      child: SizedBox(
-                        child: Row(
+                      child: Center(
+                        child: Stack(
                           children: [
-                            SizedBox( //주문 묶음 한 개
-                              width: MediaQuery.of(context).size.width-100,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-                                    child: Image.network(
-                                      'https://cheng80.myqnapcloud.com/images/${data[index].p_image}',
-                                      width: imageWidthBig,
-                                      height: imageWidthBig,
-                                      fit: BoxFit.cover,
-                                    ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Image.network(
+                                  'https://cheng80.myqnapcloud.com/images/${data[index].p_image}',
+                                  width: imageWidthBig,
+                                  height: imageWidthBig,
+                                  fit: BoxFit.cover,
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("제품명: ${data[index].p_name!}"),
+                                    Text("수량: ${data[index].b_quantity}"),
+                                    Text("주문 지점: ${data[index].br_name}"),
+                                    Text("가격: 총 ${data[index].b_price}원"),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Positioned(
+                              top: 10,
+                              right: 10,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: data[index].b_status == "1"
+                                    ? arriveColor
+                                    : data[index].b_status == "2"
+                                      ? pickedupColor
+                                      : data[index].b_status == "3"
+                                        ? refundColor
+                                        : orderColor,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                child: Text(
+                                  productStatus[int.parse(data[index].b_status!)],
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  Row(
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(data[index].p_name!),
-                                          Text("수량: ${data[index].b_quantity}"),
-                                          Text("총 ${data[index].b_price.toString()}원"),
-                                        ],
-                                      ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: data[index].b_status == "1"
-                                              ? arriveColor
-                                              : orderColor,
-                                          borderRadius: BorderRadius.circular(20),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 6,
-                                        ),
-                                        child: Text(
-                                          productStatus[int.parse(data[index].b_status!)],
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  )
-                                ],
+                                ),
                               ),
-                            )
-                          ]
+                            ),
+                          ],
                         ),
                       ),
                     );
-                  },
+                  }
                 ),
               ),
             ],

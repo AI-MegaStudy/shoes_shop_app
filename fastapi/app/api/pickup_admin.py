@@ -8,108 +8,14 @@ router = APIRouter()
 # 작성일자: 2026-01-02
 
 # ============================================
-# 관리자 페이지 - PurchaseItem 전체 목록 조회
+# 관리자 페이지 - Pickup 전체 목록 조회
 # ============================================
 @router.get("/all")
-async def get_purchase_items_all():
-    
-    conn = connect_db()
-    curs = conn.cursor()
-    
-    try:
-        sql = """
-        SELECT 
-            pi.b_seq,
-            pi.b_price,
-            pi.b_quantity,
-            DATE_FORMAT(pi.b_date, '%%Y-%%m-%%d %%H:%%i'),
-            pi.b_status,
-
-            u.u_seq,
-            u.u_email,
-            u.u_name,
-            u.u_phone,
-
-            p.p_seq,
-            p.p_name,
-            p.p_price,
-            p.p_stock,
-            p.p_image,
-
-            kc.kc_name,
-            cc.cc_name,
-            sc.sc_name,
-            gc.gc_name,
-            m.m_name,
-
-            br.br_seq,
-            br.br_name,
-            br.br_address,
-            br.br_phone
-
-        FROM purchase_item pi
-
-        JOIN product p ON pi.p_seq = p.p_seq
-        JOIN user u ON pi.u_seq = u.u_seq
-        JOIN branch br ON pi.br_seq = br.br_seq
-        JOIN kind_category kc ON p.kc_seq = kc.kc_seq
-        JOIN color_category cc ON p.cc_seq = cc.cc_seq
-        JOIN size_category sc ON p.sc_seq = sc.sc_seq
-        JOIN gender_category gc ON p.gc_seq = gc.gc_seq
-        JOIN maker m ON p.m_seq = m.m_seq
-
-        ORDER BY pi.b_date DESC, pi.b_seq DESC
-        """
-        curs.execute(sql)
-        rows = curs.fetchall()
-        
-        result = [
-            {
-            'b_seq': row[0],
-            'b_price': row[1],
-            'b_quantity': row[2],
-            'b_date': row[3],
-            'b_status': row[4],
-
-            'u_seq': row[5],
-            'u_email': row[6],
-            'u_name': row[7],
-            'u_phone': row[8],
-
-            'p_seq': row[9],
-            'p_name': row[10],
-            'p_price': row[11],
-            'p_stock': row[12],
-            'p_image': row[13],
-            
-            'kc_name': row[14],
-            'cc_name': row[15],
-            'sc_name': row[16],
-            'gc_name': row[17],
-            'm_name': row[18],
-
-            'br_seq': row[19],
-            'br_name': row[20],
-            'br_address': row[21],
-            'br_phone': row[22]
-        } for row in rows]
-        
-        return {"results": result}
-    except Exception as e:
-        return {"results": "Error", "errorMsg": str(e)}
-    finally:
-        conn.close()
-
-
-# ============================================
-# PurchaseItem 전체 상세 (Product의 모든 카테고리 포함)
-# ============================================
-@router.get("/{purchase_item_seq}/full_detail")
-async def get_purchase_item_full_detail(purchase_item_seq: int):
+async def get_pickup_all():
     """
-    특정 PurchaseItem의 전체 상세 정보
-    JOIN: PurchaseItem + User + Product + Branch + 모든 카테고리 + Maker (9테이블)
-    용도: 관리자 주문상세 화면
+    Pickup의 전체 상세 정보
+    JOIN: Pickup + PurchaseItem + User + Product + Branch + 모든 카테고리 + Maker (10테이블)
+    용도: 관리자 수령 화면
     """
     conn = connect_db()
     curs = conn.cursor()
@@ -117,19 +23,19 @@ async def get_purchase_item_full_detail(purchase_item_seq: int):
     try:
         sql = """
         SELECT 
+            pic.pic_seq,
+            pic.created_at,
             pi.b_seq,
             pi.b_price,
             pi.b_quantity,
             pi.b_date,
             pi.b_status,
             u.u_seq,
-            u.u_email,
             u.u_name,
             u.u_phone,
             p.p_seq,
             p.p_name,
             p.p_price,
-            p.p_stock,
             p.p_image,
             kc.kc_name,
             cc.cc_name,
@@ -140,7 +46,8 @@ async def get_purchase_item_full_detail(purchase_item_seq: int):
             br.br_name,
             br.br_address,
             br.br_phone
-        FROM purchase_item pi
+        FROM pickup pic
+        JOIN purchase_item pi ON pic.b_seq = pi.b_seq
         JOIN user u ON pi.u_seq = u.u_seq
         JOIN product p ON pi.p_seq = p.p_seq
         JOIN kind_category kc ON p.kc_seq = kc.kc_seq
@@ -149,28 +56,114 @@ async def get_purchase_item_full_detail(purchase_item_seq: int):
         JOIN gender_category gc ON p.gc_seq = gc.gc_seq
         JOIN maker m ON p.m_seq = m.m_seq
         JOIN branch br ON pi.br_seq = br.br_seq
-        WHERE pi.b_seq = %s
         """
-        curs.execute(sql, (purchase_item_seq,))
+        curs.execute(sql)
+        rows = curs.fetchall()
+
+        result = [
+        {
+            'pic_seq': row[0],
+            'created_at': row[1].isoformat() if row[1] else None,
+            'b_seq': row[2],
+            'b_price': row[3],
+            'b_quantity': row[4],
+            'b_date': row[5].isoformat() if row[5] else None,
+            'b_status': row[6],
+            'u_seq': row[7],
+            'u_name': row[8],
+            'u_phone': row[9],
+            'p_seq': row[10],
+            'p_name': row[11],
+            'p_price': row[12],
+            'p_image': row[13],
+            'kind_name': row[14],
+            'color_name': row[15],
+            'size_name': row[16],
+            'gender_name': row[17],
+            'maker_name': row[18],
+            'br_seq': row[19],
+            'br_name': row[20],
+            'br_address': row[21],
+            'br_phone': row[22]
+        } for row in rows]
+        
+        return {"result": result}
+    except Exception as e:
+        return {"result": "Error", "errorMsg": str(e)}
+    finally:
+        conn.close()
+
+# ============================================
+# ID로 수령 내역 조회
+# ============================================
+@router.get("/{pickup_seq}/full_detail")
+async def get_pickup_all(pickup_seq: int):
+    """
+    Pickup의 전체 상세 정보
+    JOIN: Pickup + PurchaseItem + User + Product + Branch + 모든 카테고리 + Maker (10테이블)
+    용도: 관리자 수령 화면
+    """
+    conn = connect_db()
+    curs = conn.cursor()
+    
+    try:
+        sql = """
+        SELECT 
+            pic.pic_seq,
+            pic.created_at,
+            pi.b_seq,
+            pi.b_price,
+            pi.b_quantity,
+            pi.b_date,
+            pi.b_status,
+            u.u_seq,
+            u.u_name,
+            u.u_phone,
+            p.p_seq,
+            p.p_name,
+            p.p_price,
+            p.p_image,
+            kc.kc_name,
+            cc.cc_name,
+            sc.sc_name,
+            gc.gc_name,
+            m.m_name,
+            br.br_seq,
+            br.br_name,
+            br.br_address,
+            br.br_phone
+        FROM pickup pic
+        JOIN purchase_item pi ON pic.b_seq = pi.b_seq
+        JOIN user u ON pi.u_seq = u.u_seq
+        JOIN product p ON pi.p_seq = p.p_seq
+        JOIN kind_category kc ON p.kc_seq = kc.kc_seq
+        JOIN color_category cc ON p.cc_seq = cc.cc_seq
+        JOIN size_category sc ON p.sc_seq = sc.sc_seq
+        JOIN gender_category gc ON p.gc_seq = gc.gc_seq
+        JOIN maker m ON p.m_seq = m.m_seq
+        JOIN branch br ON pi.br_seq = br.br_seq
+        WHERE pic.pic_seq = %s
+        """
+        curs.execute(sql, (pickup_seq))
         row = curs.fetchone()
         
         if row is None:
             return {"result": "Error", "message": "PurchaseItem not found"}
-        
+
         result = {
-            'b_seq': row[0],
-            'b_price': row[1],
-            'b_quantity': row[2],
-            'b_date': row[3].isoformat() if row[3] else None,
-            'b_status': row[4],
-            'u_seq': row[5],
-            'u_email': row[6],
-            'u_name': row[7],
-            'u_phone': row[8],
-            'p_seq': row[9],
-            'p_name': row[10],
-            'p_price': row[11],
-            'p_stock': row[12],
+            'pic_seq': row[0],
+            'created_at': row[1].isoformat() if row[1] else None,
+            'b_seq': row[2],
+            'b_price': row[3],
+            'b_quantity': row[4],
+            'b_date': row[5].isoformat() if row[5] else None,
+            'b_status': row[6],
+            'u_seq': row[7],
+            'u_name': row[8],
+            'u_phone': row[9],
+            'p_seq': row[10],
+            'p_name': row[11],
+            'p_price': row[12],
             'p_image': row[13],
             'kind_name': row[14],
             'color_name': row[15],
@@ -188,3 +181,5 @@ async def get_purchase_item_full_detail(purchase_item_seq: int):
         return {"result": "Error", "errorMsg": str(e)}
     finally:
         conn.close()
+
+

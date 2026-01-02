@@ -34,6 +34,8 @@ from app.api import receive_join
 from app.api import request_join
 
 from app.api import purchase_item_plus
+from app.api import purchase_item_admin
+from app.api import pickup_admin
 
 app = FastAPI(title="Shoes Store API - 새로운 ERD 구조")
 ip_address = '0.0.0.0'  # 모든 인터페이스에서 접근 가능하도록 변경
@@ -66,6 +68,8 @@ app.include_router(receive_join.router, prefix="/api/receives", tags=["receives-
 app.include_router(request_join.router, prefix="/api/requests", tags=["requests-join"])
 
 app.include_router(purchase_item_plus.router, prefix="/api/purchase_items", tags=["purchase_items-plus"])
+app.include_router(purchase_item_admin.router, prefix="/api/purchase_items/admin", tags=["purchase_items-admin"])
+app.include_router(pickup_admin.router, prefix="/api/pickups/admin", tags=["pickups-admin"])
 
 
 @app.get("/")

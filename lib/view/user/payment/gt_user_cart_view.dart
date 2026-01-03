@@ -31,7 +31,7 @@ class CartItem {
     required this.gc_seq,
     required this.gc_name,
     required this.quantity,
-    required this.p_image
+    required this.p_image,
   });
 
   Map<String, dynamic> toJson() {
@@ -43,30 +43,29 @@ class CartItem {
       'cc_name': cc_name,
       'sc_seq': sc_seq,
       'sc_name': sc_name,
-      'gc_seq' : gc_seq,
-      'gc_name' : gc_name,
+      'gc_seq': gc_seq,
+      'gc_name': gc_name,
       'quantity': quantity,
       'p_image': p_image,
     };
   }
 
-    factory CartItem.fromJson(Map<String,dynamic> json) {
-      return CartItem(
-        p_seq: json['p_seq'], 
-        p_name: json['p_name'], 
-        p_price: json['p_price'], 
-        cc_seq: json['cc_seq'], 
-        cc_name: json['cc_name'], 
-        sc_seq: json['sc_seq'], 
-        sc_name: json['sc_name'], 
-        gc_seq: json['gc_seq'],
-        gc_name: json['gc_name'],
-        quantity: json['quantity'], 
-        p_image: json['p_image']
-      );
+  factory CartItem.fromJson(Map<String, dynamic> json) {
+    return CartItem(
+      p_seq: json['p_seq'],
+      p_name: json['p_name'],
+      p_price: json['p_price'],
+      cc_seq: json['cc_seq'],
+      cc_name: json['cc_name'],
+      sc_seq: json['sc_seq'],
+      sc_name: json['sc_name'],
+      gc_seq: json['gc_seq'],
+      gc_name: json['gc_name'],
+      quantity: json['quantity'],
+      p_image: json['p_image'],
+    );
   }
 }
-
 
 class GTUserCartView extends StatefulWidget {
   const GTUserCartView({super.key});
@@ -81,21 +80,17 @@ class _GTUserCartViewState extends State<GTUserCartView> {
   int totalPrice = 0;
 
   // 장바구니 결제 부분 height
-  double purchaseBoxHeight = 150.0;
-
+  double purchaseBoxHeight = 250.0;
 
   @override
   void initState() {
     super.initState();
-    for(var d in CartStorage.getCart()){
+    for (var d in CartStorage.getCart()) {
       totalPrice += int.parse(d['p_price'].toString()) * int.parse(d['quantity'].toString());
       data.add(CartItem.fromJson(d));
     }
     // data.addAll(CartStorage.getCart().map((d) => CartItem.fromJson(d)).toList());
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -103,43 +98,31 @@ class _GTUserCartViewState extends State<GTUserCartView> {
       appBar: AppBar(
         title: Text('장바구니'),
         centerTitle: true,
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: Icon(Icons.arrow_back),
-        ),
+        leading: IconButton(onPressed: () => Get.back(), icon: Icon(Icons.arrow_back)),
       ),
       body: data.isEmpty
           ? Center(child: Text('데이터가 없습니다.'))
-          : Column(
-
-            children: [
-              SingleChildScrollView(
-                
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height- 150,
-                  child: ListView.builder(
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height - 200,
+                    child: ListView.builder(
                       itemCount: data.length,
                       itemBuilder: (context, index) {
                         return Card(
                           elevation: 0,
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
+                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                           color: Colors.white,
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Row(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 ClipRRect(
-                                  borderRadius:
-                                      BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(12),
                                   child: Container(
                                     width: 90,
                                     height: 90,
@@ -149,38 +132,21 @@ class _GTUserCartViewState extends State<GTUserCartView> {
                                       'https://cheng80.myqnapcloud.com/images/${data[index].p_image}',
                                       width: 100,
                                     ),
-                                    
                                   ),
                                 ),
                                 SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        "${data[index].p_name}",
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight:
-                                              FontWeight.bold,
-                                        ),
-                                      ),
+                                      Text("${data[index].p_name}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                       SizedBox(height: 4),
                                       Text(
                                         "${data[index].cc_name} / ${data[index].sc_name} / ${data[index].gc_name}",
-                                        style: TextStyle(
-                                          color: Colors.black54,
-                                          fontSize: 14,
-                                        ),
+                                        style: TextStyle(color: Colors.black54, fontSize: 14),
                                       ),
                                       SizedBox(height: 8),
-                                      Text(
-                                        "단가: ${data[index].p_price ?? 0}원",
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                        ),
-                                      ),
+                                      Text("단가: ${data[index].p_price ?? 0}원", style: TextStyle(fontSize: 14)),
                                       SizedBox(height: 4),
                                       // Text(
                                       //   "합계: ${(data[index].p_price ?? 0) * (data[index].cc_quantity ?? 1)}원",
@@ -192,51 +158,24 @@ class _GTUserCartViewState extends State<GTUserCartView> {
                                     ],
                                   ),
                                 ),
-                  
+
                                 Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment
-                                          .spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
-                                        GestureDetector(
-                                          onTap: () => _dec(index),
-                                          child: Icon(
-                                            Icons.remove,
-                                            size: 20,
-                                          ),
-                                        ),
+                                        GestureDetector(onTap: () => _dec(index), child: Icon(Icons.remove, size: 20)),
                                         Padding(
-                                          padding:
-                                              EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                              ),
-                                          child: Text(
-                                            "${data[index].quantity ?? 1}",
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
+                                          padding: EdgeInsets.symmetric(horizontal: 10),
+                                          child: Text("${data[index].quantity ?? 1}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                                         ),
-                                        GestureDetector(
-                                          onTap: () => _inc(index),
-                                          child: Icon(
-                                            Icons.add,
-                                            size: 20,
-                                          ),
-                                        ),
+                                        GestureDetector(onTap: () => _inc(index), child: Icon(Icons.add, size: 20)),
                                       ],
                                     ),
                                     SizedBox(height: 25),
                                     IconButton(
-                                      onPressed: () =>
-                                          _remove(index),
-                                      icon: Icon(
-                                        Icons.delete_outline,
-                                        color: Colors.black54,
-                                      ),
+                                      onPressed: () => _remove(index),
+                                      icon: Icon(Icons.delete_outline, color: Colors.black54),
                                       // constraints: BoxConstraints(),
                                       //padding: EdgeInsets.zero,
                                     ),
@@ -248,46 +187,36 @@ class _GTUserCartViewState extends State<GTUserCartView> {
                         );
                       },
                     ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                
-                  width: MediaQuery.of(context).size.width,
-                  height: purchaseBoxHeight-100,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: Colors.blue[100],
-                    
                   ),
-                  child: Row(
-                    spacing: 10,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 0, 150, 0),
-                      child: Text('총액 : ${totalPrice}원'),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: purchaseBoxHeight - 180,
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: Colors.blue[100]),
+                      child: Row(
+                        spacing: 10,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Padding(padding: const EdgeInsets.fromLTRB(0, 0, 100, 0), child: Text('총액 : ${totalPrice}원')),
+
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                //
+                              },
+
+                              child: Text('결제 화면'),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ElevatedButton(
-                          
-                          onPressed: (){
-                            //
-                          }, 
-                          
-                          child: Text('결제 화면')
-                        ),
-                      )
-                    ],
-                  )
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
     );
   } //fuction
 
@@ -297,24 +226,20 @@ class _GTUserCartViewState extends State<GTUserCartView> {
   //   });
   // }
 
-
   void _inc(int index) {
-
-    CartStorage.updateQuantity(index, data[index].quantity+1);
+    CartStorage.updateQuantity(index, data[index].quantity + 1);
     data[index].quantity += 1;
     totalPrice += data[index].p_price;
     setState(() {});
-
   }
 
   void _dec(int index) {
-    if(data[index].quantity>1){
-      CartStorage.updateQuantity(index, data[index].quantity-1);
+    if (data[index].quantity > 1) {
+      CartStorage.updateQuantity(index, data[index].quantity - 1);
       data[index].quantity -= 1;
       totalPrice -= data[index].p_price;
       setState(() {});
     }
-   
   }
 
   void _remove(int index) {

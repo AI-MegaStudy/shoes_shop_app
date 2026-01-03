@@ -4,6 +4,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/list_notifier.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:shoes_shop_app/model/product.dart';
 import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/view/user/product/detail_view.dart';
@@ -56,13 +57,13 @@ class _ProductListViewState extends State<ProductListView> {
     return products.length == 0
         ? const Center(child: const CircularProgressIndicator())
         : Scaffold(
-            appBar: AppBar(title: Text('Product Page')),
+            appBar: AppBar(title: Text('제품목록')),
             floatingActionButton: FloatingActionButton(
               onPressed: () => _openChatting(),
               foregroundColor: Colors.green,
               backgroundColor: Colors.white,
 
-              child: const Icon(Icons.chat),
+              child: const Icon(Icons.chat_rounded),
             ),
             body: Center(
               child: Padding(
@@ -126,6 +127,11 @@ class _ProductListViewState extends State<ProductListView> {
 
   void _openChatting() {
     // Get User Data
+    GetStorage storage = GetStorage();
+    final userJson = json.decode(storage.read('user'));
+    print('${userJson['uEmail']} - ${userJson['uSeq']}');
+
+    
   }
 
   // == Widgets

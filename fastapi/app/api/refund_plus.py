@@ -42,7 +42,7 @@ async def get_refunds_by_user_with_details(
         SELECT
             ref.ref_seq,
             DATE_FORMAT(ref.ref_date, '%%Y-%%m-%%d %%H:%%i') AS ref_date,
-            ref.ref_re_count,
+            ref.ref_re_content,
 
             rrc.ref_re_seq,
             rrc.ref_re_name,
@@ -84,11 +84,11 @@ async def get_refunds_by_user_with_details(
             br.br_phone
 
         FROM refund ref
-        JOIN ref_reason_category rrc ON ref.ref_reason = rrc.ref_re_seq
+        JOIN refund_reason_category rrc ON ref.ref_re_seq = rrc.ref_re_seq
         JOIN user u ON ref.u_seq = u.u_seq
         JOIN staff s ON ref.s_seq = s.s_seq
         JOIN pickup pic ON ref.pic_seq = pic.pic_seq
-        JOIN purchase_item pi ON pic.pic_seq = pi.pic_seq
+        JOIN purchase_item pi ON pic.b_seq = pi.b_seq
         JOIN product p ON pi.p_seq = p.p_seq
         JOIN branch br ON pi.br_seq = br.br_seq
         JOIN kind_category kc ON p.kc_seq = kc.kc_seq
@@ -108,7 +108,7 @@ async def get_refunds_by_user_with_details(
         result = [{
             'ref_seq': row[0],
             'ref_date': row[1],
-            'ref_re_count': row[2],
+            'ref_re_content': row[2],
 
             'ref_re_seq': row[3],
             'ref_re_name': row[4],

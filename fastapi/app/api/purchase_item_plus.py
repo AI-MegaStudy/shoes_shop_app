@@ -34,7 +34,7 @@ async def get_purchase_items_by_user_with_details(
     conn = connect_db()
     curs = conn.cursor()
 
-    where_sql = "WHERE pi.u_seq = %s"
+    where_sql = "WHERE pi.u_seq = %s AND (pi.b_status = 0 OR pi.b_status = 1)"
     params = [user_seq]
     ORDER_MAP = {
         "최신순": "pi.b_date DESC, pi.b_seq DESC",

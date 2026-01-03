@@ -175,7 +175,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
         isExist = true;
       } else {
         isExist = false;
-        Get.snackbar("알림", "죄송합니다. 선택한 ${type}의 제품이 존재 하지 않습니다. ", backgroundColor: Colors.purple[200]);
+        Get.snackbar("알림", "죄송합니다. 선택한 ${type}의 제품이 존재 하지 않습니다. ", backgroundColor: Colors.blue[200]);
       }
     }
     setState(() {});
@@ -184,7 +184,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Product Detail ====')),
+      appBar: AppBar(title: Text(product!.p_name)),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -192,12 +192,12 @@ class _ProductDetailViewState extends State<ProductDetailView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Container(
-                //   width: MediaQuery.of(context).size.width,
-                //   height: 450,
-                //   // color: Colors.green,
-                //   child: GTProductDetail3D()
-                // ),
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 450,
+                  // color: Colors.green,
+                  child: GTProductDetail3D(),
+                ),
                 Text(
                   "상품명: ${product!.p_name}",
                   style: TextStyle(fontSize: titleFontSize, fontWeight: FontWeight.bold),
@@ -216,20 +216,41 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                 ),
 
                 // Gender
-                _genderWidget(),
+                Padding(padding: const EdgeInsets.fromLTRB(0, 15, 0, 0), child: _genderWidget()),
 
                 // Size
-                _sizeWidget(),
+                Padding(padding: const EdgeInsets.fromLTRB(0, 15, 0, 0), child: _sizeWidget()),
                 // color
-                _colorWidget(),
+                Padding(padding: const EdgeInsets.fromLTRB(0, 15, 0, 0), child: _colorWidget()),
                 // 수량
                 isExist
-                    ? Row(
-                        spacing: 10,
-                        children: [
-                          _quantityWidget(),
-                          ElevatedButton(onPressed: () => _addCart(), child: Text("장바구니 추가")),
-                        ],
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                        child: Row(
+                          spacing: 10,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            _quantityWidget(),
+
+                            IconButton(
+                              onPressed: () => _addCart(true),
+                              style: IconButton.styleFrom(
+                                backgroundColor: Colors.green[100],
+
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5)),
+                              ),
+
+                              icon: Icon(Icons.shopping_cart, color: Colors.black),
+                            ),
+                            ElevatedButton(
+                              onPressed: () => Get.to(() => const GTUserCartView()),
+
+                              style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5))),
+
+                              child: Text('View'),
+                            ),
+                          ],
+                        ),
                       )
                     : Text(''),
                 isExist
@@ -237,22 +258,32 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                         spacing: 5,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          ElevatedButton(onPressed: () => Get.to(() => const GTUserCartView()), child: Text("장바구니 보기")),
+                          // ElevatedButton(
+                          //   onPressed: () => Get.to(() => const GTUserCartView()),
+                          //   style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5))),
+
+                          //   child: Text("장바구니 보기"),
+                          // ),
                           ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
                               // 카트에 추가
+                              _addCart(false);
+                              // Todo: GO to page
+                              Get.to(() => GTUserCartView());
                             },
+                            style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5))),
+
                             child: Text("바로구매"),
                           ),
-                          ElevatedButton(
-                            onPressed: () {
-                              // 카트에서 삭제
-                              CartStorage.clearCart();
-                              List xx = CartStorage.getCart();
-                              print(xx.length);
-                            },
-                            child: Text("장바구니 clear"),
-                          ),
+                          // ElevatedButton(
+                          //   onPressed: () {
+                          //     // 카트에서 삭제
+                          //     CartStorage.clearCart();
+                          //     List xx = CartStorage.getCart();
+                          //     print(xx.length);
+                          //   },
+                          //   child: Text("장바구니 clear"),
+                          // ),
                         ],
                       )
                     : Text(''),
@@ -265,7 +296,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
   }
 
   // === Functions
-  void _addCart() {
+  void _addCart(bool isMessage) {
     // 카트에 추가
 
     final item = CartItem(
@@ -286,26 +317,28 @@ class _ProductDetailViewState extends State<ProductDetailView> {
 
     CartStorage.addToCart(item);
     // Get Message
-    Get.defaultDialog(
-      title: "카트에 추가되었습니다.",
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('성공적으로 추가 됬습니다.'),
-          Text('상품명: ${product!.p_name} / ${product!.p_gender}'),
-          Text('수 량: ${quantity}'),
-          Text('가 격: ${product!.p_price * quantity}원'),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Get.back();
-          },
-          child: Text("확인"),
+    if (isMessage) {
+      Get.defaultDialog(
+        title: "카트에 추가되었습니다.",
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('성공적으로 추가 됬습니다.'),
+            Text('상품명: ${product!.p_name} / ${product!.p_gender}'),
+            Text('수 량: ${quantity}'),
+            Text('가 격: ${product!.p_price * quantity}원'),
+          ],
         ),
-      ],
-    );
+        actions: [
+          TextButton(
+            onPressed: () {
+              Get.back();
+            },
+            child: Text("확인"),
+          ),
+        ],
+      );
+    }
   }
 
   // -- Widgets

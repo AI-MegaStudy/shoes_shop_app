@@ -24,11 +24,15 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
   // 검색
   late TextEditingController _searchController;
 
+  // 상품 상태 조회
+  late List<String> bStatus;
+
   @override
   void initState() {
     super.initState();
     data = [];
     dataSeq = {};
+    bStatus = [];
     getJSONData();
     _searchController = TextEditingController();
     print(_searchController.text);
@@ -47,9 +51,11 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
     var result = dataConvertedJSON['results'];
     print(result);
     data = result.map((e) => PurchaseItemJoin.fromJson(e)).toList(); // model의 factory형태
-
+    bStatus = List<String>.from(result.map((e) => e['b_status'].toString())).toList();
+    print(bStatus);
     setState(() {});
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +66,7 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
           Expanded(
             flex: 1,
             child: data.isEmpty
-            ? Text('데이터가 없습니다.')
+            ? Center(child: Text('데이터가 없습니다.'))
             : Column(
               children: [
                 Padding(
@@ -79,6 +85,15 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
                     ),
                   ),
                 ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    statusContainer(0),
+                    statusContainer(1),
+                    statusContainer(2),
+                    statusContainer(3)
+                  ],
+                ), // b_status 리스트 만들어서 개수 출력
                 Expanded(
                   child: ListView.builder(
                     itemCount: data.length,
@@ -86,45 +101,50 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
                       final purchase_item = data[index];
                       return GestureDetector(
                         onTap: () => getJSONbSeqData(data[index].b_seq),
-                        child: Card(
-                          color: Colors.white,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              color: config_testsy.PColor.dividerColor, // 테두리 색상
-                              width: 1.0,               // 테두리 두께
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
+                          child: Card(
+                            color: Colors.white,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                color: config_testsy.PColor.dividerColor,
+                                width: 1.0,
+                              ),
+                              borderRadius: BorderRadius.circular(12.0),
                             ),
-                            borderRadius: BorderRadius.circular(12.0), // 모서리 곡률
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text('${purchase_item.b_seq}', style: config_testsy.titleStyle),
-                                    purchase_item.b_status != null 
-                                    ? Container(
-                                      padding: EdgeInsets.all(8.0),
-                                      decoration: BoxDecoration(
-                                        color: config_testsy.StatusConfig.bStatusColor(purchase_item.b_status),
-                                        borderRadius: BorderRadius.circular(10)
-                                      ),
-                                      child: Text(
-                                        '${config_testsy.pickupStatus[int.parse(purchase_item.b_status)]}',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('${purchase_item.b_seq}', style: config_testsy.titleStyle),
+                                      Text('${purchase_item.u_name}', style: config_testsy.mediumTextStyle),
+                                    ],
+                                  ),
+                                  purchase_item.b_status != null 
+                                  ? Container(
+                                    padding: EdgeInsets.all(8.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[100],
+                                      borderRadius: BorderRadius.circular(10)
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.circle, size: 13, color: config_testsy.StatusConfig.bStatusColor(purchase_item.b_status)),
+                                        Text(
+                                          ' ${config_testsy.pickupStatus[int.parse(purchase_item.b_status)]}',
+                                          style: config_testsy.mediumTextStyle
                                         ),
-                                      ),
-                                    )
-                                    : Text('')
-                                  ],
-                                ),
-                                Text('${purchase_item.u_name}', style: config_testsy.mediumTextStyle),
-                              ],
+                                      ],
+                                    ),
+                                  )
+                                  : Text('')
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -143,69 +163,129 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
             : Padding(
               padding: const EdgeInsets.all(10),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                    child: Text('구매 번호 ${dataSeq['b_seq']}', style: config_testsy.titleStyle),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                    child: Text('구매 일시 ${dataSeq['b_date'].toString().replaceAll('T', ' ')}', style: config_testsy.titleStyle),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text('주문자 상세 정보',
-                          style: config_testsy.titleStyle,
+                  Card(
+                    color: Colors.white,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          color: config_testsy.PColor.dividerColor,
+                          width: 1.0,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                          child: Text('이름: ${dataSeq['u_name']}',
-                            style: config_testsy.mediumTextStyle,
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 5, 0, 10),
+                            child: Text('구매 번호 ${dataSeq['b_seq']}', style: config_testsy.titleStyle),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
-                          child: Text('연락처: ${dataSeq['u_phone']}',
-                            style: config_testsy.mediumTextStyle,
+                          Divider(color: config_testsy.PColor.dividerColor),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                            child: Text('구매 일시 ${dataSeq['b_date'].toString().replaceAll('T', ' ')}', style: config_testsy.titleStyle),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
-                          child: Text('이메일: ${dataSeq['u_email']}',
-                            style: config_testsy.mediumTextStyle,
+                          Divider(color: config_testsy.PColor.dividerColor),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text('수령 지점',
+                                  style: config_testsy.titleStyle,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                  child: Text('${dataSeq['br_name']}\n${dataSeq['br_address']}',
+                                    style: config_testsy.mediumTextStyle,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                          Divider(color: config_testsy.PColor.dividerColor),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text('주문자 상세 정보',
+                                  style: config_testsy.titleStyle,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                  child: Text('이름: ${dataSeq['u_name']}',
+                                    style: config_testsy.mediumTextStyle,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
+                                  child: Text('연락처: ${dataSeq['u_phone']}',
+                                    style: config_testsy.mediumTextStyle,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
+                                  child: Text('이메일: ${dataSeq['u_email']}',
+                                    style: config_testsy.mediumTextStyle,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text('주문 상품',
-                          style: config_testsy.titleStyle,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                          child: Text('${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}  |  ${dataSeq['b_quantity']}개',
-                            style: config_testsy.mediumTextStyle,
+                  Card(
+                    color: Colors.white,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        color: config_testsy.PColor.dividerColor,
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    child: Padding(
+                    padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text('주문 상품',
+                            style: config_testsy.titleStyle,
                           ),
-                        ),
-                      ],
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                            child: Text('${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}  |  ${dataSeq['b_quantity']}개',
+                              style: config_testsy.mediumTextStyle,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   dataSeq['b_status'] == '1'
                   ? ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        color: config_testsy.PColor.dividerColor,
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    ),
                     onPressed: () {
                       insertPickup();
                       updatePurchaseItem(dataSeq['b_seq']);
                     }, 
-                    child: Text('수령 완료')
+                    child: Text('수령 완료', style: TextStyle(color: Colors.black),)
                   )
                   : Text(''),
                   Padding(
@@ -224,8 +304,44 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
   } // build
 
   // --- widgets ---
+  Widget statusContainer(int int){
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(5, 0, 0, 5),
+      child: Container(
+        width: MediaQuery.of(context).size.width / 14,
+        alignment: Alignment.center, // 텍스트를 박스 중앙에 정렬
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          color: config_testsy.StatusConfig.bStatusColor(int).withAlpha(200),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: Column(
+            children: [
+              Text('${config_testsy.pickupStatus[int]}', style: config_testsy.boldWhiteStyle),
+              Text('${countStatus()[int]}', style: config_testsy.boldWhiteStyle),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   // --- functions ---
+  List countStatus(){
+    int count0 = 0;
+    int count1 = 0;
+    int count2 = 0;
+    int count3 = 0;
+    for (String n in bStatus){
+      if (n == '0') count0++;
+      if (n == '1') count1++;
+      if (n == '2') count2++;
+      if (n == '3') count3++;
+    }
+    return [count0, count1, count2, count3];
+  }
+
   Future<void> getJSONbSeqData(int b_seq) async{
     var url = Uri.parse('http://127.0.0.1:8000/api/purchase_items/admin/${b_seq}/full_detail');
     print(url);
@@ -316,5 +432,6 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
 
 2025-01-03: 임소연
   - 디자인 수정
+  - 수령 지점 추가
   
 */

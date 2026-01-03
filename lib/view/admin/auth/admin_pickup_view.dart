@@ -119,34 +119,36 @@ class _AdminPickupViewState extends State<AdminPickupView> {
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text('${pickup.pic_seq}', style: config_testsy.titleStyle),
-                                    pickup.b_status != null 
-                                    ? Container(
-                                      padding: EdgeInsets.all(8.0),
-                                      decoration: BoxDecoration(
-                                        color: config_testsy.StatusConfig.bStatusColor(pickup.b_status),
-                                        borderRadius: BorderRadius.circular(10)
-                                      ),
-                                      child: Text(
-                                        '${config_testsy.pickupStatus[int.parse(pickup.b_status)]}',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('${pickup.b_seq}', style: config_testsy.titleStyle),
+                                      Text('${pickup.u_name}', style: config_testsy.mediumTextStyle),
+                                    ],
+                                  ),
+                                  pickup.b_status != null 
+                                  ? Container(
+                                    padding: EdgeInsets.all(8.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[100],
+                                      borderRadius: BorderRadius.circular(10)
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.circle, size: 13, color: config_testsy.StatusConfig.bStatusColor(pickup.b_status)),
+                                        Text(
+                                          ' ${config_testsy.pickupStatus[int.parse(pickup.b_status)]}',
+                                          style: config_testsy.mediumTextStyle
                                         ),
-                                      ),
-                                    )
-                                    : Text('')
-                                  ],
-                                ),
-                                Text('${pickup.u_name}', style: config_testsy.mediumTextStyle),
-                              ],
-                            ),
+                                      ],
+                                    ),
+                                  )
+                                  : Text('')
+                                ],
+                              ),
                           ),
                         ),
                       );
@@ -166,64 +168,110 @@ class _AdminPickupViewState extends State<AdminPickupView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                    child: Text('수령 번호 ${dataSeq['pic_seq']}', style: config_testsy.titleStyle),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                    child: Text('수령 일시 ${dataSeq['created_at'].toString().replaceAll('T', ' ')}', style: config_testsy.titleStyle),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text('고객 상세 정보',
-                          style: config_testsy.titleStyle,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                          child: Text('이름: ${dataSeq['u_name']}',
-                            style: config_testsy.mediumTextStyle,
+                  Card(
+                    color: Colors.white,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        color: config_testsy.PColor.dividerColor,
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(5, 10, 0, 10),
+                            child: Text('수령 번호 ${dataSeq['pic_seq']}', style: config_testsy.titleStyle),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
-                          child: Text('연락처: ${dataSeq['u_phone']}',
-                            style: config_testsy.mediumTextStyle,
+                          Divider(color: config_testsy.PColor.dividerColor),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(5, 10, 0, 10),
+                            child: Text('수령 일시 ${dataSeq['created_at'].toString().replaceAll('T', ' ')}', style: config_testsy.titleStyle),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
-                          child: Text('이메일: ${dataSeq['u_email']}',
-                            style: config_testsy.mediumTextStyle,
+                          Divider(color: config_testsy.PColor.dividerColor),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(5, 10, 0, 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text('고객 상세 정보',
+                                  style: config_testsy.titleStyle,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                  child: Text('이름: ${dataSeq['u_name']}',
+                                    style: config_testsy.mediumTextStyle,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
+                                  child: Text('연락처: ${dataSeq['u_phone']}',
+                                    style: config_testsy.mediumTextStyle,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
+                                  child: Text('이메일: ${dataSeq['u_email']}',
+                                    style: config_testsy.mediumTextStyle,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                  Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text('주문 상품',
-                          style: config_testsy.titleStyle,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                          child: Text('${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}  |  ${dataSeq['b_quantity']}개',
-                            style: config_testsy.mediumTextStyle,
+                  Card(
+                    color: Colors.white,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        color: config_testsy.PColor.dividerColor,
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    child: Padding(
+                    padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text('주문 상품',
+                            style: config_testsy.titleStyle,
                           ),
-                        ),
-                      ],
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                            child: Text('${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}  |  ${dataSeq['b_quantity']}개',
+                              style: config_testsy.mediumTextStyle,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   dataSeq['b_status'] == '2'
-                  ? ElevatedButton(
-                    onPressed: () => selectReason(),
-                    child: Text('반품 신청')
+                  ? Padding(
+                    padding: const EdgeInsets.all(3.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          color: config_testsy.PColor.dividerColor,
+                          width: 1.0,
+                        ),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      ),
+                      onPressed: () => selectReason(),
+                      child: Text('반품 신청', style: TextStyle(color: Colors.black))
+                    ),
                   )
                   : Text(''),
                   Padding(
@@ -260,9 +308,11 @@ class _AdminPickupViewState extends State<AdminPickupView> {
     Get.dialog(
       AlertDialog(
         title: const Text('반품 사유 선택'),
+        backgroundColor: Colors.white,
         content: StatefulBuilder(
           builder: (BuildContext context, StateSetter setDialogState) {
             return DropdownButton<String>(
+              dropdownColor: Colors.white,
               isExpanded: true,
               value: refReasons.contains(dropDownValue) ? dropDownValue : (refReasons.isNotEmpty ? refReasons.first : null),
               items: refReasons.map<DropdownMenuItem<String>>((value) {
@@ -284,11 +334,22 @@ class _AdminPickupViewState extends State<AdminPickupView> {
         ),
         actions: [
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              shadowColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+              side: BorderSide(
+                color: config_testsy.PColor.dividerColor,
+                width: 1.0,
+              ),
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            ),
             onPressed: () {
               insertRefund();
               updatePurchaseItem(dataSeq['b_seq']);
             }, 
-            child: Text('선택')
+            child: Text('선택', style: TextStyle(color: Colors.black),)
           )
         ],
       )

@@ -82,24 +82,27 @@ class _AdminRefundViewState extends State<AdminRefundView> {
                       final refund = data[index];
                       return GestureDetector(
                         onTap: () => getJSONrefSeqData(data[index].ref_seq),
-                        child: Card(
-                          color: Colors.white,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              color: config_testsy.PColor.dividerColor, // 테두리 색상
-                              width: 1.0,               // 테두리 두께
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
+                          child: Card(
+                            color: Colors.white,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                color: config_testsy.PColor.dividerColor, // 테두리 색상
+                                width: 1.0,               // 테두리 두께
+                              ),
+                              borderRadius: BorderRadius.circular(12.0), // 모서리 곡률
                             ),
-                            borderRadius: BorderRadius.circular(12.0), // 모서리 곡률
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('${refund.ref_seq}', style: config_testsy.titleStyle),
-                                Text('${refund.u_name}', style: config_testsy.mediumTextStyle)
-                              ],
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('${refund.ref_seq}', style: config_testsy.titleStyle),
+                                  Text('${refund.u_name}', style: config_testsy.mediumTextStyle)
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -120,54 +123,84 @@ class _AdminRefundViewState extends State<AdminRefundView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                    child: Text('반품 번호 ${dataSeq['ref_seq']}', style: config_testsy.titleStyle),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text('고객 상세 정보',
-                          style: config_testsy.titleStyle,
+                  Card(
+                    color: Colors.white,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          color: config_testsy.PColor.dividerColor,
+                          width: 1.0,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                          child: Text('이름: ${dataSeq['u_name']}',
-                            style: config_testsy.mediumTextStyle,
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(5, 10, 0, 10),
+                            child: Text('반품 번호 ${dataSeq['ref_seq']}', style: config_testsy.titleStyle),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
-                          child: Text('연락처: ${dataSeq['u_phone']}',
-                            style: config_testsy.mediumTextStyle,
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(5, 10, 0, 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text('고객 상세 정보',
+                                  style: config_testsy.titleStyle,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                                  child: Text('이름: ${dataSeq['u_name']}',
+                                    style: config_testsy.mediumTextStyle,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
+                                  child: Text('연락처: ${dataSeq['u_phone']}',
+                                    style: config_testsy.mediumTextStyle,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
+                                  child: Text('이메일: ${dataSeq['u_email']}',
+                                    style: config_testsy.mediumTextStyle,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
-                          child: Text('이메일: ${dataSeq['u_email']}',
-                            style: config_testsy.mediumTextStyle,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                  Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text('반품 상품',
-                          style: config_testsy.titleStyle,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                          child: Text('${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}  |  ${dataSeq['b_quantity']}개',
-                            style: config_testsy.mediumTextStyle,
+                  Card(
+                    color: Colors.white,
+                    shadowColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                        color: config_testsy.PColor.dividerColor,
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    child: Padding(
+                    padding: const EdgeInsets.all(15),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text('반품 상품',
+                            style: config_testsy.titleStyle,
                           ),
-                        ),
-                      ],
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                            child: Text('${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}  |  ${dataSeq['b_quantity']}개',
+                              style: config_testsy.mediumTextStyle,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

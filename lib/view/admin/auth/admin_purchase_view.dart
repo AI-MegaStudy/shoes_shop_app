@@ -146,15 +146,15 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(0,10,0,10),
+                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                     child: Text('구매 번호 ${dataSeq['b_seq']}', style: config_testsy.titleStyle),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(0,10,0,10),
+                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                     child: Text('구매 일시 ${dataSeq['b_date'].toString().replaceAll('T', ' ')}', style: config_testsy.titleStyle),
                   ),
                   Padding(
-                  padding: const EdgeInsets.fromLTRB(0,10,0,10),
+                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -162,19 +162,19 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
                           style: config_testsy.titleStyle,
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(0,10,0,0),
+                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                           child: Text('이름: ${dataSeq['u_name']}',
                             style: config_testsy.mediumTextStyle,
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(0,6,0,0),
+                          padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
                           child: Text('연락처: ${dataSeq['u_phone']}',
                             style: config_testsy.mediumTextStyle,
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(0,6,0,0),
+                          padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
                           child: Text('이메일: ${dataSeq['u_email']}',
                             style: config_testsy.mediumTextStyle,
                           ),
@@ -183,7 +183,7 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
                     ),
                   ),
                   Padding(
-                  padding: const EdgeInsets.fromLTRB(0,10,0,10),
+                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -191,7 +191,7 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
                           style: config_testsy.titleStyle,
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(0,10,0,0),
+                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                           child: Text('${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}  |  ${dataSeq['b_quantity']}개',
                             style: config_testsy.mediumTextStyle,
                           ),

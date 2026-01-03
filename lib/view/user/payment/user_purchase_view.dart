@@ -1,11 +1,17 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart'
-    show Get, GetNavigation, ExtensionBottomSheet;
+    show
+        Get,
+        GetNavigation,
+        ExtensionBottomSheet,
+        ExtensionSnackbar,
+        SnackPosition;
 import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/model/product.dart';
 import 'package:shoes_shop_app/utils/cart_storage.dart';
 
+//SliderButton패키지 필요-예은
 // Product detail과 같은 class
 class CartItem {
   int p_seq;
@@ -71,34 +77,23 @@ class UserPurchaseView extends StatefulWidget {
   const UserPurchaseView({super.key});
 
   @override
-  State<UserPurchaseView> createState() =>
-      _UserPurchaseViewState();
+  State<UserPurchaseView> createState() => _UserPurchaseViewState();
 }
 
-class _UserPurchaseViewState
-    extends State<UserPurchaseView> {
+class _UserPurchaseViewState extends State<UserPurchaseView> {
   //property
   Product? product = Get.arguments;
   String ipAddress = "172.16.250.175";
-  List<CartItem> data = []; //
+  List<CartItem> data = [];
   int totalPrice = 0;
-  int productSeq = 1;
-  int quantity = 1;
+  double purchaseBoxHeight = 150.0;
+  String selectedLocation = '강남구';
+  final List<String> locations = ['강남구', '서초구', '송파구', '마포구', '영등포구'];
 
   @override
   void initState() {
     super.initState();
     loadCartData();
-    for (var d in CartStorage.getCart()) {
-      totalPrice +=
-          int.parse(d['p_price'].toString()) *
-          int.parse(d['quantity'].toString());
-      data.add(CartItem.fromJson(d));
-    }
-    initStorage();
-    getJSONData();
-    _initiateCard();
-    // data.addAll(CartStorage.getCart().map((d) => CartItem.fromJson(d)).toList());
   }
 
   void loadCartData() {
@@ -107,77 +102,14 @@ class _UserPurchaseViewState
     List<CartItem> tempList = [];
 
     for (var d in cartList) {
-      int price =
-          int.tryParse(d['p_price'].toString()) ?? 0;
-      int qty = int.tryParse(d['quantity'].toString()) ?? 1;
-      tempTotal += price * qty;
-      tempList.add(CartItem.fromJson(d));
+      final item = CartItem.fromJson(d);
+      tempList.add(item);
+      tempTotal += item.p_price * item.quantity;
     }
-
     setState(() {
       data = tempList;
       totalPrice = tempTotal;
     });
-  }
-
-  void updateTotalPrice() {
-    int tempTotal = 0;
-    for (var item in data) {
-      tempTotal += item.p_price * item.quantity;
-    }
-    setState(() {
-      totalPrice = tempTotal;
-    });
-  }
-
-  void _initiateCard() {
-    final item = CartItem(
-      p_seq: product!.p_seq!,
-      p_name: product!.p_name,
-      p_price: product!.p_price,
-      cc_seq: product!.cc_seq,
-      cc_name: product!.p_color!,
-      sc_seq: product!.sc_seq,
-      sc_name: product!.p_size!,
-      gc_seq: product!.gc_seq,
-      gc_name: product!.p_gender!,
-      quantity: quantity,
-      p_image: product!.p_image,
-    ).toJson();
-    print(item);
-    CartStorage.addToCart(item);
-  }
-
-  void initStorage() {
-    productSeq = 1;
-  }
-
-  Future<void> getJSONData() async {
-    try {
-      var url = Uri.parse(
-        'http://$ipAddress:8000/api/products/',
-      );
-      var response = await http
-          .get(url)
-          .timeout(const Duration(seconds: 5));
-
-      if (response.statusCode == 200) {
-        var dataConvertedJSON = json.decode(
-          utf8.decode(response.bodyBytes),
-        );
-        List result = dataConvertedJSON['results'] ?? [];
-
-        if (mounted) {
-          setState(() {
-            data = result
-                .map((e) => CartItem.fromJson(e))
-                .toList();
-          });
-        }
-      }
-    } catch (e) {
-      print("연결 에러 발생: $e");
-    }
   }
 
   @override
@@ -195,86 +127,41 @@ class _UserPurchaseViewState
           ? Center(child: Text('no data'))
           : Column(
               children: [
+                //SingleChildScrollView(
                 Expanded(
                   child: SizedBox(
-                    // width: MediaQuery.of(
-                    //   context,
-                    // ).size.width,
-                    // height:
-                    //     MediaQuery.of(context).size.height -
-                    //     150,
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height - 150,
                     child: ListView.builder(
                       itemCount: data.length,
                       itemBuilder: (context, index) {
                         return Card(
-                          elevation: 0,
-                          margin:
-                              const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
+                          // elevation: 0,
+                          //margin: const EdgeInsets.symmetric(
+                          //horizontal: 16,
+                          //vertical: 8,
+                          //),
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                           color: Colors.white,
                           child: Padding(
-                            padding: const EdgeInsets.all(
-                              16.0,
-                            ),
+                            padding: const EdgeInsets.all(16.0),
                             child: Row(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 ClipRRect(
-                                  borderRadius:
-                                      BorderRadius.circular(
-                                        12,
-                                      ),
-                                  child: Container(
+                                  borderRadius: BorderRadius.circular(12),
+                                  //child:Container
+                                  child: SizedBox(
                                     width: 90,
                                     height: 90,
-                                    color: Colors.white,
+                                    //color: Colors.white,
                                     child: Image.network(
                                       //'http://172.16.250.175:8000/api/products/?t=${DateTime.now().microsecondsSinceEpoch}',
                                       'https://cheng80.myqnapcloud.com/images/${data[index].p_image}',
                                       width: 100,
-                                      loadingBuilder:
-                                          (
-                                            context,
-                                            child,
-                                            loadingProgress,
-                                          ) {
-                                            if (loadingProgress ==
-                                                null)
-                                              return child;
-                                            return Center(
-                                              child:
-                                                  CircularProgressIndicator(),
-                                            );
-                                          },
-
-                                      errorBuilder:
-                                          (
-                                            context,
-                                            error,
-                                            stackTrace,
-                                          ) {
-                                            print(
-                                              "이미지 로딩 에러: $error",
-                                            );
-                                            return Container(
-                                              width: 100,
-                                              height: 90,
-                                              color: Colors
-                                                  .grey[200],
-                                              child: Icon(
-                                                Icons.error,
-                                                color: Colors
-                                                    .red,
-                                              ),
-                                            );
-                                          },
+                                      //fit: BoxFit.cover,
                                     ),
                                   ),
                                 ),
@@ -282,65 +169,47 @@ class _UserPurchaseViewState
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment
-                                            .start,
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         "${data[index].p_name}",
                                         style: TextStyle(
                                           fontSize: 18,
-                                          fontWeight:
-                                              FontWeight
-                                                  .bold,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                       SizedBox(height: 4),
                                       Text(
                                         "${data[index].cc_name} / ${data[index].sc_name} / ${data[index].gc_name}",
                                         style: TextStyle(
-                                          color: Colors
-                                              .black54,
+                                          color: Colors.black54,
                                           fontSize: 14,
                                         ),
                                       ),
                                       SizedBox(height: 8),
                                       Text(
                                         "단가: ${data[index].p_price ?? 0}원",
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                        ),
+                                        style: TextStyle(fontSize: 14),
                                       ),
                                       SizedBox(height: 4),
-                                      // Text(
-                                      //   "합계: ${(data[index].p_price ?? 0) * (data[index].cc_quantity ?? 1)}원",
-                                      //   style: TextStyle(
-                                      //     fontSize: 16,
-                                      //     fontWeight: FontWeight.bold,
-                                      //   ),
-                                      // ),
                                     ],
                                   ),
                                 ),
                                 Column(
                                   mainAxisAlignment:
-                                      MainAxisAlignment
-                                          .spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
                                         Padding(
-                                          padding:
-                                              EdgeInsets.symmetric(
-                                                horizontal:
-                                                    10,
-                                              ),
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                          ),
                                           child: Text(
                                             "${data[index].quantity ?? 1}",
                                             style: TextStyle(
                                               fontSize: 18,
-                                              fontWeight:
-                                                  FontWeight
-                                                      .bold,
+                                              fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                         ),
@@ -357,34 +226,44 @@ class _UserPurchaseViewState
                     ),
                   ),
                 ),
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(color: Colors.blue),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('총액 : ${totalPrice}원'),
+                          //SizedBox(height: 10),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                    ],
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
-                    width: MediaQuery.of(
-                      context,
-                    ).size.width,
+                    width: MediaQuery.of(context).size.width,
                     height: 100,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(
-                        5,
-                      ),
+                      borderRadius: BorderRadius.circular(5),
                       color: Colors.blue[100],
                     ),
                     child: Row(
                       spacing: 10,
-                      mainAxisAlignment:
-                          MainAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(
-                                0,
-                                0,
-                                150,
-                                0,
-                              ),
-                          child: Text(
-                            '총액 : ${totalPrice}원',
+                          padding: const EdgeInsets.fromLTRB(0, 0, 150, 0),
+                          child: Text('총액 : ${totalPrice}원'),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ElevatedButton(
+                            onPressed: () => showPurchaseBottomSheet(),
+                            child: Text('결제하기'),
                           ),
                         ),
                       ],
@@ -393,100 +272,106 @@ class _UserPurchaseViewState
                 ),
               ],
             ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size.fromHeight(50),
-            ),
-            onPressed: () => showGetBottomSheet(),
-            child: const Text('결제하기'),
-          ),
-        ),
-      ),
+      // bottomNavigationBar: SafeArea(
+      //   child: Padding(
+      //     padding: const EdgeInsets.all(16.0),
+      //     child: ElevatedButton(
+      //       onPressed: () => showPurchaseBottomSheet(),
+      //       child: Text('결제하기'),
+      //     ),
+      //   ),
+      // ),
     );
   }
 
-  //function
-  showTypeBottomSheet() {
+  showPurchaseBottomSheet() {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) {
         return Container(
-          height: 200,
-          color: Theme.of(
-            context,
-          ).colorScheme.primaryContainer,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Type #1 Bottom Sheet'),
-                ElevatedButton(
-                  onPressed: () => Get.back(),
-                  child: Text('Close'),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  showType2BottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Container(
-          height: 200,
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.tertiaryContainer,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(30),
-              topRight: Radius.circular(30),
-            ),
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
           ),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Type #1 Bottom Sheet'),
-                ElevatedButton(
-                  onPressed: () => Get.back(),
-                  child: Text('Close'),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  showGetBottomSheet() {
-    Get.bottomSheet(
-      Container(
-        height: 200,
-        color: Theme.of(
-          context,
-        ).colorScheme.primaryContainer,
-        child: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Type #1 Bottom Sheet'),
-              ElevatedButton(
-                onPressed: () => Get.back(),
-                child: Text('Close'),
+              Text(
+                '최종 결제 확인',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
+              SizedBox(height: 20),
+              Text('수령 지점 선택', style: TextStyle(fontWeight: FontWeight.bold)),
+              DropdownButton<String>(
+                value: selectedLocation,
+                isExpanded: true,
+                items: locations
+                    .map(
+                      (loc) => DropdownMenuItem(value: loc, child: Text(loc)),
+                    )
+                    .toList(),
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() => selectedLocation = val);
+                    Get.back();
+                    showPurchaseBottomSheet();
+                  }
+                },
+              ),
+              const SizedBox(height: 20),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('총액', style: TextStyle(fontSize: 18)),
+                  Text(
+                    '$totalPrice원',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              SizedBox(height: 30),
+              Center(
+                // child: SliderButton(
+                //   action: () async {
+                //     completePurchase();
+                //     return true;
+                //   },
+                //   label: Text(
+                //     "밀어서 결제하기",
+                //     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                //   ),
+                //   icon: Icon(Icons.shopping_bag_outlined, color: Colors.white),
+                //   width: MediaQuery.of(context).size.width - 40,
+                //   radius: 10,
+                //   buttonColor: Colors.blue,
+                //   backgroundColor: Colors.grey[300]!,
+                //   highlightedColor: Colors.blue,
+                //   baseColor: Colors.blue,
+                // ),
+              ),
+              SizedBox(height: 20),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
+  }
+
+  completePurchase() {
+    Get.back();
+    Get.snackbar(
+      "결제 완료",
+      "성공적으로 주문되었습니다.",
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.white,
+    );
+    CartStorage.clearCart();
+    setState(() {
+      loadCartData();
+    });
   }
 }

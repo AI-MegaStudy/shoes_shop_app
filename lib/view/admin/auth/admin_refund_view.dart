@@ -13,8 +13,13 @@ class AdminRefundView extends StatefulWidget {
 }
 
 class _AdminRefundViewState extends State<AdminRefundView> {
+  // 반품 목록 데이터
   late List data;
+
+  // 반품 상세 데이터
   late Map dataSeq;
+
+  // 검색
   late TextEditingController _searchController;
 
   @override
@@ -44,11 +49,8 @@ class _AdminRefundViewState extends State<AdminRefundView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('반품 목록'),
-        centerTitle: true,
-        toolbarHeight: 48, // 앱바 높이 최소화
-      ),
+      backgroundColor: config_testsy.PColor.backgroundColor,
+      appBar: config_testsy.AdminAppBar(title: '반품 목록'),
       body: Row(
         children: [
           Expanded(
@@ -57,14 +59,21 @@ class _AdminRefundViewState extends State<AdminRefundView> {
             ? Text('데이터가 없습니다.')
             : Column(
               children: [
-                TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: '고객명/반품번호 찾기',
-                    prefixIcon: const Icon(Icons.search),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 8, 0),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: '고객명/반품번호 찾기',
+                      border: InputBorder.none,
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          getJSONData(search: _searchController.text);
+                        },
+                        icon: Icon(Icons.search)
+                      )
+                    ),
                   ),
-                  textInputAction: TextInputAction.go,
-                  onSubmitted: (value) => getJSONData(search: value),
                 ),
                 Expanded(
                   child: ListView.builder(
@@ -74,6 +83,15 @@ class _AdminRefundViewState extends State<AdminRefundView> {
                       return GestureDetector(
                         onTap: () => getJSONrefSeqData(data[index].ref_seq),
                         child: Card(
+                          color: Colors.white,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                              color: config_testsy.PColor.dividerColor, // 테두리 색상
+                              width: 1.0,               // 테두리 두께
+                            ),
+                            borderRadius: BorderRadius.circular(12.0), // 모서리 곡률
+                          ),
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Column(
@@ -92,59 +110,64 @@ class _AdminRefundViewState extends State<AdminRefundView> {
               ],
             )
           ),
-          VerticalDivider(),
-
+          VerticalDivider(color: config_testsy.PColor.dividerColor),
           Expanded(
             flex: 2,
             child: dataSeq.isEmpty
             ? Text('')
             : Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Card(
-                    child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('반품 번호: ${dataSeq['ref_seq']}', style: config_testsy.titleStyle),
-                    )
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                    child: Text('반품 번호 ${dataSeq['ref_seq']}', style: config_testsy.titleStyle),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                    child: Card(
-                      child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text('고객 상세 정보',
-                              style: config_testsy.titleStyle,
-                            ),
-                            Text('이름: ${dataSeq['u_name']}\n연락처: ${dataSeq['u_phone']}\n이메일: ${dataSeq['u_email']}',
-                              style: config_testsy.mediumTextStyle,
-                            ),
-                          ],
+                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text('고객 상세 정보',
+                          style: config_testsy.titleStyle,
                         ),
-                      )
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                          child: Text('이름: ${dataSeq['u_name']}',
+                            style: config_testsy.mediumTextStyle,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
+                          child: Text('연락처: ${dataSeq['u_phone']}',
+                            style: config_testsy.mediumTextStyle,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
+                          child: Text('이메일: ${dataSeq['u_email']}',
+                            style: config_testsy.mediumTextStyle,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                    child: Card(
-                      child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text('반품 상품',
-                              style: config_testsy.titleStyle,
-                            ),
-                            Text('${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}  |  ${dataSeq['b_quantity']}개',
-                              style: config_testsy.mediumTextStyle,
-                            ),
-                          ],
+                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text('반품 상품',
+                          style: config_testsy.titleStyle,
                         ),
-                      )
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                          child: Text('${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}  |  ${dataSeq['b_quantity']}개',
+                            style: config_testsy.mediumTextStyle,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -178,5 +201,8 @@ class _AdminRefundViewState extends State<AdminRefundView> {
 변경 이력
 2025-01-02: 임소연
   - 전체 반품내역, 반품내역 클릭시 상세 반품정보 제공
-  - 검색 기능 추가
+
+2025-01-03: 임소연
+  - 디자인 수정
+
 */

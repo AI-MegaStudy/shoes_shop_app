@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'common_color_scheme.dart';
+import 'shoes_shop_color_scheme.dart';
 
 /// 앱 전체 컬러 스키마 (조합 클래스)
 ///
-/// CommonColorScheme과 DailyFlowColorScheme을 조합하여
+/// CommonColorScheme과 ShoesShopColorScheme을 조합하여
 /// 전체 앱에서 사용할 수 있는 통합 컬러 스키마를 제공합니다.
 ///
 /// 기존 코드 호환성을 위해 모든 컬러에 대한 getter를 제공합니다.
@@ -11,11 +12,13 @@ class AppColorScheme {
   // 공용 컬러 스키마
   final CommonColorScheme common;
 
-  // 앱 전용 컬러 스키마
-  // final DailyFlowColorScheme dailyFlow;
+  // 신발 쇼핑 앱 전용 컬러 스키마
+  final ShoesShopColorScheme shoesShop;
 
-  // const AppColorScheme({required this.common, required this.dailyFlow});
-  const AppColorScheme({required this.common});
+  const AppColorScheme({
+    required this.common,
+    required this.shoesShop,
+  });
 
   // ============================================================================
   // 공용 컬러 접근자 (기존 코드 호환성)
@@ -58,37 +61,57 @@ class AppColorScheme {
   Color get textOnPrimary => common.textOnPrimary;
 
   // ============================================================================
-  // 앱 전용 컬러 접근자
+  // 신발 쇼핑 앱 전용 컬러 접근자
   // ============================================================================
-  /*
-  // 요약 Progress Bar - 아침 색상
-  Color get progressMorning => dailyFlow.progressMorning;
 
-  // 요약 Progress Bar - 낮 색상
-  Color get progressNoon => dailyFlow.progressNoon;
+  /// 제품 카드 배경색
+  Color get productCardBackground => shoesShop.productCardBackground;
 
-  // 요약 Progress Bar - 저녁 색상
-  Color get progressEvening => dailyFlow.progressEvening;
+  /// 제품 카드 테두리 색상
+  Color get productCardBorder => shoesShop.productCardBorder;
 
-  // 요약 Progress Bar - 야간 색상
-  Color get progressNight => dailyFlow.progressNight;
+  /// 가격 강조 색상 (메인 가격 표시)
+  Color get priceHighlight => shoesShop.priceHighlight;
 
-  // 요약 Progress Bar - 종일 색상
-  Color get progressAnytime => dailyFlow.progressAnytime;
+  /// 할인/세일 가격 색상
+  Color get salePrice => shoesShop.salePrice;
 
-  // 중요도 1단계: 매우 낮음
-  Color get priorityVeryLow => dailyFlow.priorityVeryLow;
+  /// 원가 (취소선) 색상
+  Color get originalPrice => shoesShop.originalPrice;
 
-  // 중요도 2단계: 낮음
-  Color get priorityLow => dailyFlow.priorityLow;
+  /// 장바구니 아이콘 색상
+  Color get cartIcon => shoesShop.cartIcon;
 
-  // 중요도 3단계: 보통
-  Color get priorityMedium => dailyFlow.priorityMedium;
+  /// 결제 버튼 배경색
+  Color get paymentButton => shoesShop.paymentButton;
 
-  // 중요도 4단계: 높음
-  Color get priorityHigh => dailyFlow.priorityHigh;
+  /// 결제 버튼 텍스트 색상
+  Color get paymentButtonText => shoesShop.paymentButtonText;
 
-  // 중요도 5단계: 매우 높음
-  Color get priorityVeryHigh => dailyFlow.priorityVeryHigh;
-  */
+  /// 재고 있음 색상
+  Color get stockAvailable => shoesShop.stockAvailable;
+
+  /// 재고 부족 경고 색상
+  Color get stockLow => shoesShop.stockLow;
+
+  /// 재고 없음 색상
+  Color get stockOut => shoesShop.stockOut;
+
+  /// 브랜드 강조 색상
+  Color get brandHighlight => shoesShop.brandHighlight;
+
+  /// 필터 활성화 색상
+  Color get filterActive => shoesShop.filterActive;
+
+  /// 필터 비활성화 색상
+  Color get filterInactive => shoesShop.filterInactive;
+
+  /// 배송/픽업 배지 색상
+  Color get deliveryBadge => shoesShop.deliveryBadge;
+
+  /// 신상품 배지 색상
+  Color get newProductBadge => shoesShop.newProductBadge;
+
+  /// 베스트셀러 배지 색상
+  Color get bestsellerBadge => shoesShop.bestsellerBadge;
 }

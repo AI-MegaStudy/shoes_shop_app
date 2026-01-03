@@ -2,7 +2,7 @@ class RefundJoin {
   // refund
   int? ref_seq;
   String? ref_date;
-  int? ref_re_count;
+  int? ref_re_content;
 
   // refund reason
   int? ref_re_seq;
@@ -54,7 +54,7 @@ class RefundJoin {
   RefundJoin({
     this.ref_seq,
     this.ref_date,
-    this.ref_re_count,
+    this.ref_re_content,
     this.ref_re_seq,
     this.ref_re_name,
     this.u_seq,
@@ -92,7 +92,7 @@ class RefundJoin {
     return RefundJoin(
       ref_seq: json['ref_seq'],
       ref_date: json['ref_date'],
-      ref_re_count: json['ref_re_count'],
+      ref_re_content: json['ref_re_content'],
 
       ref_re_seq: json['ref_re_seq'],
       ref_re_name: json['ref_re_name'],
@@ -139,7 +139,7 @@ class RefundJoin {
     return {
       'ref_seq': ref_seq,
       'ref_date': ref_date,
-      'ref_re_count': ref_re_count,
+      'ref_re_content': ref_re_content,
 
       'ref_re_seq': ref_re_seq,
       'ref_re_name': ref_re_name,

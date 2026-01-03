@@ -107,48 +107,51 @@ class _AdminPickupViewState extends State<AdminPickupView> {
                       final pickup = data[index];
                       return GestureDetector(
                         onTap: () => getJSONpicSeqData(data[index].pic_seq),
-                        child: Card(
-                          color: Colors.white,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            side: BorderSide(
-                              color: config_testsy.PColor.dividerColor, // 테두리 색상
-                              width: 1.0,               // 테두리 두께
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
+                          child: Card(
+                            color: Colors.white,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                color: config_testsy.PColor.dividerColor, // 테두리 색상
+                                width: 1.0,               // 테두리 두께
+                              ),
+                              borderRadius: BorderRadius.circular(12.0), // 모서리 곡률
                             ),
-                            borderRadius: BorderRadius.circular(12.0), // 모서리 곡률
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('${pickup.b_seq}', style: config_testsy.titleStyle),
-                                      Text('${pickup.u_name}', style: config_testsy.mediumTextStyle),
-                                    ],
-                                  ),
-                                  pickup.b_status != null 
-                                  ? Container(
-                                    padding: EdgeInsets.all(8.0),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[100],
-                                      borderRadius: BorderRadius.circular(10)
-                                    ),
-                                    child: Row(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Icon(Icons.circle, size: 13, color: config_testsy.StatusConfig.bStatusColor(pickup.b_status)),
-                                        Text(
-                                          ' ${config_testsy.pickupStatus[int.parse(pickup.b_status)]}',
-                                          style: config_testsy.mediumTextStyle
-                                        ),
+                                        Text('${pickup.b_seq}', style: config_testsy.titleStyle),
+                                        Text('${pickup.u_name}', style: config_testsy.mediumTextStyle),
                                       ],
                                     ),
-                                  )
-                                  : Text('')
-                                ],
-                              ),
+                                    pickup.b_status != null 
+                                    ? Container(
+                                      padding: EdgeInsets.all(8.0),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[100],
+                                        borderRadius: BorderRadius.circular(10)
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.circle, size: 13, color: config_testsy.StatusConfig.bStatusColor(pickup.b_status)),
+                                          Text(
+                                            ' ${config_testsy.pickupStatus[int.parse(pickup.b_status)]}',
+                                            style: config_testsy.mediumTextStyle
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                    : Text('')
+                                  ],
+                                ),
+                            ),
                           ),
                         ),
                       );

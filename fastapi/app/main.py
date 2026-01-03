@@ -40,6 +40,10 @@ from app.api import purchase_item_admin
 from app.api import pickup_admin
 from app.api import refund_admin
 
+# GT ADDED
+# Chatting router
+from app.api import chatting
+
 app = FastAPI(title="Shoes Store API - 새로운 ERD 구조")
 ip_address = '0.0.0.0'  # 모든 인터페이스에서 접근 가능하도록 변경
 
@@ -77,6 +81,8 @@ app.include_router(purchase_item_admin.router, prefix="/api/purchase_items/admin
 app.include_router(pickup_admin.router, prefix="/api/pickups/admin", tags=["pickups-admin"])
 app.include_router(refund_admin.router, prefix="/api/refunds/admin", tags=["refunds-admin"])
 
+# GT ADDED
+app.include_router(chatting.router, prefix="/api/chatting", tags=["chatting"])
 
 @app.get("/")
 async def root():
@@ -100,7 +106,8 @@ async def root():
             "pickups": "/api/pickups",
             "refunds": "/api/refunds",
             "receives": "/api/receives",
-            "requests": "/api/requests"
+            "requests": "/api/requests",
+            "chatting": "/api/chatting" # GT ADDED
         },
         "join_endpoints": {
             "products_join": "/api/products/{id}/full_detail, /api/products/with_categories",

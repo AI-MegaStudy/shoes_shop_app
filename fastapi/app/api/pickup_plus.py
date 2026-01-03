@@ -21,7 +21,7 @@ async def get_pickups_by_user_with_details(
     conn = connect_db()
     curs = conn.cursor()
 
-    where_sql = "WHERE pi.u_seq = %s"
+    where_sql = "WHERE pi.u_seq = %s AND pi.b_status = 2"
     params = [user_seq]
     ORDER_MAP = {
         "최신순": "pic.created_at DESC, pic.pic_seq DESC",

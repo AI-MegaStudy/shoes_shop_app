@@ -13,82 +13,94 @@ library;
 
 export 'common_color_scheme.dart';
 export 'daily_flow_color_scheme.dart';
+export 'shoes_shop_color_scheme.dart';
 export 'app_color_scheme.dart';
 export 'app_theme_mode.dart';
 export 'palette_context.dart';
 
 import 'package:flutter/material.dart';
 import 'common_color_scheme.dart';
+import 'shoes_shop_color_scheme.dart';
 import 'app_color_scheme.dart';
 
 /// 라이트 / 다크 팔레트 정의
 ///
-/// 각 테마 모드에 맞는 CommonColorScheme과 DailyFlowColorScheme을 조합하여
+/// 각 테마 모드에 맞는 CommonColorScheme과 ShoesShopColorScheme을 조합하여
 /// AppColorScheme을 생성합니다.
 class AppColors {
   const AppColors._();
 
-  /// 라이트 테마 컬러 스키마
+  /// 라이트 테마 컬러 스키마 (무채색 계열)
   static const AppColorScheme light = AppColorScheme(
     common: CommonColorScheme(
-      background: Color(0xFFF5F5F5), // 연한 회색 배경
+      background: Color(0xFFFAFAFA), // 매우 연한 회색 배경
       cardBackground: Colors.white, // 순수 흰색 카드
-      primary: Color(0xFF1976D2), // Material Blue 700
-      accent: Color(0xFFFF9800), // Material Orange 500
+      primary: Color(0xFF212121), // 거의 검은색 (무채색)
+      accent: Color(0xFF757575), // 중간 회색 (무채색)
       textPrimary: Color(0xFF212121), // 거의 검은색 텍스트
       textSecondary: Color(0xFF757575), // 중간 회색 텍스트
       divider: Color(0xFFE0E0E0), // 연한 회색 구분선
-      chipSelectedBg: Color(0xFF1976D2), // Primary와 동일
+      chipSelectedBg: Color(0xFF212121), // 검은색 배경
       chipSelectedText: Colors.white, // 흰색 텍스트
-      chipUnselectedBg: Color(0xFFE3F2FD), // 연한 파랑 배경
-      chipUnselectedText: Color(0xFF1565C0), // 진한 파랑 텍스트
+      chipUnselectedBg: Color(0xFFF5F5F5), // 연한 회색 배경
+      chipUnselectedText: Color(0xFF424242), // 어두운 회색 텍스트
       textOnPrimary: Colors.white, // Primary 배경에 사용할 흰색 텍스트
-    ) /*,
-    dailyFlow: DailyFlowColorScheme(
-      progressMorning: Color(0xFFFF9800), // 주황색 (오전)
-      progressNoon: Color(0xFFFFEB3B), // 밝은 노란색 (오후)
-      progressEvening: Color(0xFF00BCD4), // 청록색 (저녁)
-      progressNight: Color(0xFF673AB7), // 보라색 (야간)
-      progressAnytime: Color(0xFF9C27B0), // 보라색 (종일)
-      priorityVeryLow: Color(0xFF9E9E9E), // 회색 (매우 낮음)
-      priorityLow: Color(0xFF2196F3), // 파란색 (낮음)
-      priorityMedium: Color(0xFF4CAF50), // 초록색 (보통)
-      priorityHigh: Color(0xFFFF9800), // 주황색 (높음)
-      priorityVeryHigh: Color(0xFFF44336), // 빨간색 (매우 높음)
     ),
-    */,
+    shoesShop: ShoesShopColorScheme(
+      productCardBackground: Colors.white, // 흰색 카드 배경
+      productCardBorder: Color(0xFFE0E0E0), // 연한 회색 테두리
+      priceHighlight: Color(0xFF212121), // 검은색 가격 강조
+      salePrice: Color(0xFF424242), // 어두운 회색 할인 가격
+      originalPrice: Color(0xFF9E9E9E), // 회색 원가
+      cartIcon: Color(0xFF212121), // 검은색 장바구니 아이콘
+      paymentButton: Color(0xFF212121), // 검은색 결제 버튼
+      paymentButtonText: Colors.white, // 흰색 결제 버튼 텍스트
+      stockAvailable: Color(0xFF616161), // 중간 회색 재고 있음
+      stockLow: Color(0xFF9E9E9E), // 밝은 회색 재고 부족
+      stockOut: Color(0xFF424242), // 어두운 회색 재고 없음
+      brandHighlight: Color(0xFF212121), // 검은색 브랜드 강조
+      filterActive: Color(0xFF212121), // 검은색 필터 활성화
+      filterInactive: Color(0xFFE0E0E0), // 회색 필터 비활성화
+      deliveryBadge: Color(0xFF616161), // 중간 회색 배송 배지
+      newProductBadge: Color(0xFF424242), // 어두운 회색 신상품 배지
+      bestsellerBadge: Color(0xFF757575), // 중간 회색 베스트셀러 배지
+    ),
   );
 
-  /// 다크 테마 컬러 스키마
+  /// 다크 테마 컬러 스키마 (무채색 계열)
   static const AppColorScheme dark = AppColorScheme(
     common: CommonColorScheme(
       background: Color(0xFF121212), // Material Dark 배경
       cardBackground: Color(0xFF1E1E1E), // 약간 밝은 다크 카드
-      primary: Color(0xFF90CAF9), // 밝은 파랑 (다크 모드용)
-      accent: Color(0xFFFFB74D), // 밝은 주황 (다크 모드용)
+      primary: Color(0xFFE0E0E0), // 밝은 회색 (무채색)
+      accent: Color(0xFF9E9E9E), // 중간 회색 (무채색)
       textPrimary: Color(0xFFFFFFFF), // 순수 흰색 텍스트
       textSecondary: Color(0xFFB0B0B0), // 밝은 회색 텍스트
       divider: Color(0xFF424242), // 중간 회색 구분선
-      chipSelectedBg: Color(0xFF1976D2), // Primary 색상 (다크에서도 잘 보임)
-      chipSelectedText: Colors.white, // 흰색 텍스트 (가독성 향상)
+      chipSelectedBg: Color(0xFF424242), // 중간 회색 배경
+      chipSelectedText: Colors.white, // 흰색 텍스트
       chipUnselectedBg: Color(0xFF2C2C2C), // 약간 밝은 다크 배경
-      chipUnselectedText: Color(0xFFB0BEC5), // 밝은 회색 텍스트
-      textOnPrimary: Colors.black, // Primary 배경에 사용할 검은색 텍스트
+      chipUnselectedText: Color(0xFFB0B0B0), // 밝은 회색 텍스트
+      textOnPrimary: Color(0xFF212121), // Primary 배경에 사용할 어두운 회색 텍스트
     ),
-    /*
-    ,
-    dailyFlow: DailyFlowColorScheme(
-      progressMorning: Color(0xFFFFB74D), // 밝은 주황색 (오전)
-      progressNoon: Color(0xFFFFF59D), // 밝은 노란색 (오후)
-      progressEvening: Color(0xFF4DD0E1), // 밝은 청록색 (저녁)
-      progressNight: Color(0xFF9575CD), // 밝은 보라색 (야간)
-      progressAnytime: Color(0xFFCE93D8), // 밝은 보라색 (종일)
-      priorityVeryLow: Color(0xFF757575), // 밝은 회색 (매우 낮음)
-      priorityLow: Color(0xFF64B5F6), // 밝은 파란색 (낮음)
-      priorityMedium: Color(0xFF81C784), // 밝은 초록색 (보통)
-      priorityHigh: Color(0xFFFFB74D), // 밝은 주황색 (높음)
-      priorityVeryHigh: Color(0xFFE57373), // 밝은 빨간색 (매우 높음)
+    shoesShop: ShoesShopColorScheme(
+      productCardBackground: Color(0xFF1E1E1E), // 다크 카드 배경
+      productCardBorder: Color(0xFF424242), // 다크 테두리
+      priceHighlight: Color(0xFFE0E0E0), // 밝은 회색 가격 강조
+      salePrice: Color(0xFFB0B0B0), // 밝은 회색 할인 가격
+      originalPrice: Color(0xFF757575), // 중간 회색 원가
+      cartIcon: Color(0xFFE0E0E0), // 밝은 회색 장바구니 아이콘
+      paymentButton: Color(0xFF424242), // 중간 회색 결제 버튼
+      paymentButtonText: Colors.white, // 흰색 결제 버튼 텍스트
+      stockAvailable: Color(0xFF9E9E9E), // 중간 회색 재고 있음
+      stockLow: Color(0xFF757575), // 중간 회색 재고 부족
+      stockOut: Color(0xFF616161), // 어두운 회색 재고 없음
+      brandHighlight: Color(0xFFE0E0E0), // 밝은 회색 브랜드 강조
+      filterActive: Color(0xFF424242), // 중간 회색 필터 활성화
+      filterInactive: Color(0xFF2C2C2C), // 어두운 회색 필터 비활성화
+      deliveryBadge: Color(0xFF9E9E9E), // 중간 회색 배송 배지
+      newProductBadge: Color(0xFF616161), // 어두운 회색 신상품 배지
+      bestsellerBadge: Color(0xFF757575), // 중간 회색 베스트셀러 배지
     ),
-    */
   );
 }

@@ -1,12 +1,8 @@
 import 'package:get/get.dart';
-import 'package:shoes_shop_app/config.dart' as config;
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:shoes_shop_app/theme/theme_provider.dart';
-import 'package:shoes_shop_app/view/home.dart';
-import 'package:shoes_shop_app/view/user/auth/login_view.dart';
-import 'package:shoes_shop_app/view/admin/auth/admin_login_view.dart';
-import 'package:shoes_shop_app/view/admin/auth/admin_mobile_block_view.dart';
+import 'package:shoes_shop_app/view/main/auth/login_view.dart';
 
 
 Future<void> main() async {
@@ -49,6 +45,9 @@ class _MyAppState extends State<MyApp> {
   ThemeMode _themeMode = ThemeMode.system; // 시스템에서 설정한 색상으로 초기화
 
   final Color _seedColor = Colors.deepPurple;
+  
+  // GetX navigation을 위한 GlobalKey
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   void _toggleTheme() {
     setState(() {
@@ -66,6 +65,7 @@ class _MyAppState extends State<MyApp> {
       themeMode: _themeMode,
       onToggleTheme: _toggleTheme,
       child: GetMaterialApp(
+        navigatorKey: navigatorKey,
         title: 'Flutter Demo',
         themeMode: _themeMode,
         theme: ThemeData(
@@ -76,13 +76,7 @@ class _MyAppState extends State<MyApp> {
           brightness: Brightness.dark,
           colorSchemeSeed: _seedColor,
         ),
-        initialRoute: config.routeLogin,
-        routes: {
-          config.routeLogin: (context) => const LoginView(),
-          config.routeHome: (context) => const Home(),
-          config.routeAdminLogin: (context) => const AdminLoginView(),
-          config.routeAdminMobileBlock: (context) => const AdminMobileBlockView(),
-        },
+        home: const LoginView(),
         debugShowCheckedModeBanner: false,
       ),
     );

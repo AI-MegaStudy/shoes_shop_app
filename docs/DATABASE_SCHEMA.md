@@ -54,7 +54,11 @@ pickup (수령)
 staff (직원)
   ├─ refund (반품 처리) - 1:N
   ├─ receive (입고 처리) - 1:N
-  └─ request (발주 요청) - 1:N
+  ├─ request (발주 요청) - 1:N
+  └─ chatting (채팅 담당) - 1:N (논리적 참조)
+
+user (고객)
+  └─ chatting (채팅 세션) - 1:N (논리적 참조)
 ```
 
 **📐 시각화 ERD**: [dbdiagram.io에서 보기](https://dbdiagram.io/d/shoes_shop_app_v2-695277ef39fa3db27bbc1ecb)  
@@ -328,8 +332,15 @@ staff (직원)
 - `idx_product_created_at`: 등록일자 인덱스
 
 **제약조건**:
-- UNIQUE: `(cc_seq, sc_seq, m_seq)` - 같은 색상, 사이즈, 제조사 조합은 중복 불가
+- UNIQUE: `uq_product_color_size_maker_name` (`cc_seq`, `sc_seq`, `m_seq`, `p_name`)
+  - 같은 색상, 사이즈, 제조사, 제품명 조합은 중복 불가
+  - 동일한 제품명이라도 색상, 사이즈, 제조사가 다르면 별도 제품으로 등록 가능
+  - 동일한 색상, 사이즈, 제조사라도 제품명이 다르면 별도 제품으로 등록 가능
 - FOREIGN KEY: 모든 카테고리 및 제조사는 `ON DELETE RESTRICT ON UPDATE CASCADE`
+
+**검수 결과 (2026-01-03)**:
+- ✅ UNIQUE 제약조건이 실제 DB에 정확히 반영되어 있음
+- ✅ 중복 데이터 없음 확인
 
 ---
 
@@ -350,11 +361,17 @@ staff (직원)
 | b_status | VARCHAR(50) | 상품주문상태 | |
 
 **상태값 (b_status)**:
-- `'주문완료'`: 주문 완료
-- `'배송중'`: 배송 중
-- `'배송완료'`: 배송 완료
-- `'수령완료'`: 수령 완료
+- `'0'`: 준비중
+- `'1'`: 준비완료
+- `'2'`: 수령완료
+- `'3'`: 반품완료
 - `NULL`: 상태 미정
+
+**참고**: `b_status`는 숫자 문자열로 저장되며, Flutter 애플리케이션에서 숫자로 파싱하여 사용합니다.
+
+**검수 결과 (2026-01-03)**:
+- ✅ 모든 `b_status` 값이 숫자 문자열 (`'0'`, `'1'`, `'2'`, `'3'`) 또는 `NULL`로 저장되어 있음
+- ✅ 실제 DB 데이터 분포 확인: NULL(5개), '0'(1개), '1'(3개), '2'(2개), '3'(6개)
 
 **관계**:
 - `purchase_item.br_seq` → `branch.br_seq` (N:1)
@@ -495,6 +512,39 @@ staff (직원)
 
 **제약조건**:
 - FOREIGN KEY: 모든 참조는 `ON DELETE RESTRICT ON UPDATE CASCADE`
+
+---
+
+### 17. chatting (고객-직원 채팅 세션)
+
+**설명**: 고객-직원 채팅 세션을 저장하는 테이블입니다. Firebase Firestore와 연동하여 실시간 채팅을 지원합니다.
+
+| 컬럼명 | 타입 | 설명 | 제약조건 |
+|--------|------|------|----------|
+| chatting_seq | INT | 채팅 세션 고유 ID | PRIMARY KEY, AUTO_INCREMENT |
+| u_seq | INT | 고객 번호 | NOT NULL (논리적 참조 → user.u_seq) |
+| fb_doc_id | VARCHAR(100) | Firebase Firestore 문서 ID | |
+| s_seq | INT | 담당 직원 번호 | (논리적 참조 → staff.s_seq, 선택 사항) |
+| created_at | TIMESTAMP | 채팅 세션 생성 일시 | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
+| is_closed | TINYINT(1) | 채팅 종료 여부 | NOT NULL, DEFAULT 0 (0: 진행중, 1: 종료) |
+
+**관계**:
+- `chatting.u_seq` → `user.u_seq` (논리적 참조, FK 없음)
+- `chatting.s_seq` → `staff.s_seq` (논리적 참조, FK 없음)
+
+**인덱스**:
+- `idx_chatting_u_seq`: 고객별 채팅 세션 조회
+- `idx_chatting_s_seq`: 직원별 채팅 세션 조회
+- `idx_chatting_created_at`: 생성 일시 인덱스
+- `idx_chatting_is_closed`: 종료 여부 인덱스
+
+**제약조건**:
+- 외래 키 없음: 실시간 채팅 성능 최적화 및 Firebase Firestore 연동을 위해 논리적 참조만 사용
+- 외래 키를 사용하지 않는 이유:
+  - 실시간 채팅 성능 최적화
+  - Firebase Firestore와의 외부 시스템 연동 용이성
+  - 탈퇴한 user의 chatting 기록 보존 필요
+  - 애플리케이션 레벨에서 JOIN으로 검증 가능
 
 ---
 
@@ -675,8 +725,34 @@ WHERE ref.ref_seq = ?
 ### 2026-01-01 김택권
 - **ERD 링크 추가**: 데이터베이스 관계도 섹션에 DBML ERD 및 원본 Miro ERD 링크 추가
 
+### 2026-01-03 김택권
+- **product 테이블 UNIQUE 제약조건 수정**: `(cc_seq, sc_seq, m_seq)` → `(cc_seq, sc_seq, m_seq, p_name)`
+  - 제품명을 포함하여 동일한 색상, 사이즈, 제조사라도 제품명이 다르면 별도 제품으로 등록 가능
+- **purchase_item.b_status 값 형식 변경**: 한국어 문자열 → 숫자 문자열
+  - `'0'`: 준비중
+  - `'1'`: 준비완료
+  - `'2'`: 수령완료
+  - `'3'`: 반품완료
+  - `NULL`: 상태 미정
+- **Flutter 애플리케이션 호환성**: `b_status`는 숫자 문자열로 저장되며, Flutter에서 숫자로 파싱하여 사용
+- **DB 검수 결과 반영**:
+  - 실제 DB에 접속하여 스키마 및 데이터 검수 수행
+  - product 테이블 UNIQUE 제약조건 확인: `uq_product_color_size_maker_name` 정확히 반영됨
+  - purchase_item.b_status 값 확인: 모든 값이 숫자 문자열로 저장됨
+  - refund 테이블 구조 확인: 모든 필드 존재 확인
+  - 사이즈 카테고리 확인: 8개 생성, 7개 사용 (290 미사용)
+  - 제품 개수 확인: 84개 정확히 생성됨
+  - 반품 사유 카테고리 확인: 8개 정확히 생성됨
+
+### 2026-01-04 김택권
+- **chatting 테이블 추가**: 고객-직원 채팅 세션 관리
+  - Firebase Firestore 연동 지원 (fb_doc_id 필드)
+  - 외래 키 없이 논리적 참조만 사용 (성능 및 유연성 고려)
+  - 실시간 채팅 성능 최적화를 위해 외래 키 제약 없음
+  - 탈퇴한 user의 chatting 기록 보존 가능
+
 ---
 
-**문서 버전**: 2.0  
-**최종 수정일**: 2026-01-01  
+**문서 버전**: 2.3  
+**최종 수정일**: 2026-01-04  
 **최종 수정자**: 김택권

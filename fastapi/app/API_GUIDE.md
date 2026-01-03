@@ -34,13 +34,15 @@
 
 ### API 구조
 
-- **기본 CRUD API**: 15개 테이블에 대한 CRUD 작업
+- **기본 CRUD API**: 16개 테이블에 대한 CRUD 작업
   - branches, users, user_auth_identities, staff, makers
   - kind_categories, color_categories, size_categories, gender_categories, refund_reason_categories
-  - products, purchase_items, pickups, refunds, receives, requests
+  - products, purchase_items, pickups, refunds, receives, requests, chatting
 - **인증 API**: 소셜 로그인 및 회원가입
 - **JOIN API**: 복잡한 조인 쿼리를 위한 6개 API 그룹
-- **총 엔드포인트**: 약 110개 이상
+- **관리자 API (Admin API)**: 관리자 페이지용 전용 API (구매 내역, 수령, 반품)
+- **고객용 Plus API**: 고객용 주문/수령/반품 내역 조회 API (검색 및 정렬 기능 포함)
+- **총 엔드포인트**: 약 130개 이상
 
 ---
 
@@ -450,6 +452,28 @@ curl "http://127.0.0.1:8000/api/staff/by_id/staff001"
 | POST | `/api/purchase_items/{id}` | 구매 내역 수정 |
 | DELETE | `/api/purchase_items/{purchase_item_seq}` | 구매 내역 삭제 |
 
+**데이터 모델:**
+```json
+{
+  "b_seq": 1,
+  "br_seq": 1,
+  "u_seq": 1,
+  "p_seq": 1,
+  "b_price": 150000,
+  "b_quantity": 2,
+  "b_date": "2025-01-15T14:30:00",
+  "b_status": "0",
+  "b_tnum": "TRANS001"
+}
+```
+
+**b_status 값 설명:**
+- `"0"`: 준비중
+- `"1"`: 준비완료
+- `"2"`: 수령완료
+- `"3"`: 반품완료
+- `null`: 상태미정
+
 ---
 
 ### 9. 수령 (Pickup)
@@ -513,6 +537,86 @@ curl "http://127.0.0.1:8000/api/staff/by_id/staff001"
 | POST | `/api/requests/request_seq/approve_manager` | 팀장 결재 처리 |
 | POST | `/api/requests/request_seq/approve_director` | 이사 결재 처리 |
 | DELETE | `/api/requests/{request_seq}` | 발주 내역 삭제 |
+
+---
+
+### 13. 채팅 (Chatting)
+
+**기본 경로**: `/api/chatting`
+
+**설명**: 고객과 직원 간의 채팅 세션을 관리하는 API입니다. Firebase Firestore와 연동하여 실시간 채팅을 지원합니다.
+
+| 메서드 | 엔드포인트 | 설명 |
+|--------|-----------|------|
+| GET | `/api/chatting` | 전체 채팅 세션 조회 |
+| GET | `/api/chatting/by_user_seq` | 고객별 채팅 세션 조회 (쿼리 파라미터: u_seq, is_closed) |
+| GET | `/api/chatting/{chatting_seq}` | 채팅 세션 상세 조회 |
+| POST | `/api/chatting` | 채팅 세션 추가 |
+| POST | `/api/chatting/{id}` | 채팅 세션 수정 |
+| DELETE | `/api/chatting/{chatting_seq}` | 채팅 세션 삭제 |
+
+**데이터 모델:**
+```json
+{
+  "chatting_seq": 1,
+  "u_seq": 1,
+  "u_name": "홍길동",
+  "fb_doc_id": "firebase_document_id",
+  "s_seq": 1,
+  "s_name": "김점장",
+  "created_at": "2025-01-15T10:30:00",
+  "is_closed": false
+}
+```
+
+**필드 설명:**
+- `chatting_seq`: 채팅 세션 고유 ID (PK)
+- `u_seq`: 고객 번호 (FK → user.u_seq)
+- `u_name`: 고객 이름 (JOIN으로 조회)
+- `fb_doc_id`: Firebase Firestore 문서 ID (선택 사항)
+- `s_seq`: 담당 직원 번호 (FK → staff.s_seq, 선택 사항)
+- `s_name`: 직원 이름 (JOIN으로 조회)
+- `created_at`: 채팅 세션 생성 일시
+- `is_closed`: 채팅 종료 여부 (boolean)
+
+**고객별 채팅 조회 예시:**
+```bash
+curl "http://127.0.0.1:8000/api/chatting/by_user_seq?u_seq=1&is_closed=false"
+```
+
+**참고**: `is_closed` 파라미터는 필수이지만, 현재 버전에서는 쿼리에 사용되지 않습니다. 향후 버전에서 필터링 기능이 추가될 예정입니다.
+
+**채팅 세션 추가 예시:**
+```bash
+curl -X POST "http://127.0.0.1:8000/api/chatting" \
+  -F "u_seq=1" \
+  -F "fb_doc_id=firebase_document_id" \
+  -F "s_seq=1" \
+  -F "is_closed=false"
+```
+
+**응답 예시 (전체 조회):**
+```json
+{
+  "results": [
+    {
+      "chatting_seq": 1,
+      "u_seq": 1,
+      "fb_doc_id": "firebase_document_id",
+      "s_seq": 1,
+      "created_at": "2025-01-15T10:30:00",
+      "is_closed": false,
+      "u_name": "홍길동",
+      "s_name": "김점장"
+    }
+  ]
+}
+```
+
+**참고**: 
+- 채팅 메시지는 Firebase Firestore에 저장되며, `fb_doc_id`로 연결됩니다.
+- `s_seq`가 NULL인 경우 아직 담당 직원이 배정되지 않은 상태입니다.
+- `is_closed`가 `true`인 경우 종료된 채팅 세션입니다.
 
 ---
 
@@ -832,6 +936,233 @@ GET /api/requests/{request_seq}/full_detail
 
 ---
 
+## 관리자 API (Admin API)
+
+관리자 페이지에서 사용하는 전용 API입니다. 전체 목록 조회 및 상세 정보 조회를 제공합니다.
+
+### 1. 구매 내역 관리자 API
+
+**기본 경로**: `/api/purchase_items/admin`
+
+#### 1.1 전체 구매 내역 조회
+
+```http
+GET /api/purchase_items/admin/all
+```
+
+**설명**: 관리자용 전체 구매 내역 조회 (검색 기능 포함)
+
+**쿼리 파라미터:**
+- `search` (선택): 검색어 (구매 내역 번호 또는 고객 이름)
+
+**응답 예시:**
+```json
+{
+  "results": [
+    {
+      "b_seq": 1,
+      "b_price": 150000,
+      "b_quantity": 2,
+      "b_date": "2025-01-15 14:30",
+      "b_status": "0",
+      "u_seq": 1,
+      "u_email": "user@example.com",
+      "u_name": "홍길동",
+      "u_phone": "010-1111-1111",
+      "p_seq": 1,
+      "p_name": "에어맥스 90",
+      "p_price": 150000,
+      "p_stock": 50,
+      "p_image": "/images/product_1.jpg",
+      "kc_name": "러닝화",
+      "cc_name": "블랙",
+      "sc_name": "260",
+      "gc_name": "남성",
+      "m_name": "나이키",
+      "br_seq": 1,
+      "br_name": "강남점",
+      "br_address": "서울시 강남구",
+      "br_phone": "02-1234-5678"
+    }
+  ]
+}
+```
+
+#### 1.2 구매 내역 상세 조회
+
+```http
+GET /api/purchase_items/admin/{purchase_item_seq}/full_detail
+```
+
+**설명**: 관리자용 구매 내역 전체 상세 정보 (9테이블 JOIN)
+
+---
+
+### 2. 수령 관리자 API
+
+**기본 경로**: `/api/pickups/admin`
+
+#### 2.1 전체 수령 내역 조회
+
+```http
+GET /api/pickups/admin/all
+```
+
+**설명**: 관리자용 전체 수령 내역 조회 (검색 기능 포함)
+
+**쿼리 파라미터:**
+- `search` (선택): 검색어 (수령 번호 또는 고객 이름)
+
+#### 2.2 수령 내역 상세 조회
+
+```http
+GET /api/pickups/admin/{pickup_seq}/full_detail
+```
+
+**설명**: 관리자용 수령 내역 전체 상세 정보 (10테이블 JOIN)
+
+---
+
+### 3. 반품 관리자 API
+
+**기본 경로**: `/api/refunds/admin`
+
+#### 3.1 전체 반품 내역 조회
+
+```http
+GET /api/refunds/admin/all
+```
+
+**설명**: 관리자용 전체 반품 내역 조회 (검색 기능 포함)
+
+**쿼리 파라미터:**
+- `search` (선택): 검색어 (반품 번호 또는 고객 이름)
+
+#### 3.2 반품 내역 상세 조회
+
+```http
+GET /api/refunds/admin/{refund_seq}/full_detail
+```
+
+**설명**: 관리자용 반품 내역 전체 상세 정보 (12테이블 JOIN)
+
+---
+
+## 고객용 Plus API
+
+고객이 자신의 주문, 수령, 반품 내역을 조회할 때 사용하는 API입니다. 검색 및 정렬 기능을 제공합니다.
+
+### 1. 구매 내역 Plus API
+
+**기본 경로**: `/api/purchase_items`
+
+#### 1.1 고객별 주문 그룹화 조회
+
+```http
+GET /api/purchase_items/by_user/{user_seq}/user_bundle
+```
+
+**설명**: 고객별 주문 내역을 분 단위로 그룹화하여 조회 (주문 일자별로 묶음)
+
+**쿼리 파라미터:**
+- `keyword` (선택): 검색어 (제품명 또는 제조사명)
+- `order` (선택): 정렬 방식 (`최신순`, `오래된 순`, `가격 높은순`, `가격 낮은순`), 기본값: `최신순`
+
+**응답 예시:**
+```json
+{
+  "results": [
+    {
+      "b_date": "2025-01-15 14:30",
+      "order_date": "2025-01-15",
+      "order_time": "14:30",
+      "item_count": 3,
+      "total_amount": 450000,
+      "items": [
+        {
+          "b_seq": 1,
+          "b_price": 150000,
+          "b_quantity": 2,
+          "b_status": "0",
+          "p_name": "에어맥스 90",
+          "m_name": "나이키",
+          ...
+        }
+      ]
+    }
+  ]
+}
+```
+
+**참고**: `b_status`가 `0`(준비중) 또는 `1`(준비완료)인 항목만 조회됩니다.
+
+---
+
+### 2. 수령 Plus API
+
+**기본 경로**: `/api/pickups`
+
+#### 2.1 고객별 수령 내역 조회
+
+```http
+GET /api/pickups/by_user/{user_seq}/all
+```
+
+**설명**: 고객별 수령 내역 전체 조회 (검색 및 정렬 기능 포함)
+
+**쿼리 파라미터:**
+- `keyword` (선택): 검색어 (제품명 또는 제조사명)
+- `order` (선택): 정렬 방식 (`최신순`, `오래된 순`, `가격 높은순`, `가격 낮은순`), 기본값: `최신순`
+
+**참고**: `b_status`가 `2`(수령완료)인 항목만 조회됩니다.
+
+---
+
+### 3. 반품 Plus API
+
+**기본 경로**: `/api/refunds`
+
+#### 3.1 고객별 반품 내역 조회
+
+```http
+GET /api/refunds/refund/by_user/{user_seq}/all
+```
+
+**설명**: 고객별 반품 내역 전체 조회 (검색 및 정렬 기능 포함)
+
+**쿼리 파라미터:**
+- `keyword` (선택): 검색어 (제품명 또는 제조사명)
+- `order` (선택): 정렬 방식 (`최신순`, `오래된 순`, `가격 높은순`, `가격 낮은순`), 기본값: `최신순`
+
+**응답 예시:**
+```json
+{
+  "results": [
+    {
+      "ref_seq": 1,
+      "ref_date": "2025-01-20 10:30",
+      "ref_re_content": "사이즈가 맞지 않음",
+      "ref_re_seq": 1,
+      "ref_re_name": "사이즈 불일치",
+      "u_seq": 1,
+      "u_name": "홍길동",
+      "s_seq": 1,
+      "s_name": "김점장",
+      "s_rank": "점장",
+      "pic_seq": 1,
+      "pic_created_at": "2025-01-18 14:30",
+      "b_seq": 1,
+      "b_price": 150000,
+      "p_name": "에어맥스 90",
+      "m_name": "나이키",
+      ...
+    }
+  ]
+}
+```
+
+---
+
 ## 특수 기능 API
 
 ### 주문 그룹화
@@ -961,7 +1292,7 @@ curl -X POST "http://127.0.0.1:8000/api/purchase_items" \
   -F "b_price=150000" \
   -F "b_quantity=2" \
   -F "b_date=2025-01-15T14:30:00" \
-  -F "b_status=주문완료" \
+  -F "b_status=0" \
   -F "b_tnum=TRANS001"
 ```
 
@@ -1035,8 +1366,38 @@ curl -X POST "http://127.0.0.1:8000/api/purchase_items" \
   - `DELETE /api/staff/{staff_seq}/profile_image`: 프로필 이미지 삭제
 - Staff API 경로 파라미터 수정: `{s_seq}` → `{staff_seq}`, `{id}` → `{staff_seq}`
 
+### 2026-01-03 유다원
+- **관리자 API (Admin API) 섹션 추가**:
+  - `GET /api/purchase_items/admin/all`: 관리자용 전체 구매 내역 조회 (검색 기능 포함)
+  - `GET /api/purchase_items/admin/{purchase_item_seq}/full_detail`: 관리자용 구매 내역 상세 조회
+  - `GET /api/pickups/admin/all`: 관리자용 전체 수령 내역 조회 (검색 기능 포함)
+  - `GET /api/pickups/admin/{pickup_seq}/full_detail`: 관리자용 수령 내역 상세 조회
+  - `GET /api/refunds/admin/all`: 관리자용 전체 반품 내역 조회 (검색 기능 포함)
+  - `GET /api/refunds/admin/{refund_seq}/full_detail`: 관리자용 반품 내역 상세 조회
+- **고객용 Plus API 섹션 추가**:
+  - `GET /api/purchase_items/by_user/{user_seq}/user_bundle`: 고객별 주문 그룹화 조회 (검색 및 정렬 기능 포함)
+  - `GET /api/pickups/by_user/{user_seq}/all`: 고객별 수령 내역 조회 (검색 및 정렬 기능 포함)
+  - `GET /api/refunds/refund/by_user/{user_seq}/all`: 고객별 반품 내역 조회 (검색 및 정렬 기능 포함)
+- **API 개요 업데이트**: 관리자 API 및 고객용 Plus API 추가 반영
+- **총 엔드포인트 수정**: 약 110개 → 약 130개 이상
+
+### 2026-01-04 이광태
+- **채팅 API (Chatting API) 섹션 추가**:
+  - `GET /api/chatting`: 전체 채팅 세션 조회
+  - `GET /api/chatting/by_user_seq`: 고객별 채팅 세션 조회 (쿼리 파라미터: u_seq, is_closed)
+  - `GET /api/chatting/{chatting_seq}`: 채팅 세션 상세 조회
+  - `POST /api/chatting`: 채팅 세션 추가
+  - `POST /api/chatting/{id}`: 채팅 세션 수정
+  - `DELETE /api/chatting/{chatting_seq}`: 채팅 세션 삭제
+- **채팅 API 특징**:
+  - Firebase Firestore와 연동하여 실시간 채팅 지원
+  - 고객과 직원 간의 채팅 세션 관리
+  - 채팅 메시지는 Firebase에 저장되며, `fb_doc_id`로 연결
+- **API 개요 업데이트**: 기본 CRUD API 15개 → 16개 테이블로 증가 (chatting 추가)
+- **총 엔드포인트 수정**: 약 130개 → 약 136개 이상
+
 ---
 
-**문서 버전**: 2.1  
-**최종 수정일**: 2026-01-01  
+**문서 버전**: 2.3  
+**최종 수정일**: 2026-01-04  
 **최종 수정자**: 김택권

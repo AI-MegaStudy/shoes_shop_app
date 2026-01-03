@@ -139,7 +139,22 @@ if __name__ == "__main__":
 # ============================================
 # 변경 이력
 # ============================================
-# 2026-01-01: 
+# 2026-01-01: 김택권
 #   - IP 주소를 0.0.0.0으로 변경하여 iOS 시뮬레이터 및 외부 접근 지원
 #   - 라우터 등록 순서 변경: 더 구체적인 경로(product_join, purchase_item_join)를 일반 경로보다 먼저 등록
-
+### 2026-01-03 유다원
+# - **관리자 API (Admin API) 섹션 추가**:
+#   - `GET /api/purchase_items/admin/all`: 관리자용 전체 구매 내역 조회 (검색 기능 포함)
+#   - `GET /api/purchase_items/admin/{purchase_item_seq}/full_detail`: 관리자용 구매 내역 상세 조회
+#   - `GET /api/pickups/admin/all`: 관리자용 전체 수령 내역 조회 (검색 기능 포함)
+#   - `GET /api/pickups/admin/{pickup_seq}/full_detail`: 관리자용 수령 내역 상세 조회
+#   - `GET /api/refunds/admin/all`: 관리자용 전체 반품 내역 조회 (검색 기능 포함)
+#   - `GET /api/refunds/admin/{refund_seq}/full_detail`: 관리자용 반품 내역 상세 조회
+# - **고객용 Plus API 섹션 추가**:
+#   - `GET /api/purchase_items/by_user/{user_seq}/user_bundle`: 고객별 주문 그룹화 조회 (검색 및 정렬 기능 포함)
+#   - `GET /api/pickups/by_user/{user_seq}/all`: 고객별 수령 내역 조회 (검색 및 정렬 기능 포함)
+#   - `GET /api/refunds/refund/by_user/{user_seq}/all`: 고객별 반품 내역 조회 (검색 및 정렬 기능 포함)
+# - **API 개요 업데이트**: 관리자 API 및 고객용 Plus API 추가 반영
+# 2026-01-04: 이광태
+#   신규 라우터 등록:
+#   - chatting

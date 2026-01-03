@@ -1,38 +1,30 @@
 /* =========================================================
-   DATABASE : shoes_shop_db
-   용도     : 신발 매장 서비스 DB (소셜 로그인 지원 버전)
-   개선사항 :
-   - 인덱스 추가 (조회 성능 향상)
-   - NOT NULL 제약조건 추가 (데이터 무결성)
-   - UNIQUE 제약조건 추가 (중복 방지)
-   - FOREIGN KEY CASCADE 옵션 명시
-   - 데이터 타입 길이 조정
-   - ERD 1차 최종 반영 (2025-01-XX)
-     * refund_reason_category 테이블 추가
-     * user, staff, product 테이블에 created_at 추가
-     * purchase_item에 b_status 추가
-     * pickup에 u_seq 추가
-     * refund에 ref_re_seq, ref_re_content 추가
-   - 소셜 로그인 지원 (2025-01-XX)
-     * user 테이블 구조 변경 (u_id, u_password 제거, u_email 추가)
-     * user_auth_identities 테이블 추가 (로그인 수단별 인증 정보)
-   - 채팅 기능 추가 (2026-01-04)
-     * chatting 테이블 추가 (고객-직원 채팅 세션 관리)
-     * Firebase Firestore 연동 지원 (fb_doc_id 필드)
-     * 참고: 실제 DB와 동일하게 외래 키 없이 논리적 참조만 사용 (u_seq → user.u_seq, s_seq → staff.s_seq)
+   MySQL Workbench Forward/Reverse Engineering Script
+   Generated: 2026-01-04 (Asia/Seoul)
+   Source: shoes_shop_db_mysql_init_with_social.sql + database_schema.dbml
+   Notes:
+   - Includes schema drop/create, tables, indexes, foreign keys.
+   - Uses utf8mb4 + InnoDB.
+   - Updated: chatting 테이블 추가 (2026-01-04)
+   - Updated: user_auth_identities CASCADE 정책 주석 추가 (2026-01-04)
+   - Updated: chatting 테이블은 외래 키 없이 논리적 참조만 사용 (2026-01-04)
 ========================================================= */
 
-DROP DATABASE IF EXISTS shoes_shop_db;
-CREATE DATABASE shoes_shop_db
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+DROP DATABASE IF EXISTS `shoes_shop_db`;
+CREATE DATABASE `shoes_shop_db`
   DEFAULT CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
-USE shoes_shop_db;
+USE `shoes_shop_db`;
 
 /* =========================================================
    BRANCH : 오프라인 지점 정보
 ========================================================= */
-DROP TABLE IF EXISTS branch;
-CREATE TABLE branch (
+DROP TABLE IF EXISTS `branch`;
+CREATE TABLE `branch` (
   br_seq     INT AUTO_INCREMENT PRIMARY KEY COMMENT '지점 고유 ID(PK)',
   br_phone   VARCHAR(30)  COMMENT '지점 전화번호',
   br_address VARCHAR(255) COMMENT '지점 주소',
@@ -46,8 +38,8 @@ CREATE TABLE branch (
 /* =========================================================
    USER : 고객 계정 (소셜 로그인 지원)
 ========================================================= */
-DROP TABLE IF EXISTS user;
-CREATE TABLE user (
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user` (
   u_seq      INT AUTO_INCREMENT PRIMARY KEY COMMENT '고객 고유 ID(PK)',
   u_email    VARCHAR(255) NOT NULL COMMENT '고객 이메일 (로컬/소셜 모두 필수, UNIQUE)',
   u_name     VARCHAR(255) NULL COMMENT '고객 이름 (선택 사항)',
@@ -73,8 +65,8 @@ CREATE TABLE user (
      * 구매 내역, 수령, 반품 등은 사용자 삭제 후에도 기록으로 남아야 함 (비즈니스 데이터)
      * 인증 정보는 사용자 계정의 일부이므로 사용자와 함께 삭제되어야 함 (보안 및 데이터 정리)
 ========================================================= */
-DROP TABLE IF EXISTS user_auth_identities;
-CREATE TABLE user_auth_identities (
+DROP TABLE IF EXISTS `user_auth_identities`;
+CREATE TABLE `user_auth_identities` (
   auth_seq          INT AUTO_INCREMENT PRIMARY KEY COMMENT '인증 수단 고유 ID(PK)',
   u_seq             INT NOT NULL COMMENT '고객 번호(FK)',
   provider          VARCHAR(50) NOT NULL COMMENT '로그인 제공자(local, google, kakao)',
@@ -86,7 +78,7 @@ CREATE TABLE user_auth_identities (
   last_login_at     DATETIME NULL COMMENT '마지막 로그인 일시',
   
   CONSTRAINT fk_user_auth_user
-    FOREIGN KEY (u_seq) REFERENCES user(u_seq)
+    FOREIGN KEY (u_seq) REFERENCES `user` (`u_seq`)
     ON DELETE CASCADE ON UPDATE CASCADE,
   
   UNIQUE INDEX idx_provider_subject (provider, provider_subject),
@@ -97,8 +89,8 @@ CREATE TABLE user_auth_identities (
 /* =========================================================
    STAFF : 직원 계정
 ========================================================= */
-DROP TABLE IF EXISTS staff;
-CREATE TABLE staff (
+DROP TABLE IF EXISTS `staff`;
+CREATE TABLE `staff` (
   s_seq      INT AUTO_INCREMENT PRIMARY KEY COMMENT '직원 고유 ID(PK)',
   s_id       VARCHAR(50)  NOT NULL COMMENT '직원 로그인 ID',
   br_seq     INT NOT NULL COMMENT '소속 지점 ID(FK)',
@@ -112,7 +104,7 @@ CREATE TABLE staff (
   s_quit_date DATETIME NULL COMMENT '직원 탈퇴 일자',
   
   CONSTRAINT fk_staff_branch
-    FOREIGN KEY (br_seq) REFERENCES branch(br_seq)
+    FOREIGN KEY (br_seq) REFERENCES `branch` (`br_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   
   INDEX idx_staff_br_seq (br_seq),
@@ -125,8 +117,8 @@ CREATE TABLE staff (
 /* =========================================================
    MAKER : 제조사
 ========================================================= */
-DROP TABLE IF EXISTS maker;
-CREATE TABLE maker (
+DROP TABLE IF EXISTS `maker`;
+CREATE TABLE `maker` (
   m_seq     INT AUTO_INCREMENT PRIMARY KEY COMMENT '제조사 고유 ID(PK)',
   m_phone   VARCHAR(30)  COMMENT '제조사 전화번호',
   m_name    VARCHAR(255) NOT NULL COMMENT '제조사명',
@@ -138,32 +130,29 @@ CREATE TABLE maker (
 /* =========================================================
    CATEGORY TABLES
 ========================================================= */
-DROP TABLE IF EXISTS kind_category;
-CREATE TABLE kind_category (
+DROP TABLE IF EXISTS `kind_category`;
+CREATE TABLE `kind_category` (
   kc_seq  INT AUTO_INCREMENT PRIMARY KEY COMMENT '종류 카테고리 ID(PK)',
   kc_name VARCHAR(100) NOT NULL COMMENT '종류명(러닝/스니커즈/부츠 등)',
   
   UNIQUE INDEX idx_kind_category_name (kc_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='제품 종류 카테고리';
-
-DROP TABLE IF EXISTS color_category;
-CREATE TABLE color_category (
+DROP TABLE IF EXISTS `color_category`;
+CREATE TABLE `color_category` (
   cc_seq  INT AUTO_INCREMENT PRIMARY KEY COMMENT '색상 카테고리 ID(PK)',
   cc_name VARCHAR(100) NOT NULL COMMENT '색상명',
   
   UNIQUE INDEX idx_color_category_name (cc_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='제품 색상 카테고리';
-
-DROP TABLE IF EXISTS size_category;
-CREATE TABLE size_category (
+DROP TABLE IF EXISTS `size_category`;
+CREATE TABLE `size_category` (
   sc_seq  INT AUTO_INCREMENT PRIMARY KEY COMMENT '사이즈 카테고리 ID(PK)',
   sc_name VARCHAR(100) NOT NULL COMMENT '사이즈 값',
   
   UNIQUE INDEX idx_size_category_name (sc_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='제품 사이즈 카테고리';
-
-DROP TABLE IF EXISTS gender_category;
-CREATE TABLE gender_category (
+DROP TABLE IF EXISTS `gender_category`;
+CREATE TABLE `gender_category` (
   gc_seq  INT AUTO_INCREMENT PRIMARY KEY COMMENT '성별 카테고리 ID(PK)',
   gc_name VARCHAR(100) NOT NULL COMMENT '성별 구분',
   
@@ -173,8 +162,8 @@ CREATE TABLE gender_category (
 /* =========================================================
    REFUND_REASON_CATEGORY : 반품 사유 카테고리
 ========================================================= */
-DROP TABLE IF EXISTS refund_reason_category;
-CREATE TABLE refund_reason_category (
+DROP TABLE IF EXISTS `refund_reason_category`;
+CREATE TABLE `refund_reason_category` (
   ref_re_seq  INT AUTO_INCREMENT PRIMARY KEY COMMENT '반품 사유 번호(PK)',
   ref_re_name VARCHAR(100) NOT NULL COMMENT '반품 사유명',
   
@@ -184,8 +173,8 @@ CREATE TABLE refund_reason_category (
 /* =========================================================
    PRODUCT : 판매 상품(SKU)
 ========================================================= */
-DROP TABLE IF EXISTS product;
-CREATE TABLE product (
+DROP TABLE IF EXISTS `product`;
+CREATE TABLE `product` (
   p_seq   INT AUTO_INCREMENT PRIMARY KEY COMMENT '제품 고유 ID(PK)',
   kc_seq  INT NOT NULL COMMENT '제품 종류 카테고리 ID(FK)',
   cc_seq  INT NOT NULL COMMENT '제품 색상 카테고리 ID(FK)',
@@ -204,19 +193,19 @@ CREATE TABLE product (
     UNIQUE (cc_seq, sc_seq, m_seq, p_name),
   
   CONSTRAINT fk_product_kind   
-    FOREIGN KEY (kc_seq) REFERENCES kind_category(kc_seq)
+    FOREIGN KEY (kc_seq) REFERENCES `kind_category` (`kc_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT fk_product_color  
-    FOREIGN KEY (cc_seq) REFERENCES color_category(cc_seq)
+    FOREIGN KEY (cc_seq) REFERENCES `color_category` (`cc_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT fk_product_size   
-    FOREIGN KEY (sc_seq) REFERENCES size_category(sc_seq)
+    FOREIGN KEY (sc_seq) REFERENCES `size_category` (`sc_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT fk_product_gender 
-    FOREIGN KEY (gc_seq) REFERENCES gender_category(gc_seq)
+    FOREIGN KEY (gc_seq) REFERENCES `gender_category` (`gc_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT fk_product_maker  
-    FOREIGN KEY (m_seq) REFERENCES maker(m_seq)
+    FOREIGN KEY (m_seq) REFERENCES `maker` (`m_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   
   INDEX idx_product_p_name (p_name),
@@ -231,8 +220,8 @@ CREATE TABLE product (
 /* =========================================================
    PURCHASE_ITEM : 구매 내역
 ========================================================= */
-DROP TABLE IF EXISTS purchase_item;
-CREATE TABLE purchase_item (
+DROP TABLE IF EXISTS `purchase_item`;
+CREATE TABLE `purchase_item` (
   b_seq      INT AUTO_INCREMENT PRIMARY KEY COMMENT '구매 고유 ID(PK)',
   br_seq     INT NOT NULL COMMENT '수령 지점 ID(FK)',
   u_seq      INT NOT NULL COMMENT '구매 고객 ID(FK)',
@@ -244,13 +233,13 @@ CREATE TABLE purchase_item (
   b_status   VARCHAR(50) COMMENT '상품주문상태',
   
   CONSTRAINT fk_purchase_branch  
-    FOREIGN KEY (br_seq) REFERENCES branch(br_seq)
+    FOREIGN KEY (br_seq) REFERENCES `branch` (`br_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT fk_purchase_user    
-    FOREIGN KEY (u_seq) REFERENCES user(u_seq)
+    FOREIGN KEY (u_seq) REFERENCES `user` (`u_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT fk_purchase_product 
-    FOREIGN KEY (p_seq) REFERENCES product(p_seq)
+    FOREIGN KEY (p_seq) REFERENCES `product` (`p_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   
   INDEX idx_purchase_item_b_tnum (b_tnum),
@@ -264,18 +253,18 @@ CREATE TABLE purchase_item (
 /* =========================================================
    PICKUP : 오프라인 수령
 ========================================================= */
-DROP TABLE IF EXISTS pickup;
-CREATE TABLE pickup (
+DROP TABLE IF EXISTS `pickup`;
+CREATE TABLE `pickup` (
   pic_seq    INT AUTO_INCREMENT PRIMARY KEY COMMENT '수령 고유 ID(PK)',
   b_seq      INT NOT NULL COMMENT '구매 ID(FK)',
   u_seq      INT NOT NULL COMMENT '고객 번호(FK)',
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '수령 완료 일시',
   
   CONSTRAINT fk_pickup_purchase
-    FOREIGN KEY (b_seq) REFERENCES purchase_item(b_seq)
+    FOREIGN KEY (b_seq) REFERENCES `purchase_item` (`b_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT fk_pickup_user
-    FOREIGN KEY (u_seq) REFERENCES user(u_seq)
+    FOREIGN KEY (u_seq) REFERENCES `user` (`u_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   
   INDEX idx_pickup_b_seq (b_seq),
@@ -286,8 +275,8 @@ CREATE TABLE pickup (
 /* =========================================================
    REFUND : 반품/환불
 ========================================================= */
-DROP TABLE IF EXISTS refund;
-CREATE TABLE refund (
+DROP TABLE IF EXISTS `refund`;
+CREATE TABLE `refund` (
   ref_seq       INT AUTO_INCREMENT PRIMARY KEY COMMENT '반품 고유 ID(PK)',
   ref_date      DATETIME COMMENT '반품 처리 일시',
   ref_reason    VARCHAR(255) COMMENT '반품 사유',
@@ -298,16 +287,16 @@ CREATE TABLE refund (
   pic_seq       INT NOT NULL COMMENT '수령 ID(FK)',
   
   CONSTRAINT fk_refund_user   
-    FOREIGN KEY (u_seq) REFERENCES user(u_seq)
+    FOREIGN KEY (u_seq) REFERENCES `user` (`u_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT fk_refund_staff 
-    FOREIGN KEY (s_seq) REFERENCES staff(s_seq)
+    FOREIGN KEY (s_seq) REFERENCES `staff` (`s_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT fk_refund_pickup 
-    FOREIGN KEY (pic_seq) REFERENCES pickup(pic_seq)
+    FOREIGN KEY (pic_seq) REFERENCES `pickup` (`pic_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT fk_refund_reason_category
-    FOREIGN KEY (ref_re_seq) REFERENCES refund_reason_category(ref_re_seq)
+    FOREIGN KEY (ref_re_seq) REFERENCES `refund_reason_category` (`ref_re_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   
   INDEX idx_refund_u_seq (u_seq),
@@ -320,8 +309,8 @@ CREATE TABLE refund (
 /* =========================================================
    RECEIVE : 입고(수주)
 ========================================================= */
-DROP TABLE IF EXISTS receive;
-CREATE TABLE receive (
+DROP TABLE IF EXISTS `receive`;
+CREATE TABLE `receive` (
   rec_seq      INT AUTO_INCREMENT PRIMARY KEY COMMENT '입고 고유 ID(PK)',
   rec_quantity INT DEFAULT 0 COMMENT '입고 수량',
   rec_date     DATETIME COMMENT '입고 처리 일시',
@@ -330,13 +319,13 @@ CREATE TABLE receive (
   m_seq        INT NOT NULL COMMENT '제조사 ID(FK)',
   
   CONSTRAINT fk_receive_staff  
-    FOREIGN KEY (s_seq) REFERENCES staff(s_seq)
+    FOREIGN KEY (s_seq) REFERENCES `staff` (`s_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT fk_receive_product 
-    FOREIGN KEY (p_seq) REFERENCES product(p_seq)
+    FOREIGN KEY (p_seq) REFERENCES `product` (`p_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT fk_receive_maker   
-    FOREIGN KEY (m_seq) REFERENCES maker(m_seq)
+    FOREIGN KEY (m_seq) REFERENCES `maker` (`m_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   
   INDEX idx_receive_s_seq (s_seq),
@@ -348,8 +337,8 @@ CREATE TABLE receive (
 /* =========================================================
    REQUEST : 발주/품의
 ========================================================= */
-DROP TABLE IF EXISTS request;
-CREATE TABLE request (
+DROP TABLE IF EXISTS `request`;
+CREATE TABLE `request` (
   req_seq        INT AUTO_INCREMENT PRIMARY KEY COMMENT '발주/품의 고유 ID(PK)',
   req_date       DATETIME COMMENT '발주 요청 일시',
   req_content    TEXT COMMENT '발주 내용',
@@ -362,13 +351,13 @@ CREATE TABLE request (
   s_superseq     INT COMMENT '승인자 직원 ID(논리 참조)',
   
   CONSTRAINT fk_request_staff  
-    FOREIGN KEY (s_seq) REFERENCES staff(s_seq)
+    FOREIGN KEY (s_seq) REFERENCES `staff` (`s_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT fk_request_product 
-    FOREIGN KEY (p_seq) REFERENCES product(p_seq)
+    FOREIGN KEY (p_seq) REFERENCES `product` (`p_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT fk_request_maker   
-    FOREIGN KEY (m_seq) REFERENCES maker(m_seq)
+    FOREIGN KEY (m_seq) REFERENCES `maker` (`m_seq`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   
   INDEX idx_request_s_seq (s_seq),
@@ -381,9 +370,19 @@ CREATE TABLE request (
 
 /* =========================================================
    CHATTING : 고객-직원 채팅 세션
+   
+   참고: 실제 DB와 동일하게 외래 키 없이 논리적 참조만 사용
+   - u_seq → user.u_seq (논리적 참조, 외래 키 없음)
+   - s_seq → staff.s_seq (논리적 참조, 선택 사항, 외래 키 없음)
+   - Firebase Firestore 연동 지원 (fb_doc_id 필드)
+   - 외래 키를 사용하지 않는 이유:
+     * 실시간 채팅 성능 최적화
+     * Firebase Firestore와의 외부 시스템 연동 용이성
+     * 탈퇴한 user의 chatting 기록 보존 필요
+     * 애플리케이션 레벨에서 JOIN으로 검증 가능
 ========================================================= */
-DROP TABLE IF EXISTS chatting;
-CREATE TABLE chatting (
+DROP TABLE IF EXISTS `chatting`;
+CREATE TABLE `chatting` (
   chatting_seq INT AUTO_INCREMENT PRIMARY KEY COMMENT '채팅 세션 고유 ID(PK)',
   u_seq        INT NOT NULL COMMENT '고객 번호(논리적 참조 → user.u_seq)',
   fb_doc_id    VARCHAR(100) COMMENT 'Firebase Firestore 문서 ID',
@@ -397,3 +396,6 @@ CREATE TABLE chatting (
   INDEX idx_chatting_is_closed (is_closed)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='고객-직원 채팅 세션';
 
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

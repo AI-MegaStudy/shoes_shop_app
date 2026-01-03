@@ -8,6 +8,14 @@
 // 변경 이력:
 // - 2025-12-31 김택권: DATABASE_SCHEMA.md 기준으로 MySQL 스키마로 갱신
 // - 2026-01-01: u_name 컬럼을 NULL 허용으로 변경 (선택 사항)
+// - 2026-01-03 김택권: 
+//   * product 테이블 UNIQUE 제약조건 수정: (cc_seq, sc_seq, m_seq) → (cc_seq, sc_seq, m_seq, p_name)
+//   * purchase_item.b_status 상태값 설명 변경: 한국어 문자열 → 숫자 문자열 ('0', '1', '2', '3', NULL)
+//   * 실제 DB 검수 결과 반영
+// - 2026-01-04 김택권:
+//   * chatting 테이블 추가 (고객-직원 채팅 세션 관리)
+//   * Firebase Firestore 연동 지원 (fb_doc_id 필드)
+//   * 외래 키 없이 논리적 참조만 사용 (성능 및 유연성 고려)
 
 Project shoes_store_app {
   database_type: 'MySQL'
@@ -260,7 +268,8 @@ Table product {
   Note: '''
     판매 상품(SKU) 정보를 저장하는 테이블.
     - 재고는 본사가 중앙 관리 (p_stock)
-    - UNIQUE 제약: (cc_seq, sc_seq, m_seq) 조합은 중복 불가
+    - UNIQUE 제약: (cc_seq, sc_seq, m_seq, p_name) 조합은 중복 불가
+    - 동일한 색상, 사이즈, 제조사라도 제품명이 다르면 별도 제품으로 등록 가능
   '''
   
   indexes {
@@ -271,7 +280,7 @@ Table product {
     sc_seq [name: 'idx_product_sc_seq', note: '사이즈별 제품 조회']
     gc_seq [name: 'idx_product_gc_seq', note: '성별별 제품 조회']
     created_at [name: 'idx_product_created_at', note: '등록일자 인덱스']
-    (cc_seq, sc_seq, m_seq) [name: 'uq_product_color_size_maker', unique, note: 'UNIQUE 제약: (cc_seq, sc_seq, m_seq)']
+    (cc_seq, sc_seq, m_seq, p_name) [name: 'uq_product_color_size_maker_name', unique, note: 'UNIQUE 제약: (cc_seq, sc_seq, m_seq, p_name)']
   }
 }
 
@@ -292,7 +301,12 @@ Table purchase_item {
   Note: '''
     고객의 구매 내역을 저장하는 테이블.
     - 주문 그룹화: 분 단위로 그룹화 (b_date 기준)
-    - 상태값: 주문완료, 배송중, 배송완료, 수령완료, NULL
+    - 상태값: 숫자 문자열로 저장
+      * '0': 준비중
+      * '1': 준비완료
+      * '2': 수령완료
+      * '3': 반품완료
+      * NULL: 상태 미정
   '''
   
   indexes {
@@ -403,6 +417,33 @@ Table request {
 }
 
 // ============================================
+// 17. chatting (고객-직원 채팅 세션)
+// ============================================
+Table chatting {
+  chatting_seq INT [primary key, increment, note: '채팅 세션 고유 ID(PK)']
+  u_seq INT [not null, note: '고객 번호(논리적 참조 → user.u_seq)']
+  fb_doc_id VARCHAR(100) [note: 'Firebase Firestore 문서 ID']
+  s_seq INT [note: '담당 직원 번호(논리적 참조 → staff.s_seq, 선택 사항)']
+  created_at TIMESTAMP [not null, default: 'CURRENT_TIMESTAMP', note: '채팅 세션 생성 일시']
+  is_closed TINYINT(1) [not null, default: 0, note: '채팅 종료 여부 (0: 진행중, 1: 종료)']
+  
+  Note: '''
+    고객-직원 채팅 세션을 저장하는 테이블.
+    - Firebase Firestore와 연동 (fb_doc_id 필드)
+    - 외래 키 없이 논리적 참조만 사용 (성능 및 유연성 고려)
+    - 실시간 채팅 성능 최적화를 위해 외래 키 제약 없음
+    - 탈퇴한 user의 chatting 기록 보존 가능
+  '''
+  
+  indexes {
+    u_seq [name: 'idx_chatting_u_seq', note: '고객별 채팅 세션 조회']
+    s_seq [name: 'idx_chatting_s_seq', note: '직원별 채팅 세션 조회']
+    created_at [name: 'idx_chatting_created_at', note: '생성 일시 인덱스']
+    is_closed [name: 'idx_chatting_is_closed', note: '종료 여부 인덱스']
+  }
+}
+
+// ============================================
 // 관계 요약
 // ============================================
 // 
@@ -432,3 +473,5 @@ Table request {
 // 논리적 관계 (비즈니스 로직):
 // staff.s_superseq -> staff.s_seq (상급자 관계, FK 없음)
 // request.s_superseq -> staff.s_seq (승인자 관계, FK 없음)
+// chatting.u_seq -> user.u_seq (고객 채팅 관계, FK 없음)
+// chatting.s_seq -> staff.s_seq (직원 채팅 관계, FK 없음)

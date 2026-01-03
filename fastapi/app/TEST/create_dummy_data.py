@@ -10,12 +10,13 @@
     3. 카테고리들 (kind, color, size, gender)
     4. user (고객)
     5. staff (직원)
-    6. product (제품)
-    7. purchase_item (구매 내역)
-    8. pickup (수령)
-    9. refund (반품)
-    10. receive (입고)
-    11. request (발주)
+    6. chatting (채팅 세션)
+    7. product (제품)
+    8. purchase_item (구매 내역)
+    9. pickup (수령)
+    10. refund (반품)
+    11. receive (입고)
+    12. request (발주)
 """
 
 import pymysql
@@ -827,6 +828,43 @@ def create_requests(conn, staff_ids, product_ids, maker_ids):
     return request_ids
 
 
+def create_chattings(conn, user_ids, staff_ids):
+    """채팅 세션 데이터 생성 (고정 시드 랜덤)"""
+    print("💬 채팅 세션 데이터 생성 중...")
+    curs = conn.cursor()
+    
+    chatting_ids = []
+    base_date = datetime.now() - timedelta(days=7)
+    
+    # 일부 사용자만 채팅 세션 생성 (랜덤 샘플링, 고정 시드로 재현 가능)
+    chatting_count = min(5, len(user_ids))
+    chatting_users = random.sample(user_ids, chatting_count)
+    
+    for u_seq in chatting_users:
+        # 담당 직원은 선택 사항 (50% 확률로 할당)
+        s_seq = random.choice(staff_ids) if random.random() > 0.5 else None
+        
+        # Firebase Firestore 문서 ID는 실제로는 Firebase에서 생성되지만, 더미 데이터용으로 임의 생성
+        fb_doc_id = f"chat_{u_seq}_{random.randint(1000, 9999)}"
+        
+        # 채팅 생성일 (최근 7일 내)
+        created_at = base_date + timedelta(days=random.randint(0, 6), hours=random.randint(0, 23))
+        
+        # 채팅 종료 여부 (30% 확률로 종료)
+        is_closed = 1 if random.random() > 0.7 else 0
+        
+        sql = """
+            INSERT INTO chatting (u_seq, fb_doc_id, s_seq, created_at, is_closed)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        curs.execute(sql, (u_seq, fb_doc_id, s_seq, created_at, is_closed))
+        chatting_ids.append(curs.lastrowid)
+    
+    conn.commit()
+    print(f"   ✅ {len(chatting_ids)}개 채팅 세션 생성 완료 (고정 시드 랜덤)")
+    return chatting_ids
+
+
 def clear_product_data(conn):
     """제품 관련 데이터만 삭제 (외래 키 제약조건 고려)"""
     print("🗑️  제품 관련 데이터 삭제 중...")
@@ -874,6 +912,7 @@ def clear_all_data(conn):
     
     # 역순으로 삭제 (외래 키 의존성 고려)
     tables = [
+        'chatting',  # chatting 테이블 (외래 키 없음, 논리적 참조만)
         'request', 'receive', 'refund', 'pickup', 'purchase_item',
         'product', 'user_auth_identities', 'staff', 'user', 'gender_category', 'size_category',
         'color_category', 'kind_category', 'refund_reason_category', 'maker', 'branch'
@@ -914,6 +953,7 @@ def main():
         refund_reason_ids = create_refund_reason_categories(conn)
         user_ids = create_users(conn)
         staff_ids = create_staffs(conn, branch_ids)
+        chatting_ids = create_chattings(conn, user_ids, staff_ids)
         product_ids = create_products(conn, kind_ids, color_ids, size_ids, gender_ids, maker_ids)
         purchase_item_ids = create_purchase_items(conn, branch_ids, user_ids, product_ids)
         pickup_ids = create_pickups(conn, purchase_item_ids)
@@ -931,6 +971,7 @@ def main():
         print(f"   - 반품 사유 카테고리: {len(refund_reason_ids)}개")
         print(f"   - 고객: {len(user_ids)}개")
         print(f"   - 직원: {len(staff_ids)}개")
+        print(f"   - 채팅 세션: {len(chatting_ids)}개")
         print(f"   - 제품: {len(product_ids)}개")
         print(f"   - 구매 내역: {len(purchase_item_ids)}개")
         print(f"   - 수령: {len(pickup_ids)}개")

@@ -20,6 +20,9 @@ const TextStyle smallTextStyle = TextStyle(fontSize: 12, fontWeight: FontWeight.
 /// 색상은 copyWith(color: ...)로 테마에 맞게 설정해야 함
 const TextStyle boldLabelStyle = TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
 
+// b_status 제공
+const TextStyle boldWhiteStyle = TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15);
+
 // 색상 지정
 class PColor {
   static Color backgroundColor = const Color(0xFFF9FAFB);
@@ -43,9 +46,9 @@ class StatusConfig {
 }
 
 Map pickupStatus = {
-  0 : '제품 준비 중',
-  1 : '제품 준비 완료',
-  2 : '제품 수령 완료',
+  0 : '준비 중',
+  1 : '준비 완료',
+  2 : '수령 완료',
   3 : '반품 완료'
 };
 

@@ -1,17 +1,10 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart'
-    show
-        Get,
-        GetNavigation,
-        ExtensionBottomSheet,
-        ExtensionSnackbar,
-        SnackPosition;
-import 'package:http/http.dart' as http;
+    show Get, GetNavigation, ExtensionSnackbar, SnackPosition;
 import 'package:shoes_shop_app/model/product.dart';
 import 'package:shoes_shop_app/utils/cart_storage.dart';
+import 'package:slider_button/slider_button.dart';
 
-//SliderButton패키지 필요-예은
 // Product detail과 같은 class
 class CartItem {
   int p_seq;
@@ -82,8 +75,8 @@ class UserPurchaseView extends StatefulWidget {
 
 class _UserPurchaseViewState extends State<UserPurchaseView> {
   //property
-  Product? product = Get.arguments;
-  String ipAddress = "172.16.250.175";
+  // Product? product = Get.arguments;
+  // String ipAddress = "172.16.250.175";
   List<CartItem> data = [];
   int totalPrice = 0;
   double purchaseBoxHeight = 150.0;
@@ -96,16 +89,59 @@ class _UserPurchaseViewState extends State<UserPurchaseView> {
     loadCartData();
   }
 
-  void loadCartData() {
-    final cartList = CartStorage.getCart();
-    int tempTotal = 0;
-    List<CartItem> tempList = [];
+  // void loadCartData() {
+  //   final cartList = CartStorage.getCart();
+  //   int tempTotal = 0;
+  //   List<CartItem> tempList = [];
 
-    for (var d in cartList) {
-      final item = CartItem.fromJson(d);
-      tempList.add(item);
+  //   for (var d in cartList) {
+  //     final item = CartItem.fromJson(d);
+  //     tempList.add(item);
+  //     tempTotal += item.p_price * item.quantity;
+  //   }
+  //   setState(() {
+  //     data = tempList;
+  //     totalPrice = tempTotal;
+  //   });
+  // }
+
+  void loadCartData() {
+    List<CartItem> tempList = [
+      CartItem(
+        p_seq: 1,
+        p_name: "에어 포스 1 '07",
+        p_price: 139000,
+        cc_seq: 1,
+        cc_name: "화이트",
+        sc_seq: 1,
+        sc_name: "270",
+        gc_seq: 1,
+        gc_name: "남성",
+        quantity: 1,
+        p_image:
+            "https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/389b709e-5102-4e55-aa5d-077774a877df/air-force-1-07-shoes-Wr0Q19.png",
+      ),
+      CartItem(
+        p_seq: 2,
+        p_name: "조던 1 레트로 하이 OG",
+        p_price: 219000,
+        cc_seq: 2,
+        cc_name: "레드/블랙",
+        sc_seq: 2,
+        sc_name: "265",
+        gc_seq: 1,
+        gc_name: "남성",
+        quantity: 2,
+        p_image:
+            "https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/389b709e-5102-4e55-aa5d-077774a877df/air-force-1-07-shoes-Wr0Q19.png",
+      ),
+    ];
+
+    int tempTotal = 0;
+    for (var item in tempList) {
       tempTotal += item.p_price * item.quantity;
     }
+
     setState(() {
       data = tempList;
       totalPrice = tempTotal;
@@ -124,7 +160,7 @@ class _UserPurchaseViewState extends State<UserPurchaseView> {
         centerTitle: true,
       ),
       body: data.isEmpty
-          ? Center(child: Text('no data'))
+          ? Center(child: Text('데이터가 없습니다.'))
           : Column(
               children: [
                 //SingleChildScrollView(
@@ -152,11 +188,11 @@ class _UserPurchaseViewState extends State<UserPurchaseView> {
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
-                                  //child:Container
-                                  child: SizedBox(
+                                  child: Container(
+                                    // child: SizedBox(
                                     width: 90,
                                     height: 90,
-                                    //color: Colors.white,
+                                    // color: Colors.white,
                                     child: Image.network(
                                       //'http://172.16.250.175:8000/api/products/?t=${DateTime.now().microsecondsSinceEpoch}',
                                       'https://cheng80.myqnapcloud.com/images/${data[index].p_image}',
@@ -226,30 +262,14 @@ class _UserPurchaseViewState extends State<UserPurchaseView> {
                     ),
                   ),
                 ),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(color: Colors.blue),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('총액 : ${totalPrice}원'),
-                          //SizedBox(height: 10),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                    ],
-                  ),
-                ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
                     width: MediaQuery.of(context).size.width,
-                    height: 100,
+                    height: purchaseBoxHeight - 100,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
-                      color: Colors.blue[100],
+                      // color: Colors.blue[100],
                     ),
                     child: Row(
                       spacing: 10,
@@ -262,7 +282,9 @@ class _UserPurchaseViewState extends State<UserPurchaseView> {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: ElevatedButton(
-                            onPressed: () => showPurchaseBottomSheet(),
+                            onPressed: () {
+                              showPurchaseBottomSheet();
+                            },
                             child: Text('결제하기'),
                           ),
                         ),
@@ -272,15 +294,6 @@ class _UserPurchaseViewState extends State<UserPurchaseView> {
                 ),
               ],
             ),
-      // bottomNavigationBar: SafeArea(
-      //   child: Padding(
-      //     padding: const EdgeInsets.all(16.0),
-      //     child: ElevatedButton(
-      //       onPressed: () => showPurchaseBottomSheet(),
-      //       child: Text('결제하기'),
-      //     ),
-      //   ),
-      // ),
     );
   }
 
@@ -317,7 +330,7 @@ class _UserPurchaseViewState extends State<UserPurchaseView> {
                   if (val != null) {
                     setState(() => selectedLocation = val);
                     Get.back();
-                    showPurchaseBottomSheet();
+                    // showPurchaseBottomSheet();
                   }
                 },
               ),
@@ -335,23 +348,23 @@ class _UserPurchaseViewState extends State<UserPurchaseView> {
               ),
               SizedBox(height: 30),
               Center(
-                // child: SliderButton(
-                //   action: () async {
-                //     completePurchase();
-                //     return true;
-                //   },
-                //   label: Text(
-                //     "밀어서 결제하기",
-                //     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                //   ),
-                //   icon: Icon(Icons.shopping_bag_outlined, color: Colors.white),
-                //   width: MediaQuery.of(context).size.width - 40,
-                //   radius: 10,
-                //   buttonColor: Colors.blue,
-                //   backgroundColor: Colors.grey[300]!,
-                //   highlightedColor: Colors.blue,
-                //   baseColor: Colors.blue,
-                // ),
+                child: SliderButton(
+                  action: () async {
+                    completePurchase();
+                    return true;
+                  },
+                  label: Text(
+                    "밀어서 결제하기",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  icon: Icon(Icons.shopping_bag_outlined, color: Colors.white),
+                  width: MediaQuery.of(context).size.width - 40,
+                  radius: 10,
+                  buttonColor: Colors.blue,
+                  backgroundColor: Colors.grey[300]!,
+                  highlightedColor: Colors.blue,
+                  baseColor: Colors.blue,
+                ),
               ),
               SizedBox(height: 20),
             ],

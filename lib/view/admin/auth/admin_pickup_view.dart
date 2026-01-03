@@ -112,7 +112,7 @@ class _AdminPickupViewState extends State<AdminPickupView> {
                           shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
                             side: BorderSide(
-                              color: Colors.grey[300]!, // 테두리 색상
+                              color: config_testsy.PColor.dividerColor, // 테두리 색상
                               width: 1.0,               // 테두리 두께
                             ),
                             borderRadius: BorderRadius.circular(12.0), // 모서리 곡률
@@ -370,4 +370,7 @@ class _AdminPickupViewState extends State<AdminPickupView> {
   - 전체 수령내역, 수령내역 클릭시 상세 수령정보 제공
   - 반품 신청 버튼 클릭시 refund 테이블에 정보 추가(수정필요)
   - 검색 기능 추가
+
+2025-01-03: 임소연
+  - 디자인 수정
 */

@@ -91,7 +91,7 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
                           shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
                             side: BorderSide(
-                              color: Colors.grey[300]!, // 테두리 색상
+                              color: config_testsy.PColor.dividerColor, // 테두리 색상
                               width: 1.0,               // 테두리 두께
                             ),
                             borderRadius: BorderRadius.circular(12.0), // 모서리 곡률
@@ -306,11 +306,15 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
 }
 
 /*
-
 변경 이력
+
 2025-01-02: 임소연
   - 전체 구매내역, 구매내역 클릭시 상세 구매정보 제공
   - 수령 완료 버튼 클릭시 pickup 테이블에 정보 추가
   - 검색 기능 추가
   - b_status = 1(제품 준비 완료)일때만 수령 완료 버튼 노출
+
+2025-01-03: 임소연
+  - 디자인 수정
+  
 */

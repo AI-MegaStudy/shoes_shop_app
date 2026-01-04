@@ -11,9 +11,9 @@
 
 | 항목 | 내용 |
 |------|------|
-| 작성자 | |
-| 작성일 | |
-| 완료일 | |
+| 작성자 | 유다원 |
+| 작성일 | 2026.01.01 |
+| 완료일 | 2025.12.29 |
 
 ---
 
@@ -27,10 +27,10 @@
 
 | API | 엔드포인트 | 완료 |
 |-----|-----------|------|
-| 수령 상세 조회 | `GET /api/pickups/{pickup_seq}/with_details` | [ ] |
-| 수령 전체 상세 조회 | `GET /api/pickups/{pickup_seq}/full_detail` | [ ] |
-| 고객별 수령 조회 | `GET /api/pickups/by_user/{user_seq}/with_details` | [ ] |
-| 지점별 수령 조회 | `GET /api/pickups/by_branch/{branch_seq}/with_details` | [ ] |
+| 수령 상세 조회 | `GET /api/pickups/{pickup_seq}/with_details` | [O] |
+| 수령 전체 상세 조회 | `GET /api/pickups/{pickup_seq}/full_detail` | [O] |
+| 고객별 수령 조회 | `GET /api/pickups/by_user/{user_seq}/with_details` | [O] |
+| 지점별 수령 조회 | `GET /api/pickups/by_branch/{branch_seq}/with_details` | [O] |
 
 ---
 
@@ -46,6 +46,7 @@
 | 날짜 | 작성자 | 내용 |
 |------|--------|------|
 | 2026-01-01 | 김택권 | 체크리스트 최초 작성 |
+| 2026-01-01 | 유다원 | 완료한 작업 체크 |
 
 ---
 

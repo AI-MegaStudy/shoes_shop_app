@@ -11,9 +11,9 @@
 
 | 항목 | 내용 |
 |------|------|
-| 작성자 | |
-| 작성일 | |
-| 완료일 | |
+| 작성자 | 유다원 |
+| 작성일 | 2026.01.01 |
+| 완료일 | 2025.12.29 |
 
 ---
 
@@ -27,10 +27,10 @@
 
 | API | 엔드포인트 | 완료 |
 |-----|-----------|------|
-| 반품 상세 조회 | `GET /api/refunds/{refund_seq}/with_details` | [ ] |
-| 반품 전체 상세 조회 | `GET /api/refunds/{refund_seq}/full_detail` | [ ] |
-| 고객별 반품 조회 | `GET /api/refunds/by_user/{user_seq}/with_details` | [ ] |
-| 직원별 반품 조회 | `GET /api/refunds/by_staff/{staff_seq}/with_details` | [ ] |
+| 반품 상세 조회 | `GET /api/refunds/{refund_seq}/with_details` | [O] |
+| 반품 전체 상세 조회 | `GET /api/refunds/{refund_seq}/full_detail` | [O] |
+| 고객별 반품 조회 | `GET /api/refunds/by_user/{user_seq}/with_details` | [O] |
+| 직원별 반품 조회 | `GET /api/refunds/by_staff/{staff_seq}/with_details` | [O] |
 
 ---
 
@@ -46,6 +46,7 @@
 | 날짜 | 작성자 | 내용 |
 |------|--------|------|
 | 2026-01-01 | 김택권 | 체크리스트 최초 작성 |
+| 2026-01-01 | 유다원 | 완료한 작업 체크 |
 
 ---
 

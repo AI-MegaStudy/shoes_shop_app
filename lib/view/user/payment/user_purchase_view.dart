@@ -7,11 +7,12 @@ import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/model/branch.dart';
 import 'package:shoes_shop_app/model/user.dart';
 import 'package:shoes_shop_app/utils/cart_storage.dart';
+import 'package:shoes_shop_app/view/main/user/payment/payment_config.dart';
 import 'package:shoes_shop_app/view/user/product/list_view.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 import 'package:shoes_shop_app/config.dart' as config;
 
-import 'package:shoes_shop_app/view/main/payment_config.dart' show PurchaseItemStatus, PurchaseErrorMessage, district;
+
 import 'package:shoes_shop_app/custom/external_util/network/custom_network_util.dart';
 
 class CartItem {
@@ -324,7 +325,7 @@ class _UserPurchaseViewState extends State<UserPurchaseView> {
     // 구매 전 재고 확인 (다른 사용자의 구매로 재고가 변경되었을 수 있음)
     final (isValid, insufficientItems) = await _validateStock();
 
-    print('${isValid}--------');
+    print('$isValid--------');
     if (!isValid) {
       final errorMessage =
           '재고가 부족한 상품이 있습니다:\n${insufficientItems.join('\n')}\n\n'
@@ -341,7 +342,7 @@ class _UserPurchaseViewState extends State<UserPurchaseView> {
     }
     final user = User.fromJson(jsonDecode(userJson));
 
-    if (user == null || user.uSeq == null) {
+    if (user.uSeq == null) {
       throw Exception('로그인된 사용자 정보가 없습니다.');
     }
 

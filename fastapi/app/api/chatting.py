@@ -72,7 +72,7 @@ async def select_chatting(u_seq: int,is_closed:bool):
     row = curs.fetchone()
     conn.close()
     if row is None:
-        return {"result": "Error", "message": "Maker not found"}
+        return {"result": "Error", "message": "Chatting not found"}
     result = {
         'chatting_seq': row[0],
         'u_seq': row[1],

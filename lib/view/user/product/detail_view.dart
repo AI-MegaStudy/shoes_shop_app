@@ -10,7 +10,7 @@ import 'package:shoes_shop_app/model/size_category.dart';
 import 'package:shoes_shop_app/utils/cart_storage.dart';
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
 import 'package:shoes_shop_app/view/user/payment/gt_user_cart_view.dart';
-import 'package:shoes_shop_app/view/user/payment/gt_user_purchase_view.dart';
+import 'package:shoes_shop_app/view/user/payment/user_purchase_view.dart';
 import 'package:shoes_shop_app/view/user/product/detail_module_3d.dart';
 import 'package:http/http.dart' as http;
 

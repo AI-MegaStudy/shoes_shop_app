@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
 import 'package:shoes_shop_app/view/main/Admin/product/product_update.dart';
 import 'package:shoes_shop_app/model/product_join.dart';
-import 'package:shoes_shop_app/view/main/main_ui_config.dart';
+import 'package:shoes_shop_app/view/main/config/main_ui_config.dart';
 import 'package:shoes_shop_app/theme/app_colors.dart';
 import 'package:shoes_shop_app/custom/external_util/network/custom_network_util.dart';
 import 'package:shoes_shop_app/config.dart' as config;
@@ -417,7 +417,7 @@ class _ProductManagementDetailState extends State<ProductManagementDetail> {
                               builder: (context) {
                                 final p = context.palette;
                                 return DropdownButtonFormField<String>(
-                                  value: _selectedSizeName,
+                                  initialValue: _selectedSizeName,
                                   decoration: InputDecoration(
                                     labelText: '사이즈',
                                     border: const OutlineInputBorder(),

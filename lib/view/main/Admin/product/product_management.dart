@@ -8,7 +8,7 @@ import 'package:shoes_shop_app/view/main/Admin/product/product_management_detail
 import 'package:shoes_shop_app/view/main/Admin/auth/admin_drawer_menu.dart';
 import 'package:shoes_shop_app/custom/external_util/network/custom_network_util.dart';
 import 'package:shoes_shop_app/model/product_join.dart';
-import 'package:shoes_shop_app/view/main/main_ui_config.dart';
+import 'package:shoes_shop_app/view/main/config/main_ui_config.dart';
 import 'package:shoes_shop_app/theme/app_colors.dart';
 
 // 관리자 제품 관리 화면(제품 목록 보기 / 제품 등록 / 제품 수정 / 제품 삭제 / 제품 상세 보기, 제품 검색 기능)

@@ -10,21 +10,22 @@ import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/utils/cart_storage.dart';
 import 'package:shoes_shop_app/model/user.dart';
 import 'package:shoes_shop_app/model/branch.dart';
-import 'package:shoes_shop_app/view/Dev/product_detail_3d/payment/payment_sheet_content.dart';
-import 'package:shoes_shop_app/view/Dev/product_detail_3d/payment_config.dart' show PurchaseItemStatus, PurchaseErrorMessage, district, boldLabelStyle, bodyTextStyle, bottomSheetTopBorderRadius;
+import 'package:shoes_shop_app/view/main/user/payment/payment_sheet_content.dart';
+import 'package:shoes_shop_app/view/main/config/main_ui_config.dart';
+import 'package:shoes_shop_app/view/main/user/payment/payment_config.dart' show PurchaseItemStatus, PurchaseErrorMessage, district;
 
-/// 결제 화면
+/// 메인 결제 화면
 ///
 /// 장바구니에 담긴 상품들의 목록을 보여주고, 결제를 진행할 수 있는 화면입니다.
 /// Cart 화면에서 전달받은 장바구니 정보를 표시하고, 결제 확정 시 PurchaseItem을 API에 저장합니다.
-class PaymentView extends StatefulWidget {
-  const PaymentView({super.key});
+class MainPaymentView extends StatefulWidget {
+  const MainPaymentView({super.key});
 
   @override
-  State<PaymentView> createState() => _PaymentViewState();
+  State<MainPaymentView> createState() => _MainPaymentViewState();
 }
 
-class _PaymentViewState extends State<PaymentView> {
+class _MainPaymentViewState extends State<MainPaymentView> {
   late final List<Map<String, dynamic>> cart;
   bool _initialized = false;
 
@@ -287,9 +288,7 @@ class _PaymentViewState extends State<PaymentView> {
         isScrollControlled: true,
         backgroundColor: p.cardBackground,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(bottomSheetTopBorderRadius.topLeft.x),
-          ),
+          borderRadius: mainBottomSheetTopBorderRadius,
         ),
       );
     } catch (e) {
@@ -310,13 +309,15 @@ class _PaymentViewState extends State<PaymentView> {
         appBar: AppBar(
           title: Text(
             '결제',
-            style: boldLabelStyle.copyWith(color: p.textPrimary),
+            style: mainBoldLabelStyle.copyWith(color: p.textPrimary),
           ),
         ),
-        body: Center(
-          child: Text(
-            '구매할 상품이 없습니다',
-            style: boldLabelStyle.copyWith(color: p.textPrimary),
+        body: SafeArea(
+          child: Center(
+            child: Text(
+              '구매할 상품이 없습니다',
+              style: mainBoldLabelStyle.copyWith(color: p.textPrimary),
+            ),
           ),
         ),
       );
@@ -326,12 +327,13 @@ class _PaymentViewState extends State<PaymentView> {
       appBar: AppBar(
         title: Text(
           '결제',
-          style: boldLabelStyle.copyWith(color: p.textPrimary),
+          style: mainBoldLabelStyle.copyWith(color: p.textPrimary),
         ),
-        centerTitle: true,
+        centerTitle: mainAppBarCenterTitle,
       ),
-      body: Column(
-        children: [
+      body: SafeArea(
+        child: Column(
+          children: [
           Expanded(
             child: ListView.builder(
               itemCount: cart.length,
@@ -349,19 +351,19 @@ class _PaymentViewState extends State<PaymentView> {
                     : '';
 
                 return Card(
-                  elevation: 6,
+                  elevation: mainCardElevation,
                   margin: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 8,
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(10),
+                    padding: mainSmallPadding,
                     child: Row(
                       children: [
                         // 이미지
                         SizedBox(
-                          width: 90,
-                          height: 90,
+                          width: mainProductImageWidth,
+                          height: mainProductImageHeight,
                           child: pImage.isNotEmpty
                               ? Image.network(
                                   pImage,
@@ -379,27 +381,27 @@ class _PaymentViewState extends State<PaymentView> {
                             children: [
                               Text(
                                 pName,
-                                style: boldLabelStyle.copyWith(
+                                style: mainBoldLabelStyle.copyWith(
                                   color: p.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 '색상: $ccName / 사이즈: $scName',
-                                style: bodyTextStyle.copyWith(
+                                style: mainBodyTextStyle.copyWith(
                                   color: p.textSecondary,
                                 ),
                               ),
                               const SizedBox(height: 6),
                               Text(
                                 '수량: $qty',
-                                style: bodyTextStyle.copyWith(
+                                style: mainBodyTextStyle.copyWith(
                                   color: p.textSecondary,
                                 ),
                               ),
                               Text(
                                 '합계: ${CustomCommonUtil.formatPrice(lineTotal)}',
-                                style: boldLabelStyle.copyWith(
+                                style: mainBoldLabelStyle.copyWith(
                                   color: p.textPrimary,
                                 ),
                               ),
@@ -421,7 +423,7 @@ class _PaymentViewState extends State<PaymentView> {
                 Expanded(
                   child: Text(
                     '총액: ${CustomCommonUtil.formatPrice(totalPrice)}',
-                    style: boldLabelStyle.copyWith(color: p.textPrimary),
+                    style: mainBoldLabelStyle.copyWith(color: p.textPrimary),
                   ),
                 ),
                 ElevatedButton(
@@ -432,7 +434,7 @@ class _PaymentViewState extends State<PaymentView> {
                   ),
                   child: Text(
                     '결제하기',
-                    style: boldLabelStyle.copyWith(
+                    style: mainBoldLabelStyle.copyWith(
                       color: p.textOnPrimary,
                     ),
                   ),
@@ -441,22 +443,9 @@ class _PaymentViewState extends State<PaymentView> {
             ),
           ),
         ],
+        ),
       ),
     );
   }
 }
-
-// ============================================
-// 변경 이력
-// ============================================
-// 2026-01-01: 
-//   - 자치구 선택 방식에서 브랜치 리스트 선택 방식으로 변경
-//   - API에서 브랜치 리스트를 조회하여 PaymentSheetContent에 전달
-//   - _findBranchByDistrict 함수 제거 (브랜치를 직접 선택하도록 변경)
-//   - _savePurchaseItemsToDb 함수가 브랜치 객체를 직접 받도록 변경
-//   - GetX bottomSheet 사용
-//   - config.dart 상수를 payment_config.dart로 이동 (boldLabelStyle, bodyTextStyle, bottomSheetTopBorderRadius, district, PurchaseItemStatus, PurchaseErrorMessage 등)
-//
-// 2026-01-02:
-//   - 이미지 처리 로직 단순화: DB에서 파일명만 저장되므로 http/https 체크 및 replaceFirst 제거
 

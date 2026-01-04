@@ -1,8 +1,8 @@
 //dev_05.dart (작업자 : 정진석)
 
 import 'package:flutter/material.dart';
-import 'package:shoes_shop_app/view/admin/auth/admin_drawer_menu.dart';
-import 'package:shoes_shop_app/view/admin/auth/admin_profile_edit_view.dart';
+import 'package:shoes_shop_app/view/main/Admin/auth/admin_profile_edit_view.dart';
+import 'package:shoes_shop_app/view/main/Admin/auth/admin_drawer_menu.dart';
 import 'package:shoes_shop_app/view/user/auth/user_drawer_menu.dart';
 // 정진석님이 만든 페이지들 import
 

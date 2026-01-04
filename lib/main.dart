@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:shoes_shop_app/firebase_options.dart';
 import 'package:shoes_shop_app/theme/theme_provider.dart';
-import 'package:shoes_shop_app/view/main/auth/login_view.dart';
+import 'package:shoes_shop_app/view/main/user/auth/login_view.dart';
 
 Future<void> main() async {
   // Flutter 바인딩 초기화 (플러그인 사용 전 필수)

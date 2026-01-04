@@ -5,10 +5,10 @@ import 'package:get/get.dart';
 
 import 'package:shoes_shop_app/theme/app_colors.dart';
 import 'package:shoes_shop_app/model/user.dart';
-import 'package:shoes_shop_app/view/main/auth/user_profile_edit_view.dart';
-import 'package:shoes_shop_app/view/main/auth/login_view.dart';
-import 'package:shoes_shop_app/view/main/main_ui_config.dart';
-import 'package:shoes_shop_app/view/main/main_product_list.dart';
+import 'package:shoes_shop_app/view/main/user/auth/user_profile_edit_view.dart';
+import 'package:shoes_shop_app/view/main/user/auth/login_view.dart';
+import 'package:shoes_shop_app/view/main/config/main_ui_config.dart';
+import 'package:shoes_shop_app/view/main/user/product/main_product_list.dart';
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
 
 

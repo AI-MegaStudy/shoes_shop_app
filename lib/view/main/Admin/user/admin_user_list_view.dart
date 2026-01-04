@@ -4,19 +4,19 @@ import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/custom/external_util/network/custom_network_util.dart';
 import 'package:shoes_shop_app/model/user.dart';
-import 'package:shoes_shop_app/view/main/main_ui_config.dart';
+import 'package:shoes_shop_app/view/main/config/main_ui_config.dart';
 import 'package:shoes_shop_app/theme/app_colors.dart';
 
-/// 관리자 고객 관리 페이지
+/// 관리자 사용자 관리 페이지
 /// 사용자 리스트를 카드 형태로 표시하고, 소셜/로컬 로그인 구분을 표시합니다.
-class AdminCustomerListView extends StatefulWidget {
-  const AdminCustomerListView({super.key});
+class AdminUserListView extends StatefulWidget {
+  const AdminUserListView({super.key});
 
   @override
-  State<AdminCustomerListView> createState() => _AdminCustomerListViewState();
+  State<AdminUserListView> createState() => _AdminUserListViewState();
 }
 
-class _AdminCustomerListViewState extends State<AdminCustomerListView> {
+class _AdminUserListViewState extends State<AdminUserListView> {
   List<UserWithAuth> _users = [];
   bool _isLoading = true;
   String? _errorMessage;

@@ -10,9 +10,9 @@ import 'package:shoes_shop_app/model/gender_category.dart';
 import 'package:shoes_shop_app/utils/cart_storage.dart';
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
 import 'package:shoes_shop_app/custom/external_util/network/custom_network_util.dart';
-import 'package:shoes_shop_app/view/main/main_cart_view.dart';
-import 'package:shoes_shop_app/view/main/main_payment_view.dart';
-import 'package:shoes_shop_app/view/main/main_ui_config.dart';
+import 'package:shoes_shop_app/view/main/user/cart/main_cart_view.dart';
+import 'package:shoes_shop_app/view/main/user/payment/main_payment_view.dart';
+import 'package:shoes_shop_app/view/main/config/main_ui_config.dart';
 import 'package:shoes_shop_app/theme/app_colors.dart';
 import 'package:http/http.dart' as http;
 

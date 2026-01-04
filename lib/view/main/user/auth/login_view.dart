@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:get/get.dart';
 
@@ -12,14 +11,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/model/user.dart';
 import 'package:shoes_shop_app/model/user_auth_identity.dart';
-import 'package:shoes_shop_app/view/main/auth/signup_view.dart';
-import 'package:shoes_shop_app/view/main/auth/user_auth_ui_config.dart';
-import 'package:shoes_shop_app/view/home.dart';
+import 'package:shoes_shop_app/view/main/Admin/auth/admin_mobile_block_view.dart';
+import 'package:shoes_shop_app/view/main/user/auth/signup_view.dart';
+import 'package:shoes_shop_app/view/main/user/auth/user_auth_ui_config.dart';
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
 import 'package:shoes_shop_app/utils/admin_tablet_utils.dart';
-import 'package:shoes_shop_app/view/admin/auth/admin_login_view.dart';
 import 'package:shoes_shop_app/view/main/Admin/auth/admin_login_view_dev.dart';
-import 'package:shoes_shop_app/view/admin/auth/admin_mobile_block_view.dart';
 import 'package:shoes_shop_app/view/user/product/list_view.dart';
 
 class LoginView extends StatefulWidget {
@@ -322,7 +319,7 @@ class _LoginViewState extends State<LoginView> {
       final isTabletDevice = isTablet(context);
       
       if (isTabletDevice) {
-        Get.to(() => AdminLoginView());
+        Get.to(() => AdminLoginViewDev());
       } else {
         Get.to(() => AdminMobileBlockView());
       }

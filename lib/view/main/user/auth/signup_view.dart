@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:get/get.dart';
 
 import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/theme/app_colors.dart';
 import 'package:shoes_shop_app/custom/external_util/network/custom_network_util.dart';
-import 'package:shoes_shop_app/view/user/auth/login_view.dart';
+import 'package:shoes_shop_app/view/main/user/auth/login_view.dart';
+import 'package:shoes_shop_app/view/main/user/auth/user_auth_ui_config.dart';
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
 
 /// 회원가입 화면
@@ -135,22 +137,22 @@ class _SignUpViewState extends State<SignUpView> {
             backgroundColor: p.background,
             appBar: AppBar(
               title: const Text('회원가입'),
-              centerTitle: true,
-              titleTextStyle: config.boldLabelStyle.copyWith(color: p.textPrimary),
+              centerTitle: userAuthAppBarCenterTitle,
+              titleTextStyle: userAuthAppBarTitleStyle.copyWith(color: p.textPrimary),
               backgroundColor: p.background,
               foregroundColor: p.textPrimary,
             ),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
-              padding: config.screenPadding,
+              padding: userAuthDefaultPadding,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // 약관 동의 섹션
                   Card(
                     child: Padding(
-                      padding: const EdgeInsets.all(10),
+                      padding: userAuthTermsCardPadding,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -161,13 +163,10 @@ class _SignUpViewState extends State<SignUpView> {
                                 value: _agreeAll,
                                 onChanged: _handleAgreeAll,
                               ),
-                              const SizedBox(width: 4),
+                              userAuthTermsCheckboxSpacing,
                               const Text(
                                 '전체 동의',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: userAuthTitleStyle,
                               ),
                             ],
                           ),
@@ -182,9 +181,9 @@ class _SignUpViewState extends State<SignUpView> {
                                       ? BoxDecoration(
                                           border: Border.all(
                                             color: p.accent,
-                                            width: 2,
+                                            width: userAuthTermsErrorBorderWidth,
                                           ),
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius: userAuthSmallBorderRadius,
                                         )
                                       : null,
                                   child: Row(
@@ -197,32 +196,32 @@ class _SignUpViewState extends State<SignUpView> {
                                             ? p.accent
                                             : null,
                                       ),
-                                      const SizedBox(width: 2),
+                                      userAuthTermsTextSpacing,
                                       const Text('이용약관 동의 (필수)'),
                                     ],
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 4),
+                              userAuthTermsCheckboxSpacing,
                               SizedBox(
-                                width: 50,
+                                width: userAuthTermsViewButtonWidth,
                                 child: TextButton(
                                   onPressed: () => _viewTerms('terms'),
                                   style: TextButton.styleFrom(
-                                    backgroundColor: Colors.transparent,
+                                    backgroundColor: p.background,
                                     foregroundColor: p.primary,
                                     minimumSize: const Size(0, 0),
                                     padding: EdgeInsets.zero,
                                   ),
                                   child: const Text(
                                     '보기',
-                                    style: TextStyle(fontSize: 14),
+                                    style: userAuthSmallTextStyle,
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 6),
+                          userAuthTermsItemSpacing,
                           // 필수 약관: 개인정보 처리방침
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -233,9 +232,9 @@ class _SignUpViewState extends State<SignUpView> {
                                       ? BoxDecoration(
                                           border: Border.all(
                                             color: p.accent,
-                                            width: 2,
+                                            width: userAuthTermsErrorBorderWidth,
                                           ),
-                                          borderRadius: BorderRadius.circular(4),
+                                          borderRadius: userAuthSmallBorderRadius,
                                         )
                                       : null,
                                   child: Row(
@@ -248,32 +247,32 @@ class _SignUpViewState extends State<SignUpView> {
                                             ? p.accent
                                             : null,
                                       ),
-                                      const SizedBox(width: 2),
+                                      userAuthTermsTextSpacing,
                                       const Text('개인정보 처리방침 동의 (필수)'),
                                     ],
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 4),
+                              userAuthTermsCheckboxSpacing,
                               SizedBox(
-                                width: 50,
+                                width: userAuthTermsViewButtonWidth,
                                 child: TextButton(
                                   onPressed: () => _viewTerms('privacy'),
                                   style: TextButton.styleFrom(
-                                    backgroundColor: Colors.transparent,
+                                    backgroundColor: p.background,
                                     foregroundColor: p.primary,
                                     minimumSize: const Size(0, 0),
                                     padding: EdgeInsets.zero,
                                   ),
                                   child: const Text(
                                     '보기',
-                                    style: TextStyle(fontSize: 14),
+                                    style: userAuthSmallTextStyle,
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 6),
+                          userAuthTermsItemSpacing,
                           // 선택 약관: 마케팅 정보 수신
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -286,25 +285,25 @@ class _SignUpViewState extends State<SignUpView> {
                                       onChanged: (value) =>
                                           _handleIndividualAgree('marketing', value),
                                     ),
-                                    const SizedBox(width: 2),
+                                    userAuthTermsTextSpacing,
                                     const Text('마케팅 정보 수신 동의 (선택)'),
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: 4),
+                              userAuthTermsCheckboxSpacing,
                               SizedBox(
-                                width: 50,
+                                width: userAuthTermsViewButtonWidth,
                                 child: TextButton(
                                   onPressed: () => _viewTerms('marketing'),
                                   style: TextButton.styleFrom(
-                                    backgroundColor: Colors.transparent,
+                                    backgroundColor: p.background,
                                     foregroundColor: p.primary,
                                     minimumSize: const Size(0, 0),
                                     padding: EdgeInsets.zero,
                                   ),
                                   child: const Text(
                                     '보기',
-                                    style: TextStyle(fontSize: 14),
+                                    style: userAuthSmallTextStyle,
                                   ),
                                 ),
                               ),
@@ -314,7 +313,7 @@ class _SignUpViewState extends State<SignUpView> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: userAuthMediumSpacing),
                   // 입력 필드 섹션
                   Form(
                     key: _formKey,
@@ -338,7 +337,7 @@ class _SignUpViewState extends State<SignUpView> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 10),
+                        userAuthInputFieldSpacing,
                         // 비밀번호 입력 필드 (Form 검증)
                         TextFormField(
                           controller: _passwordController,
@@ -356,7 +355,7 @@ class _SignUpViewState extends State<SignUpView> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 10),
+                        userAuthInputFieldSpacing,
                         // 비밀번호 확인 입력 필드
                         TextFormField(
                           controller: _passwordConfirmController,
@@ -368,7 +367,7 @@ class _SignUpViewState extends State<SignUpView> {
                           ),
                           obscureText: true,
                         ),
-                        const SizedBox(height: 10),
+                        userAuthInputFieldSpacing,
                         // 이름 입력 필드
                         TextFormField(
                           controller: _nameController,
@@ -380,7 +379,7 @@ class _SignUpViewState extends State<SignUpView> {
                           ),
                           keyboardType: TextInputType.text,
                         ),
-                        const SizedBox(height: 10),
+                        userAuthInputFieldSpacing,
                         // 전화번호 입력 필드
                         TextFormField(
                           controller: _phoneController,
@@ -395,20 +394,26 @@ class _SignUpViewState extends State<SignUpView> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: userAuthSmallSpacing),
                   // 회원가입 버튼
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _isSigningUp ? null : _handleSignUp,
-                      child: const Text(
-                        '회원가입',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  Center(
+                    child: SizedBox(
+                      width: userAuthButtonMaxWidth,
+                      height: userAuthSignUpButtonHeight,
+                      child: ElevatedButton(
+                        onPressed: _isSigningUp ? null : _handleSignUp,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: p.primary,
+                          foregroundColor: p.textOnPrimary,
+                        ),
+                        child: const Text(
+                          '회원가입',
+                          style: userAuthButtonTextStyle,
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: userAuthMediumSpacing),
                 ],
               ),
             ),
@@ -709,11 +714,8 @@ class _SignUpViewState extends State<SignUpView> {
       );
 
       // 화면이 즉시 이동하므로 _isSigningUp 상태를 되돌릴 필요 없음
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginView()),
-        (route) => false,
-      );
+      // 회원가입 완료 후 로그인 화면으로 이동
+      Get.to(() => LoginView());
     } catch (e) {
       setState(() {
         _isSigningUp = false;
@@ -746,36 +748,12 @@ class _SignUpViewState extends State<SignUpView> {
         content = '약관 내용이 없습니다.';
     }
 
-    showDialog(
+    CustomCommonUtil.showSuccessDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: _buildTermsDialogContent(content),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('확인'),
-          ),
-        ],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-    );
-  }
-
-  // 약관 다이얼로그 내용 위젯 생성
-  Widget _buildTermsDialogContent(String content) {
-    return Container(
-      constraints: BoxConstraints(maxHeight: config.dialogMaxHeight, minHeight: config.dialogMinHeight),
-      width: double.maxFinite,
-      child: SingleChildScrollView(
-        child: Text(
-          content,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-          textAlign: TextAlign.left,
-        ),
-      ),
+      title: title,
+      message: content,
+      confirmText: '확인',
+      onConfirm: () {},
     );
   }
 

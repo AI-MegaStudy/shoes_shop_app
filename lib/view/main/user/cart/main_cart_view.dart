@@ -5,21 +5,22 @@ import 'package:shoes_shop_app/theme/app_colors.dart';
 import 'package:shoes_shop_app/utils/cart_storage.dart';
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
 import 'package:shoes_shop_app/custom/external_util/network/custom_network_util.dart';
-import 'package:shoes_shop_app/view/Dev/product_detail_3d/payment/payment_view.dart';
-import 'package:shoes_shop_app/view/Dev/product_detail_3d/payment_config.dart' show PurchaseErrorMessage, boldLabelStyle, bodyTextStyle;
+import 'package:shoes_shop_app/view/main/user/payment/main_payment_view.dart';
+import 'package:shoes_shop_app/view/main/config/main_ui_config.dart';
+import 'package:shoes_shop_app/view/main/user/payment/payment_config.dart' show PurchaseErrorMessage;
 
-/// 장바구니 화면
+/// 메인 장바구니 화면
 /// 
 /// 로컬 저장소(GetStorage)에 저장된 장바구니 항목을 표시하고,
 /// 수량 조절, 삭제, 결제하기 기능을 제공합니다.
-class CartView extends StatefulWidget {
-  const CartView({super.key});
+class MainCartView extends StatefulWidget {
+  const MainCartView({super.key});
 
   @override
-  State<CartView> createState() => _CartViewState();
+  State<MainCartView> createState() => _MainCartViewState();
 }
 
-class _CartViewState extends State<CartView> {
+class _MainCartViewState extends State<MainCartView> {
   List<Map<String, dynamic>> cart = [];
   bool loading = true;
 
@@ -91,21 +92,14 @@ class _CartViewState extends State<CartView> {
 
       // 재고 초과 체크
       if (newQuantity > stock) {
-        Get.dialog(
-          AlertDialog(
-            title: const Text('수량 초과'),
-            content: Text(
-              '재고가 부족합니다.\n'
+        CustomCommonUtil.showSuccessDialog(
+          context: context,
+          title: '수량 초과',
+          message: '재고가 부족합니다.\n'
               '현재 재고: ${CustomCommonUtil.formatNumber(stock)}개\n'
               '구매 가능한 최대 수량: ${CustomCommonUtil.formatNumber(stock)}개',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Get.back(),
-                child: const Text('확인'),
-              ),
-            ],
-          ),
+          confirmText: '확인',
+          onConfirm: () {},
         );
         return;
       }
@@ -136,7 +130,7 @@ class _CartViewState extends State<CartView> {
     _saveCart();
   }
 
-  /// 결제 화면으로 이동 (cart_view.dart → payment_view.dart)
+  /// 결제 화면으로 이동
   void _goPurchase() {
     if (cart.isEmpty) {
       Get.snackbar(
@@ -148,33 +142,24 @@ class _CartViewState extends State<CartView> {
     }
     // 결제 화면으로 이동 + cart 전체 넘김
     Get.to(
-      () => const PaymentView(),
+      () => const MainPaymentView(),
       arguments: cart,
     );
   }
 
   /// 장바구니 비우기
   void _clearCart() {
-    Get.dialog(
-      AlertDialog(
-        title: const Text('장바구니 비우기'),
-        content: const Text('장바구니를 모두 비우시겠습니까?'),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () {
-              CartStorage.clearCart();
-              cart.clear();
-              setState(() {});
-              Get.back();
-            },
-            child: const Text('확인'),
-          ),
-        ],
-      ),
+    CustomCommonUtil.showConfirmDialog(
+      context: context,
+      title: '장바구니 비우기',
+      message: '장바구니를 모두 비우시겠습니까?',
+      confirmText: '확인',
+      cancelText: '취소',
+      onConfirm: () {
+        CartStorage.clearCart();
+        cart.clear();
+        setState(() {});
+      },
     );
   }
 
@@ -184,8 +169,8 @@ class _CartViewState extends State<CartView> {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text('장바구니', style: boldLabelStyle.copyWith(color: p.textPrimary)),
-        centerTitle: true,
+        title: Text('장바구니', style: mainBoldLabelStyle.copyWith(color: p.textPrimary)),
+        centerTitle: mainAppBarCenterTitle,
         actions: [
           if (cart.isNotEmpty)
             IconButton(
@@ -195,16 +180,17 @@ class _CartViewState extends State<CartView> {
             ),
         ],
       ),
-      body: loading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
+      body: SafeArea(
+        child: loading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+                children: [
                 Expanded(
                   child: cart.isEmpty
                       ? Center(
                           child: Text(
                             '장바구니가 비어있습니다',
-                            style: boldLabelStyle.copyWith(color: p.textPrimary),
+                            style: mainBoldLabelStyle.copyWith(color: p.textPrimary),
                           ),
                         )
                       : ListView.builder(
@@ -224,17 +210,17 @@ class _CartViewState extends State<CartView> {
                                 : '';
 
                             return Card(
-                              elevation: 6,
+                              elevation: mainCardElevation,
                               margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               child: Padding(
-                                padding: const EdgeInsets.all(10),
+                                padding: mainSmallPadding,
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     // 이미지
                                     SizedBox(
-                                      width: 90,
-                                      height: 90,
+                                      width: mainProductImageWidth,
+                                      height: mainProductImageHeight,
                                       child: pImage.isNotEmpty
                                           ? Image.network(
                                               pImage,
@@ -251,24 +237,24 @@ class _CartViewState extends State<CartView> {
                                         children: [
                                           Text(
                                             pName,
-                                            style: boldLabelStyle.copyWith(color: p.textPrimary),
+                                            style: mainBoldLabelStyle.copyWith(color: p.textPrimary),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
                                             '색상: $ccName / 사이즈: $scName',
-                                            style: bodyTextStyle.copyWith(color: p.textSecondary),
+                                            style: mainBodyTextStyle.copyWith(color: p.textSecondary),
                                           ),
                                           const SizedBox(height: 6),
                                           Text(
                                             '단가: ${CustomCommonUtil.formatPrice(unitPrice)}',
-                                            style: bodyTextStyle.copyWith(color: p.textSecondary),
+                                            style: mainBodyTextStyle.copyWith(color: p.textSecondary),
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
                                             '합계: ${CustomCommonUtil.formatPrice(lineTotal)}',
-                                            style: boldLabelStyle.copyWith(color: p.textPrimary),
+                                            style: mainBoldLabelStyle.copyWith(color: p.textPrimary),
                                           ),
                                         ],
                                       ),
@@ -283,7 +269,7 @@ class _CartViewState extends State<CartView> {
                                               onPressed: () => _dec(index),
                                               icon: const Icon(Icons.remove),
                                             ),
-                                            Text('$qty', style: boldLabelStyle.copyWith(color: p.textPrimary)),
+                                            Text('$qty', style: mainBoldLabelStyle.copyWith(color: p.textPrimary)),
                                             IconButton(
                                               onPressed: () => _inc(index),
                                               icon: const Icon(Icons.add),
@@ -312,7 +298,7 @@ class _CartViewState extends State<CartView> {
                       Expanded(
                         child: Text(
                           '총액: ${CustomCommonUtil.formatPrice(totalPrice)}',
-                                            style: boldLabelStyle.copyWith(color: p.textPrimary),
+                          style: mainBoldLabelStyle.copyWith(color: p.textPrimary),
                         ),
                       ),
                       ElevatedButton(
@@ -323,28 +309,16 @@ class _CartViewState extends State<CartView> {
                         ),
                         child: Text(
                           '결제하기',
-                          style: boldLabelStyle.copyWith(color: p.textOnPrimary),
+                          style: mainBoldLabelStyle.copyWith(color: p.textOnPrimary),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
+                ],
+              ),
+        ),
     );
   }
 }
-
-// ============================================
-// 변경 이력
-// ============================================
-// 2026-01-01: 
-//   - 장바구니 화면 새로 생성 (user_cart_view.dart 대신 사용)
-//   - GetX 스넥바/다이얼로그 사용 (CustomCommonUtil 대신)
-//   - 재고 확인 후 수량 증가 기능
-//   - 결제 화면으로 이동 기능
-//   - config.dart 상수를 payment_config.dart로 이동 (boldLabelStyle, bodyTextStyle, PurchaseErrorMessage 등)
-//
-// 2026-01-02:
-//   - 불필요한 디버그 print 제거
 

@@ -4,7 +4,8 @@ import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/theme/app_colors.dart';
 import 'package:shoes_shop_app/custom/external_util/network/custom_network_util.dart';
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
-import 'package:shoes_shop_app/view/Dev/product_detail_3d/payment_config.dart' show PurchaseErrorMessage, PurchaseLabel, PurchaseDefaultValue, getPurchaseItemStatusText, boldLabelStyle, bodyTextStyle, titleStyle, screenPadding, mediumPadding, defaultSpacing, defaultBorderRadius, smallBorderRadius, smallTextStyle, mediumTextStyle;
+import 'package:shoes_shop_app/view/main/config/main_ui_config.dart';
+import 'package:shoes_shop_app/view/main/user/payment/payment_config.dart' show PurchaseErrorMessage, PurchaseLabel, PurchaseDefaultValue, getPurchaseItemStatusText;
 
 /// 주문 상세 화면
 /// 
@@ -135,16 +136,17 @@ class _OrderDetailViewState extends State<OrderDetailView> {
       appBar: AppBar(
         title: Text(
           PurchaseLabel.orderDetail,
-          style: boldLabelStyle.copyWith(color: p.textPrimary),
+          style: mainBoldLabelStyle.copyWith(color: p.textPrimary),
         ),
         centerTitle: true,
         backgroundColor: p.background,
         foregroundColor: p.textPrimary,
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : errorMessage != null
-              ? Center(
+      body: SafeArea(
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : errorMessage != null
+                ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -152,7 +154,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                       const SizedBox(height: 16),
                       Text(
                         errorMessage!,
-                        style: bodyTextStyle.copyWith(color: p.textSecondary),
+                        style: mainBodyTextStyle.copyWith(color: p.textSecondary),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
@@ -167,13 +169,13 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                   ? Center(
                       child: Text(
                         PurchaseErrorMessage.orderNotFound,
-                        style: bodyTextStyle.copyWith(color: p.textSecondary),
+                        style: mainBodyTextStyle.copyWith(color: p.textSecondary),
                       ),
                     )
                   : RefreshIndicator(
                       onRefresh: _loadOrderDetail,
                       child: SingleChildScrollView(
-                        padding: screenPadding,
+                        padding: mainDefaultPadding,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -181,13 +183,13 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                             Card(
                               elevation: 4,
                               child: Padding(
-                                padding: mediumPadding,
+                                padding: mainMediumPadding,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       PurchaseLabel.orderInfo,
-                                      style: titleStyle.copyWith(color: p.textPrimary),
+                                      style: mainTitleStyle.copyWith(color: p.textPrimary),
                                     ),
                                     const Divider(),
                                     _buildInfoRow(
@@ -215,14 +217,14 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                               ),
                             ),
                             
-                            const SizedBox(height: defaultSpacing),
+                            const SizedBox(height: mainDefaultSpacing),
                             
                             // 주문 항목들
                             Text(
                               PurchaseLabel.orderItems,
-                              style: titleStyle.copyWith(color: p.textPrimary),
+                              style: mainTitleStyle.copyWith(color: p.textPrimary),
                             ),
-                            const SizedBox(height: defaultSpacing),
+                            const SizedBox(height: mainDefaultSpacing),
                             
                             ...((orderInfo!['items'] as List<dynamic>?) ?? []).map((itemData) {
                               final item = itemData as Map<String, dynamic>;
@@ -243,14 +245,14 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                                 elevation: 4,
                                 margin: const EdgeInsets.only(bottom: 12),
                                 child: Padding(
-                                  padding: mediumPadding,
+                                  padding: mainMediumPadding,
                                   child: Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       // 상품 이미지
                                       if (productImage.isNotEmpty)
                                         ClipRRect(
-                                          borderRadius: defaultBorderRadius,
+                                          borderRadius: mainDefaultBorderRadius,
                                           child: Image.network(
                                             productImage,
                                             width: 80,
@@ -270,7 +272,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                                           height: 80,
                                           decoration: BoxDecoration(
                                             color: p.divider,
-                                            borderRadius: defaultBorderRadius,
+                                            borderRadius: mainDefaultBorderRadius,
                                           ),
                                           child: Icon(Icons.image_not_supported, color: p.textSecondary),
                                         ),
@@ -281,7 +283,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                                           children: [
                                             Text(
                                               productName,
-                                              style: boldLabelStyle.copyWith(color: p.textPrimary),
+                                              style: mainBoldLabelStyle.copyWith(color: p.textPrimary),
                                               maxLines: 2,
                                               overflow: TextOverflow.ellipsis,
                                             ),
@@ -293,29 +295,29 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                                                   if (colorName.isNotEmpty) '색상: $colorName',
                                                   if (sizeName.isNotEmpty) '사이즈: $sizeName',
                                                 ].join('  |  '),
-                                                style: bodyTextStyle.copyWith(color: p.textSecondary),
+                                                style: mainBodyTextStyle.copyWith(color: p.textSecondary),
                                               ),
                                             if (colorName.isNotEmpty || sizeName.isNotEmpty) const SizedBox(height: 4),
                                             // 수량과 단가를 한 줄로 표시
                                             Text(
                                               '수량: ${CustomCommonUtil.formatNumber(bQuantity)}개  |  단가: ${CustomCommonUtil.formatPrice(bPrice)}',
-                                              style: bodyTextStyle.copyWith(color: p.textSecondary),
+                                              style: mainBodyTextStyle.copyWith(color: p.textSecondary),
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
                                               '합계: ${CustomCommonUtil.formatPrice(totalPrice)}',
-                                              style: boldLabelStyle.copyWith(color: p.textPrimary),
+                                              style: mainBoldLabelStyle.copyWith(color: p.textPrimary),
                                             ),
                                             const SizedBox(height: 8),
                                             Container(
                                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                               decoration: BoxDecoration(
                                                 color: p.primary.withOpacity(0.1),
-                                                borderRadius: smallBorderRadius,
+                                                borderRadius: mainSmallBorderRadius,
                                               ),
                                               child: Text(
                                                 _getStatusText(bStatus),
-                                                style: smallTextStyle.copyWith(color: p.primary),
+                                                style: mainSmallTextStyle.copyWith(color: p.primary),
                                               ),
                                             ),
                                           ],
@@ -331,13 +333,13 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                             Card(
                               elevation: 4,
                               child: Padding(
-                                padding: mediumPadding,
+                                padding: mainMediumPadding,
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       '총 주문 금액',
-                                      style: boldLabelStyle.copyWith(color: p.textPrimary),
+                                      style: mainBoldLabelStyle.copyWith(color: p.textPrimary),
                                     ),
                                     Text(
                                       CustomCommonUtil.formatPrice(
@@ -351,7 +353,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                                           },
                                         ),
                                       ),
-                                      style: boldLabelStyle.copyWith(color: p.primary, fontSize: 20),
+                                      style: mainPriceStyle.copyWith(color: p.primary),
                                     ),
                                   ],
                                 ),
@@ -361,6 +363,7 @@ class _OrderDetailViewState extends State<OrderDetailView> {
                         ),
                       ),
                     ),
+        ),
     );
   }
 
@@ -383,12 +386,12 @@ class _OrderDetailViewState extends State<OrderDetailView> {
               children: [
                 Text(
                   label,
-                  style: smallTextStyle.copyWith(color: p.textSecondary),
+                  style: mainSmallTextStyle.copyWith(color: p.textSecondary),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
-                  style: mediumTextStyle.copyWith(color: p.textPrimary),
+                  style: mainMediumTextStyle.copyWith(color: p.textPrimary),
                 ),
               ],
             ),
@@ -398,19 +401,4 @@ class _OrderDetailViewState extends State<OrderDetailView> {
     );
   }
 }
-
-// ============================================
-// 변경 이력
-// ============================================
-// 2026-01-01: 
-//   - 주문 상세 화면 새로 생성
-//   - 같은 날짜+시간에 주문한 항목들을 하나의 주문으로 표시
-//   - API: /api/purchase_items/by_datetime/with_details 사용
-//   - 주문 정보, 각 항목 상세 정보, 총 주문 금액 표시
-//   - 색상 및 사이즈 정보 표시 추가
-//   - config.dart 상수를 payment_config.dart로 이동 (boldLabelStyle, bodyTextStyle, titleStyle, screenPadding, mediumPadding, defaultSpacing, defaultBorderRadius, smallBorderRadius, smallTextStyle, mediumTextStyle, PurchaseErrorMessage, PurchaseLabel, PurchaseDefaultValue, getPurchaseItemStatusText 등)
-//
-// 2026-01-02:
-//   - 이미지 처리 로직 단순화: DB에서 파일명만 저장되므로 http/https 체크 및 replaceFirst 제거
-//   - RefreshIndicator 중복 호출 방지 및 mounted 체크 추가
 

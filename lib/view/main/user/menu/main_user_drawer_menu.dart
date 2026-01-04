@@ -8,14 +8,15 @@ import 'package:get/get.dart';
 
 import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/model/user.dart';
-import 'package:shoes_shop_app/view/main/main_ui_config.dart';
-import 'package:shoes_shop_app/view/main/main_cart_view.dart';
-import 'package:shoes_shop_app/view/main/auth/user_profile_edit_view.dart';
-import 'package:shoes_shop_app/view/user/user_purchase_list.dart';
+import 'package:shoes_shop_app/view/main/config/main_ui_config.dart';
+// import 'package:shoes_shop_app/view/main/user/cart/main_cart_view.dart';
+import 'package:shoes_shop_app/view/user/payment/gt_user_cart_view.dart';
+import 'package:shoes_shop_app/view/main/user/auth/user_profile_edit_view.dart';
+import 'package:shoes_shop_app/view/main/user/order/user_purchase_list.dart';
 import 'package:shoes_shop_app/view/user/user_pickup_list.dart';
 import 'package:shoes_shop_app/view/user/user_refund_list.dart';
 import 'package:shoes_shop_app/view/home.dart';
-import 'package:shoes_shop_app/view/main/auth/login_view.dart';
+import 'package:shoes_shop_app/view/main/user/auth/login_view.dart';
 import 'package:shoes_shop_app/theme/theme_provider.dart';
 import 'package:shoes_shop_app/theme/app_colors.dart';
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
@@ -136,7 +137,8 @@ class _MainUserDrawerMenuState extends State<MainUserDrawerMenu> {
                       title: '장바구니',
                       onTap: () {
                         Get.back();
-                        Get.to(() => MainCartView());
+                        // Get.to(() => MainCartView());
+                        Get.to(() => GTUserCartView());
                       },
                     ),
                     _buildMenuItem(

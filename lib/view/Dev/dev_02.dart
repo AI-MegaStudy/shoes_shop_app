@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shoes_shop_app/view/Dev/product_detail_3d/payment/payment_view.dart';
 import 'package:shoes_shop_app/view/user/payment/gt_user_cart_view.dart';
 import 'package:shoes_shop_app/view/user/payment/user_cart_view.dart';
 import 'package:shoes_shop_app/view/user/payment/user_payment_view.dart';

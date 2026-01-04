@@ -11,13 +11,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/model/user.dart';
 import 'package:shoes_shop_app/model/user_auth_identity.dart';
-import 'package:shoes_shop_app/view/user/auth/signup_view.dart';
 import 'package:shoes_shop_app/view/home.dart' as home;
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
 import 'package:shoes_shop_app/utils/admin_tablet_utils.dart';
-import 'package:shoes_shop_app/view/admin/auth/admin_login_view.dart';
-import 'package:shoes_shop_app/view/admin/auth/admin_login_view_dav/admin_login_view_dev.dart';
-import 'package:shoes_shop_app/view/admin/auth/admin_mobile_block_view.dart';
+import 'package:shoes_shop_app/view/main/Admin/auth/admin_login_view_dev.dart';
+import 'package:shoes_shop_app/view/main/Admin/auth/admin_mobile_block_view.dart';
+import 'package:shoes_shop_app/view/main/user/auth/signup_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -292,7 +291,7 @@ class _LoginViewState extends State<LoginView> {
       if (isTabletDevice) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const AdminLoginView()),
+          MaterialPageRoute(builder: (context) => const AdminLoginViewDev()),
         );
       } else {
         Navigator.push(

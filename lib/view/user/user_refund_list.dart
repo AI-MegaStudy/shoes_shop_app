@@ -1,5 +1,5 @@
-import 'package:shoes_shop_app/view/main/auth/user_auth_ui_config.dart';
 
+import 'package:shoes_shop_app/view/main/user/auth/user_auth_ui_config.dart';
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:shoes_shop_app/config_pluralize.dart';

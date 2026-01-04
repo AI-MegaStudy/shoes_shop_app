@@ -7,8 +7,9 @@ import 'package:shoes_shop_app/theme/app_colors.dart';
 import 'package:shoes_shop_app/model/user.dart';
 import 'package:shoes_shop_app/custom/external_util/network/custom_network_util.dart';
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
-import 'package:shoes_shop_app/view/Dev/product_detail_3d/payment/order_detail_view.dart';
-import 'package:shoes_shop_app/view/Dev/product_detail_3d/payment_config.dart' show PurchaseErrorMessage, PurchaseLabel, PurchaseDefaultValue, boldLabelStyle, bodyTextStyle, smallTextStyle, screenPadding, defaultBorderRadius, mediumPadding;
+import 'package:shoes_shop_app/view/main/user/order/order_detail_view.dart';
+import 'package:shoes_shop_app/view/main/config/main_ui_config.dart';
+import 'package:shoes_shop_app/view/main/user/payment/payment_config.dart' show PurchaseErrorMessage, PurchaseLabel, PurchaseDefaultValue;
 
 class UserPurchaseList extends StatefulWidget {
   const UserPurchaseList({super.key});
@@ -124,15 +125,16 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
     
     return Scaffold(
       appBar: AppBar(
-        title: Text(PurchaseLabel.orderList, style: boldLabelStyle.copyWith(color: p.textPrimary)),
+        title: Text(PurchaseLabel.orderList, style: mainBoldLabelStyle.copyWith(color: p.textPrimary)),
         centerTitle: true,
         backgroundColor: p.background,
         foregroundColor: p.textPrimary,
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : errorMessage != null
-              ? Center(
+      body: SafeArea(
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : errorMessage != null
+                ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -140,7 +142,7 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                       const SizedBox(height: 16),
                       Text(
                         errorMessage!,
-                        style: bodyTextStyle.copyWith(color: p.textSecondary),
+                        style: mainBodyTextStyle.copyWith(color: p.textSecondary),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
@@ -160,7 +162,7 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                           const SizedBox(height: 16),
                           Text(
                             PurchaseLabel.noOrderHistory,
-                            style: bodyTextStyle.copyWith(color: p.textSecondary),
+                            style: mainBodyTextStyle.copyWith(color: p.textSecondary),
                           ),
                         ],
                       ),
@@ -168,7 +170,7 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                   : RefreshIndicator(
                       onRefresh: _loadOrders,
                       child: ListView.builder(
-                        padding: screenPadding,
+                        padding: mainDefaultPadding,
                         itemCount: orders.length,
                         itemBuilder: (context, index) {
                           final order = orders[index];
@@ -192,9 +194,9 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                                           ));
                                     }
                                   : null,
-                              borderRadius: defaultBorderRadius,
+                              borderRadius: mainDefaultBorderRadius,
                               child: Padding(
-                                padding: mediumPadding,
+                                padding: mainMediumPadding,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -207,12 +209,12 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                                             children: [
                                               Text(
                                                 PurchaseLabel.orderDateTime,
-                                                style: smallTextStyle.copyWith(color: p.textSecondary),
+                                                style: mainSmallTextStyle.copyWith(color: p.textSecondary),
                                               ),
                                               const SizedBox(height: 4),
                                               Text(
                                                 _formatDateTime(orderTime),
-                                                style: boldLabelStyle.copyWith(color: p.textPrimary),
+                                                style: mainBoldLabelStyle.copyWith(color: p.textPrimary),
                                               ),
                                             ],
                                           ),
@@ -232,12 +234,12 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                                           children: [
                                             Text(
                                               '품목 개수',
-                                              style: smallTextStyle.copyWith(color: p.textSecondary),
+                                              style: mainSmallTextStyle.copyWith(color: p.textSecondary),
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
                                               '${CustomCommonUtil.formatNumber(itemCount)}개',
-                                              style: bodyTextStyle.copyWith(color: p.textPrimary),
+                                              style: mainBodyTextStyle.copyWith(color: p.textPrimary),
                                             ),
                                           ],
                                         ),
@@ -246,12 +248,12 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                                           children: [
                                             Text(
                                               '총합',
-                                              style: smallTextStyle.copyWith(color: p.textSecondary),
+                                              style: mainSmallTextStyle.copyWith(color: p.textSecondary),
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
                                               CustomCommonUtil.formatPrice(totalAmount),
-                                              style: boldLabelStyle.copyWith(color: p.primary, fontSize: 18),
+                                              style: mainMediumTitleStyle.copyWith(color: p.primary),
                                             ),
                                           ],
                                         ),
@@ -264,7 +266,7 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                                         const SizedBox(width: 4),
                                         Text(
                                           branchName,
-                                          style: bodyTextStyle.copyWith(color: p.textSecondary),
+                                          style: mainBodyTextStyle.copyWith(color: p.textSecondary),
                                         ),
                                       ],
                                     ),
@@ -276,18 +278,8 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                         },
                       ),
                     ),
+        ),
     );
   }
 }
-
-// ============================================
-// 변경 이력
-// ============================================
-// 2026-01-01: 
-//   - 개별 주문 항목 표시에서 그룹화된 주문 목록으로 변경
-//   - API: /api/purchase_items/by_user/{user_seq}/orders 사용 (날짜+시간 기반 그룹화)
-//   - 주문 카드에 총합, 주문 일시, 품목 개수, 지점명 표시
-//   - 주문 카드 클릭 시 OrderDetailView로 이동하여 상세 정보 확인
-//   - GetX navigation 사용
-//   - config.dart 상수를 payment_config.dart로 이동 (boldLabelStyle, bodyTextStyle, smallTextStyle, screenPadding, defaultBorderRadius, mediumPadding, PurchaseErrorMessage, PurchaseLabel, PurchaseDefaultValue 등)
 

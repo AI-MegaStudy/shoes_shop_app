@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
 import 'package:shoes_shop_app/custom/external_util/network/custom_network_util.dart';
-import 'package:shoes_shop_app/view/main/main_ui_config.dart';
+import 'package:shoes_shop_app/view/main/config/main_ui_config.dart';
 import 'package:shoes_shop_app/theme/app_colors.dart';
 
 /// 제품 등록 화면
@@ -251,7 +251,7 @@ class _ProductInsertState extends State<ProductInsert> {
                       builder: (context) {
                         final p = context.palette;
                         return DropdownButtonFormField<int>(
-                          value: _selectedKcSeq,
+                          initialValue: _selectedKcSeq,
                           decoration: InputDecoration(
                             labelText: '종류 *',
                             border: const OutlineInputBorder(),
@@ -284,7 +284,7 @@ class _ProductInsertState extends State<ProductInsert> {
                       builder: (context) {
                         final p = context.palette;
                         return DropdownButtonFormField<int>(
-                          value: _selectedCcSeq,
+                          initialValue: _selectedCcSeq,
                           decoration: InputDecoration(
                             labelText: '색상 *',
                             border: const OutlineInputBorder(),
@@ -317,7 +317,7 @@ class _ProductInsertState extends State<ProductInsert> {
                       builder: (context) {
                         final p = context.palette;
                         return DropdownButtonFormField<int>(
-                          value: _selectedScSeq,
+                          initialValue: _selectedScSeq,
                           decoration: InputDecoration(
                             labelText: '사이즈 *',
                             border: const OutlineInputBorder(),
@@ -350,7 +350,7 @@ class _ProductInsertState extends State<ProductInsert> {
                       builder: (context) {
                         final p = context.palette;
                         return DropdownButtonFormField<int>(
-                          value: _selectedGcSeq,
+                          initialValue: _selectedGcSeq,
                           decoration: InputDecoration(
                             labelText: '성별 *',
                             border: const OutlineInputBorder(),
@@ -383,7 +383,7 @@ class _ProductInsertState extends State<ProductInsert> {
                       builder: (context) {
                         final p = context.palette;
                         return DropdownButtonFormField<int>(
-                          value: _selectedMSeq,
+                          initialValue: _selectedMSeq,
                           decoration: InputDecoration(
                             labelText: '제조사 *',
                             border: const OutlineInputBorder(),

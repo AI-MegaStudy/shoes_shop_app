@@ -6,14 +6,14 @@ import 'package:get/get.dart';
 import 'package:shoes_shop_app/theme/app_colors.dart';
 import 'package:shoes_shop_app/theme/theme_provider.dart';
 import 'package:shoes_shop_app/model/staff.dart';
-import 'package:shoes_shop_app/view/main/main_ui_config.dart';
+import 'package:shoes_shop_app/view/main/config/main_ui_config.dart';
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
 import 'package:shoes_shop_app/view/main/Admin/auth/admin_login_view_dev.dart';
 import 'package:shoes_shop_app/view/admin/auth/admin_purchase_view.dart';
 import 'package:shoes_shop_app/view/admin/auth/admin_pickup_view.dart';
 import 'package:shoes_shop_app/view/admin/auth/admin_refund_view.dart';
-import 'package:shoes_shop_app/view/admin/auth/admin_profile_edit_view.dart';
-import 'package:shoes_shop_app/view/main/Admin/customer/admin_customer_list_view.dart';
+import 'package:shoes_shop_app/view/main/Admin/auth/admin_profile_edit_view.dart';
+import 'package:shoes_shop_app/view/main/Admin/user/admin_user_list_view.dart';
 import 'package:shoes_shop_app/view/main/Admin/product/product_management.dart';
 
 /// 관리자 드로워 메뉴
@@ -161,7 +161,7 @@ class _AdminDrawerMenuState extends State<AdminDrawerMenu> {
                           title: '고객 관리',
                           onTap: () {
                             Get.back();
-                            Get.to(() => AdminCustomerListView());
+                            Get.to(() => AdminUserListView());
                           },
                         ),
                         

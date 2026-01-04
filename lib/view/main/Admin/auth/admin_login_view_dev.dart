@@ -8,11 +8,11 @@ import 'package:shoes_shop_app/utils/admin_tablet_utils.dart';
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
 import 'package:shoes_shop_app/custom/external_util/network/custom_network_util.dart';
 import 'package:shoes_shop_app/model/staff.dart';
-import 'package:shoes_shop_app/view/admin/auth/admin_mobile_block_view.dart';
+import 'package:shoes_shop_app/view/main/Admin/auth/admin_mobile_block_view.dart';
 import 'package:shoes_shop_app/view/main/Admin/product/product_management.dart';
-import 'package:shoes_shop_app/view/main/main_ui_config.dart';
-import 'package:shoes_shop_app/view/main/auth/login_view.dart';
+import 'package:shoes_shop_app/view/main/config/main_ui_config.dart';
 import 'package:shoes_shop_app/theme/app_colors.dart';
+import 'package:shoes_shop_app/view/main/user/auth/login_view.dart';
 
 /// 관리자 로그인 화면 (개발용)
 /// 태블릿에서 가로 모드로 강제 표시되는 관리자 전용 로그인 화면입니다.

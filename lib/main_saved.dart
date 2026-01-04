@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:shoes_shop_app/theme/theme_provider.dart';
 import 'package:shoes_shop_app/view/home.dart';
-import 'package:shoes_shop_app/view/user/auth/login_view.dart';
-import 'package:shoes_shop_app/view/admin/auth/admin_login_view.dart';
-import 'package:shoes_shop_app/view/admin/auth/admin_mobile_block_view.dart';
+import 'package:shoes_shop_app/view/main/user/auth/login_view.dart';
+import 'package:shoes_shop_app/view/main/Admin/auth/admin_login_view_dev.dart';
+import 'package:shoes_shop_app/view/main/Admin/auth/admin_mobile_block_view.dart';
 
 
 Future<void> main() async {
@@ -76,7 +76,7 @@ class _MyAppState extends State<MyApp> {
         routes: {
           config.routeLogin: (context) => const LoginView(),
           config.routeHome: (context) => const Home(),
-          config.routeAdminLogin: (context) => const AdminLoginView(),
+          config.routeAdminLogin: (context) => const AdminLoginViewDev(),
           config.routeAdminMobileBlock: (context) => const AdminMobileBlockView(),
         },
         debugShowCheckedModeBanner: false,

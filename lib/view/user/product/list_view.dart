@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -7,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/model/product.dart';
 import 'package:http/http.dart' as http;
-import 'package:shoes_shop_app/view/main/main_user_drawer_menu.dart';
+import 'package:shoes_shop_app/view/main/user/menu/main_user_drawer_menu.dart';
 import 'package:shoes_shop_app/view/user/product/chatting.dart';
 import 'package:shoes_shop_app/view/user/product/detail_view.dart';
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
@@ -23,7 +22,7 @@ class _ProductListViewState extends State<ProductListView> {
   // 보여지는 부분 height
   final double searchBoxSize = 100;
   // API Base URL
-  String get mainUrl => config.getApiBaseUrl() + "/api";
+  String get mainUrl => "${config.getApiBaseUrl()}/api";
   List products = [];
   bool isSearch = false;
   TextEditingController searchController = TextEditingController();
@@ -45,9 +44,9 @@ class _ProductListViewState extends State<ProductListView> {
     // 요청하여 값을 가져온다.
     // 전체 제품 가져오는 부분
     // String _url = mainUrl + "/products";
-    String _url = mainUrl + "/products/group_by_name";
+    String url0 = "$mainUrl/products/group_by_name";
 
-    final url = Uri.parse(_url);
+    final url = Uri.parse(url0);
     final response = await http.get(url, headers: {});
     final jsonData = json.decode(utf8.decode(response.bodyBytes));
 
@@ -57,8 +56,8 @@ class _ProductListViewState extends State<ProductListView> {
 
   @override
   Widget build(BuildContext context) {
-    return products.length == 0
-        ? const Center(child: const CircularProgressIndicator())
+    return products.isEmpty
+        ? const Center(child: CircularProgressIndicator())
         : Scaffold(
             appBar: AppBar(title: Text('제품목록')),
             floatingActionButton: FloatingActionButton(
@@ -135,9 +134,9 @@ class _ProductListViewState extends State<ProductListView> {
   Future<void> _searchProduct() async {
     // Search by product name
     isSearch = true;
-    String _url = mainUrl + "/products/searchByMain/?kwds=${searchController.text.trim()}";
+    String url0 = "$mainUrl/products/searchByMain/?kwds=${searchController.text.trim()}";
 
-    final url = Uri.parse(_url);
+    final url = Uri.parse(url0);
     final response = await http.get(url);
     final jsonData = json.decode(utf8.decode(response.bodyBytes));
 
@@ -159,7 +158,7 @@ class _ProductListViewState extends State<ProductListView> {
             Image.network('https://cheng80.myqnapcloud.com/images/${p.p_image}', height: 100),
             Text(p.p_name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
             Text("${p.p_maker!} / ${p.p_color}", style: TextStyle(fontSize: 13, color: Colors.black54)),
-            Text("${CustomCommonUtil.formatPrice(p.p_price)}"),
+            Text(CustomCommonUtil.formatPrice(p.p_price)),
           ],
         ),
         // Container(

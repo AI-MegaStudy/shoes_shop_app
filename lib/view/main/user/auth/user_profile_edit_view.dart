@@ -12,7 +12,7 @@ import 'package:shoes_shop_app/theme/app_colors.dart';
 import 'package:shoes_shop_app/model/user.dart';
 import 'package:shoes_shop_app/model/user_auth_identity.dart';
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
-import 'package:shoes_shop_app/view/main/auth/user_auth_ui_config.dart';
+import 'package:shoes_shop_app/view/main/user/auth/user_auth_ui_config.dart';
 
 
 /// 사용자 개인정보 수정 화면

@@ -5,9 +5,9 @@ import 'package:get/get.dart';
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
 import 'package:shoes_shop_app/utils/cart_storage.dart';
 import 'package:shoes_shop_app/model/branch.dart';
-import 'package:shoes_shop_app/view/main/main_ui_config.dart';
-import 'package:shoes_shop_app/view/main/main_product_list.dart';
-import 'package:shoes_shop_app/view/main/main_cart_view.dart';
+import 'package:shoes_shop_app/view/main/config/main_ui_config.dart';
+import 'package:shoes_shop_app/view/main/user/product/main_product_list.dart';
+import 'package:shoes_shop_app/view/main/user/cart/main_cart_view.dart';
 
 /// 결제 시트 내용 위젯
 /// 

@@ -1,3 +1,5 @@
+import 'package:shoes_shop_app/view/main/auth/user_auth_ui_config.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shoes_shop_app/config_pluralize.dart';
@@ -28,7 +30,7 @@ class _UserRefundDetailState extends State<UserRefundDetail> {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(edgeSpace),
+        padding: userAuthDefaultPadding,
         child: Center(
           child: Stack(
             children: [

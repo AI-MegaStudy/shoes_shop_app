@@ -23,6 +23,6 @@ const double cardSpace = 10; // 카드 여백
 const double dropboxHeight = 30; // 정렬 드롭박스 높이
 
 const Color orderColor = Colors.grey; // 준비 중 색상
-const Color arriveColor = Color.fromARGB(255, 73, 73, 73); // 준비 완료, 수령 완료 색상
-const Color pickedupColor = Colors.black; // 준비 완료, 수령 완료 색상
+const Color arriveColor = Color.fromARGB(255, 73, 73, 73); // 준비 완료 색상
+const Color pickedupColor = Colors.black; // 수령 완료 색상
 const Color refundColor = Color.fromARGB(255, 172, 33, 23); // 반품 완료 색상

@@ -3,14 +3,14 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/simple/list_notifier.dart';
-import 'package:get_storage/get_storage.dart';
+
 import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/model/product.dart';
 import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/view/main/main_user_drawer_menu.dart';
 import 'package:shoes_shop_app/view/user/product/chatting.dart';
 import 'package:shoes_shop_app/view/user/product/detail_view.dart';
+import 'package:shoes_shop_app/utils/custom_common_util.dart';
 
 class ProductListView extends StatefulWidget {
   const ProductListView({super.key});
@@ -74,19 +74,38 @@ class _ProductListViewState extends State<ProductListView> {
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: searchBoxSize,
+                    Row(
+                      spacing: 5,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width - 100,
+                          height: searchBoxSize,
 
-                      child: TextField(
-                        controller: searchController,
-                        onSubmitted: (context) => _searchProduct(),
-                        decoration: InputDecoration(
-                          hintText: "원하는 신발을 찾아보세요",
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                          prefixIcon: Icon(Icons.search),
+                          child: TextField(
+                            controller: searchController,
+                            onSubmitted: (context) => _searchProduct(),
+                            decoration: InputDecoration(
+                              hintText: "원하는 신발을 찾아보세요",
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                              prefixIcon: Icon(Icons.search),
+                            ),
+                          ),
                         ),
-                      ),
+                        SizedBox(
+                          width: 75,
+                          height: searchBoxSize - 45,
+                          child: ElevatedButton(
+                            onPressed: () => _searchProduct(),
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              backgroundColor: Colors.black,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: Text('검색'),
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(
                       width: MediaQuery.of(context).size.width,
@@ -134,25 +153,33 @@ class _ProductListViewState extends State<ProductListView> {
     return GestureDetector(
       onTap: () => Get.to(() => ProductDetailView(), arguments: p),
       child: Card(
-        child: Container(
-          // alignment: Alignment.bottomCenter,
-          width: 10,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: NetworkImage('https://cheng80.myqnapcloud.com/images/${p.p_image}'),
-              // AssetImage('images/Nike_Air_1/Nike_Air_1_Black_01.avif'),
-              fit: BoxFit.contain,
-            ),
-            // color: Colors.grey,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(p.p_name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-              Text("${p.p_maker!} / ${p.p_color}", style: TextStyle(fontSize: 13, color: Colors.black54)),
-            ],
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Image.network('https://cheng80.myqnapcloud.com/images/${p.p_image}', height: 100),
+            Text(p.p_name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+            Text("${p.p_maker!} / ${p.p_color}", style: TextStyle(fontSize: 13, color: Colors.black54)),
+            Text("${CustomCommonUtil.formatPrice(p.p_price)}"),
+          ],
         ),
+        // Container(
+        //   // alignment: Alignment.bottomCenter,
+        //   decoration: BoxDecoration(
+        //     image: DecorationImage(
+        //       image: NetworkImage('https://cheng80.myqnapcloud.com/images/${p.p_image}'),
+        //       fit: BoxFit.contain,
+        //       //
+        //     ),
+        //   ),
+        //   child: Column(
+        //     mainAxisAlignment: MainAxisAlignment.end,
+        //     children: [
+        //       Text(p.p_name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+        //       Text("${p.p_maker!} / ${p.p_color}", style: TextStyle(fontSize: 13, color: Colors.black54)),
+        //       Text("${CustomCommonUtil.formatPrice(p.p_price)}"),
+        //     ],
+        //   ),
+        // ),
       ),
     );
   }

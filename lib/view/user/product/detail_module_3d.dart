@@ -8,12 +8,7 @@ class GTProductDetail3D extends StatefulWidget {
   final List<String>? colorList;
   final int? initialIndex;
 
-  const GTProductDetail3D({
-    super.key,
-    this.imageNames,
-    this.colorList,
-    this.initialIndex,
-  });
+  const GTProductDetail3D({super.key, this.imageNames, this.colorList, this.initialIndex});
 
   @override
   State<GTProductDetail3D> createState() => _GTProductDetail3DState();
@@ -59,8 +54,7 @@ class _GTProductDetail3DState extends State<GTProductDetail3D> {
   String get _currentModelName => _modelNameList[_currentIndex];
 
   // PHP 파일 URL 생성 (GET 파라미터로 모델 이름 전달)
-  String get _modelUrl =>
-      'https://cheng80.myqnapcloud.com/glb_model.php?name=$_currentModelName';
+  String get _modelUrl => 'https://cheng80.myqnapcloud.com/glb_model.php?name=$_currentModelName';
 
   @override
   void initState() {
@@ -134,10 +128,7 @@ class _GTProductDetail3DState extends State<GTProductDetail3D> {
 
     for (String imageName in _imageNames) {
       // 확장자 제거 (예: 'Newbalnce_U740WN2_Black_01.png' -> 'Newbalnce_U740WN2_Black_01')
-      String nameWithoutExt = imageName.replaceAll(
-        RegExp(r'\.(png|jpg|jpeg|avif)$'),
-        '',
-      );
+      String nameWithoutExt = imageName.replaceAll(RegExp(r'\.(png|jpg|jpeg|avif)$'), '');
 
       // 마지막 언더스코어와 숫자 제거 (예: 'Newbalnce_U740WN2_Black_01' -> 'Newbalnce_U740WN2_Black')
       String modelName = nameWithoutExt.replaceAll(RegExp(r'_\d+$'), '');
@@ -146,17 +137,13 @@ class _GTProductDetail3DState extends State<GTProductDetail3D> {
     }
 
     // 색상 리스트 설정: 전달받은 colorList가 있으면 사용, 없으면 이미지명에서 추출
-    if (_providedColorList != null &&
-        _providedColorList!.length == _imageNames.length) {
+    if (_providedColorList != null && _providedColorList!.length == _imageNames.length) {
       _colorList = List<String>.from(_providedColorList!);
     } else {
       // 이미지명에서 색상 추출
       _colorList = [];
       for (String imageName in _imageNames) {
-        String nameWithoutExt = imageName.replaceAll(
-          RegExp(r'\.(png|jpg|jpeg|avif)$'),
-          '',
-        );
+        String nameWithoutExt = imageName.replaceAll(RegExp(r'\.(png|jpg|jpeg|avif)$'), '');
         String modelName = nameWithoutExt.replaceAll(RegExp(r'_\d+$'), '');
         List<String> parts = modelName.split('_');
         String color = parts.isNotEmpty ? parts.last : '';
@@ -208,7 +195,7 @@ class _GTProductDetail3DState extends State<GTProductDetail3D> {
     // onWebViewCreated의 NavigationDelegate가 페이지 로딩 완료를 감지함
     // _reloadCounter가 변경되면 위젯이 재생성되어 카메라가 초기화됨
     // _currentIndex는 변경하지 않으므로 현재 선택된 모델이 다시 로드됨
-    
+
     debugPrint('=== 3D 모델 리로드 (detail_module_3d) ===');
     debugPrint('리로드 카운터: $_reloadCounter');
     debugPrint('현재 모델 이름: $_currentModelName');
@@ -225,13 +212,11 @@ class _GTProductDetail3DState extends State<GTProductDetail3D> {
         // 부모가 제공하는 최대 너비와 높이 사용
         final double availableWidth = constraints.maxWidth;
         final double availableHeight = constraints.maxHeight;
-        
+
         // 정사각형으로 만들되, 부모 크기를 초과하지 않도록
         // 너비와 높이 중 작은 값을 기준으로 정사각형 크기 결정
-        final double size = availableHeight < availableWidth 
-            ? availableHeight 
-            : availableWidth;
-        
+        final double size = availableHeight < availableWidth ? availableHeight : availableWidth;
+
         // 부모 크기에 맞춰서 3D 뷰어만 표시 (색상 선택은 부모 쪽에서 처리)
         return SizedBox(
           width: size,
@@ -242,9 +227,7 @@ class _GTProductDetail3DState extends State<GTProductDetail3D> {
               Container(
                 color: Colors.black,
                 child: O3D(
-                  key: ValueKey(
-                    '${_modelUrl}_$_reloadCounter',
-                  ), // 모델 URL과 reloadCounter 조합으로 위젯 재생성
+                  key: ValueKey('${_modelUrl}_$_reloadCounter'), // 모델 URL과 reloadCounter 조합으로 위젯 재생성
                   controller: controller,
                   src: _modelUrl,
                   autoRotate: false, // 자동 회전 비활성화 (사용자가 직접 컨트롤)
@@ -252,11 +235,11 @@ class _GTProductDetail3DState extends State<GTProductDetail3D> {
                   onWebViewCreated: (WebViewController webViewController) {
                     // WebViewController 저장 (로딩 취소용)
                     _webViewController = webViewController;
-                    
+
                     // 현재 로딩 중인 URL 설정
                     final currentUrl = _modelUrl;
                     _currentLoadingUrl = currentUrl;
-                    
+
                     // NavigationDelegate를 설정하여 페이지 로딩 완료 감지
                     webViewController.setNavigationDelegate(
                       NavigationDelegate(
@@ -265,7 +248,7 @@ class _GTProductDetail3DState extends State<GTProductDetail3D> {
                           if (_currentLoadingUrl != currentUrl) {
                             return;
                           }
-                          
+
                           if (mounted) {
                             setState(() {
                               _isLoading = true;
@@ -277,35 +260,32 @@ class _GTProductDetail3DState extends State<GTProductDetail3D> {
                           if (_currentLoadingUrl != currentUrl) {
                             return;
                           }
-                          
+
                           // 페이지 로딩 완료 후 짧은 지연 (모델 렌더링 시간 고려)
-                          Future.delayed(
-                            const Duration(milliseconds: 500),
-                            () {
-                              // 위젯이 재생성되어 URL이 변경되었거나 dispose되었으면 무시
-                              if (!mounted || _currentLoadingUrl != currentUrl) {
-                                return;
-                              }
-                              
-                              setState(() {
-                                _isLoading = false;
-                              });
-                            },
-                          );
+                          Future.delayed(const Duration(milliseconds: 500), () {
+                            // 위젯이 재생성되어 URL이 변경되었거나 dispose되었으면 무시
+                            if (!mounted || _currentLoadingUrl != currentUrl) {
+                              return;
+                            }
+
+                            setState(() {
+                              _isLoading = false;
+                            });
+                          });
                         },
                         onWebResourceError: (WebResourceError error) {
                           // 위젯이 재생성되어 URL이 변경되었으면 이전 에러 무시
                           if (_currentLoadingUrl != currentUrl) {
                             return;
                           }
-                          
+
                           debugPrint('=== 3D 뷰어 WebView 에러 ===');
                           debugPrint('에러 설명: ${error.description}');
                           debugPrint('에러 코드: ${error.errorCode}');
                           debugPrint('요청 URL: ${error.url}');
                           debugPrint('현재 로딩 URL: $currentUrl');
                           debugPrint('==========================');
-                          
+
                           if (mounted && _currentLoadingUrl == currentUrl) {
                             setState(() {
                               _isLoading = false;
@@ -325,9 +305,7 @@ class _GTProductDetail3DState extends State<GTProductDetail3D> {
                   right: 16,
                   child: FloatingActionButton(
                     onPressed: _isLoading ? null : _reloadInitialModel,
-                    backgroundColor: Colors.blue.withOpacity(
-                      _isLoading ? 0.4 : 0.8,
-                    ),
+                    backgroundColor: Colors.blue.withOpacity(_isLoading ? 0.4 : 0.8),
                     tooltip: _isLoading ? '로딩 중...' : '현재 모델 리로드',
                     heroTag: 'reload_initial',
                     mini: true,
@@ -335,12 +313,7 @@ class _GTProductDetail3DState extends State<GTProductDetail3D> {
                         ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
-                              ),
-                            ),
+                            child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
                           )
                         : const Icon(Icons.refresh, color: Colors.white),
                   ),

@@ -159,25 +159,19 @@ class _ProductDetailViewState extends State<ProductDetailView> {
       var url = Uri.parse("$mainUrl/gender_categories");
       var response = await http.get(url, headers: {});
       var jsonData = json.decode(utf8.decode(response.bodyBytes));
-      _genderCategories = (jsonData["results"] as List)
-          .map((d) => GenderCategory.fromJson(d))
-          .toList();
+      _genderCategories = (jsonData["results"] as List).map((d) => GenderCategory.fromJson(d)).toList();
 
       // Color Categories
       url = Uri.parse("$mainUrl/color_categories");
       response = await http.get(url, headers: {});
       jsonData = json.decode(utf8.decode(response.bodyBytes));
-      _colorCategories = (jsonData["results"] as List)
-          .map((d) => ColorCategory.fromJson(d))
-          .toList();
+      _colorCategories = (jsonData["results"] as List).map((d) => ColorCategory.fromJson(d)).toList();
 
       // Size Categories
       url = Uri.parse("$mainUrl/size_categories");
       response = await http.get(url, headers: {});
       jsonData = json.decode(utf8.decode(response.bodyBytes));
-      _sizeCategories = (jsonData["results"] as List)
-          .map((d) => SizeCategory.fromJson(d))
-          .toList();
+      _sizeCategories = (jsonData["results"] as List).map((d) => SizeCategory.fromJson(d)).toList();
     } catch (e) {
       debugPrint('카테고리 로드 실패: $e');
     }
@@ -186,15 +180,12 @@ class _ProductDetailViewState extends State<ProductDetailView> {
   /// 같은 제품명의 모든 색상별 제품 조회
   Future<void> _loadAllColorProducts() async {
     try {
-      final url = Uri.parse(
-          "$mainUrl/products/getBySeqs?m_seq=${_initialProduct!.m_seq}&p_name=${Uri.encodeComponent(_initialProduct!.p_name)}");
+      final url = Uri.parse("$mainUrl/products/getBySeqs?m_seq=${_initialProduct!.m_seq}&p_name=${Uri.encodeComponent(_initialProduct!.p_name)}");
       final response = await http.get(url);
       final jsonData = json.decode(utf8.decode(response.bodyBytes));
 
       if (jsonData['results'] != null) {
-        _allColorProducts = (jsonData['results'] as List)
-            .map((d) => Product.fromJson(d))
-            .toList();
+        _allColorProducts = (jsonData['results'] as List).map((d) => Product.fromJson(d)).toList();
       }
     } catch (e) {
       debugPrint('같은 제품명의 모든 색상별 제품 조회 실패: $e');
@@ -212,11 +203,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
     // 선택된 색상이 있으면 해당 색상의 사이즈만 필터링
     if (_availableColors.isNotEmpty && selectedColor < _availableColors.length) {
       final selectedColorSeq = _availableColors[selectedColor].cc_seq;
-      final existingSizeSeqs = _allColorProducts
-          .where((p) => p.cc_seq == selectedColorSeq)
-          .map((p) => p.sc_seq)
-          .toSet()
-          .toList();
+      final existingSizeSeqs = _allColorProducts.where((p) => p.cc_seq == selectedColorSeq).map((p) => p.sc_seq).toSet().toList();
       _availableSizes = _sizeCategories.where((s) => existingSizeSeqs.contains(s.sc_seq)).toList()
         ..sort((a, b) => a.sc_seq.compareTo(b.sc_seq)); // 사이즈 순으로 정렬
 
@@ -248,10 +235,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
       // 해당 색상의 첫 번째 제품에서 이미지 파일명 가져오기
       final colorProduct = _allColorProducts.firstWhere(
         (p) => p.cc_seq == color.cc_seq && p.p_image.isNotEmpty,
-        orElse: () => _allColorProducts.firstWhere(
-          (p) => p.cc_seq == color.cc_seq,
-          orElse: () => _allColorProducts.first,
-        ),
+        orElse: () => _allColorProducts.firstWhere((p) => p.cc_seq == color.cc_seq, orElse: () => _allColorProducts.first),
       );
 
       if (colorProduct.p_image.isNotEmpty) {
@@ -406,9 +390,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                           spacing: 10,
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Flexible(
-                              child: _quantityWidget(),
-                            ),
+                            Flexible(child: _quantityWidget()),
                             IconButton(
                               onPressed: () => _addCart(true),
                               style: IconButton.styleFrom(
@@ -534,8 +516,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                 backgroundColor: selectedGender == index ? selectedBgColor : selectedFgColor,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5)),
               ),
-              child: Text(_availableGenders[index].gc_name,
-                  style: TextStyle(color: selectedGender == index ? selectedFgColor : Colors.black)),
+              child: Text(_availableGenders[index].gc_name, style: TextStyle(color: selectedGender == index ? selectedFgColor : Colors.black)),
             ),
           ),
         ),
@@ -572,8 +553,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                   backgroundColor: selectedSize == index ? selectedBgColor : selectedFgColor,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5)),
                 ),
-                child: Text(_availableSizes[index].sc_name,
-                    style: TextStyle(color: selectedSize == index ? selectedFgColor : Colors.black)),
+                child: Text(_availableSizes[index].sc_name, style: TextStyle(color: selectedSize == index ? selectedFgColor : Colors.black)),
               ),
             ),
           ),
@@ -618,8 +598,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                   backgroundColor: selectedColor == index ? selectedBgColor : selectedFgColor,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5)),
                 ),
-                child: Text(_availableColors[index].cc_name,
-                    style: TextStyle(color: selectedColor == index ? selectedFgColor : Colors.black)),
+                child: Text(_availableColors[index].cc_name, style: TextStyle(color: selectedColor == index ? selectedFgColor : Colors.black)),
               ),
             ),
           ),

@@ -68,15 +68,13 @@ async def get_refund_all(search: Optional[str] = None):
         JOIN size_category sc ON p.sc_seq = sc.sc_seq
         JOIN gender_category gc ON p.gc_seq = gc.gc_seq
         JOIN maker m ON p.m_seq = m.m_seq
-        {where_sql}
         JOIN branch br ON pi.br_seq = br.br_seq
+        {where_sql}
         """
         curs.execute(sql, params)
         rows = curs.fetchall()
         
-        if rows is None:
-            return {"results": "Error", "message": "Refund not found"}
-        
+        # fetchall()은 결과가 없을 때 빈 리스트 []를 반환하므로 None 체크는 불필요
         result = [
         {
             'ref_seq': row[0],
@@ -110,7 +108,9 @@ async def get_refund_all(search: Optional[str] = None):
         
         return {"results": result}
     except Exception as e:
-        return {"results": "Error", "errorMsg": str(e)}
+        # 에러 발생 시 results를 빈 리스트로 반환 (문자열 "Error"가 아닌)
+        print(f"Error in get_refund_all: {e}")
+        return {"results": [], "result": "Error", "errorMsg": str(e)}
     finally:
         conn.close()
 

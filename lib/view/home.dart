@@ -8,7 +8,7 @@ import 'package:shoes_shop_app/model/user.dart';
 import 'package:shoes_shop_app/view/main/user/auth/user_profile_edit_view.dart';
 import 'package:shoes_shop_app/view/main/user/auth/login_view.dart';
 import 'package:shoes_shop_app/view/main/config/main_ui_config.dart';
-import 'package:shoes_shop_app/view/main/user/product/main_product_list.dart';
+// import 'package:shoes_shop_app/view/main/user/product/main_product_list.dart';
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
 
 
@@ -189,21 +189,21 @@ class _HomeState extends State<Home> {
                           
                           const SizedBox(height: mainSmallSpacing),
                           
-                          // 메인 상품 리스트 버튼
-                          Center(
-                            child: SizedBox(
-                              width: mainButtonMaxWidth,
-                              height: mainButtonHeight,
-                              child: ElevatedButton(
-                                onPressed: _navigateToMainProductList,
-                                style: mainPrimaryButtonStyle.copyWith(
-                                  backgroundColor: WidgetStateProperty.all(p.primary),
-                                  foregroundColor: WidgetStateProperty.all(p.textOnPrimary),
-                                ),
-                                child: const Text('메인 상품 리스트'),
-                              ),
-                            ),
-                          ),
+                          // // 메인 상품 리스트 버튼
+                          // Center(
+                          //   child: SizedBox(
+                          //     width: mainButtonMaxWidth,
+                          //     height: mainButtonHeight,
+                          //     child: ElevatedButton(
+                          //       onPressed: _navigateToMainProductList,
+                          //       style: mainPrimaryButtonStyle.copyWith(
+                          //         backgroundColor: WidgetStateProperty.all(p.primary),
+                          //         foregroundColor: WidgetStateProperty.all(p.textOnPrimary),
+                          //       ),
+                          //       child: const Text('메인 상품 리스트'),
+                          //     ),
+                          //   ),
+                          // ),
                         ] else ...[
                           // 사용자 정보 없을 때 에러 메시지
                           Card(
@@ -469,9 +469,9 @@ class _HomeState extends State<Home> {
     );
   }
 
-  /// 메인 상품 리스트 페이지로 이동
-  void _navigateToMainProductList() {
-    Get.to(() => const MainProductList());
-  }
+  // /// 메인 상품 리스트 페이지로 이동
+  // void _navigateToMainProductList() {
+  //   Get.to(() => const MainProductList());
+  // }
   //------------------------------
 }

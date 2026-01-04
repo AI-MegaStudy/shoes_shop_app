@@ -218,6 +218,7 @@ class _LoginViewState extends State<LoginView> {
                             ),
                           ),
                         ),
+                        /*
                         userAuthButtonSpacing,
                         Center(
                           child: SizedBox(
@@ -273,6 +274,7 @@ class _LoginViewState extends State<LoginView> {
                           ),
                         ),
                         SizedBox(height: userAuthDefaultSpacing),
+                        */
                       ],
                     ),
                   ),

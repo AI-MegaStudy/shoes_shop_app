@@ -58,7 +58,7 @@ class _MainUserDrawerMenuState extends State<MainUserDrawerMenu> {
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ [MainUserDrawer] 사용자 정보 로드 에러: $e');
+        debugPrint('[MainUserDrawer] 사용자 정보 로드 에러: $e');
       }
     }
   }
@@ -70,14 +70,14 @@ class _MainUserDrawerMenuState extends State<MainUserDrawerMenu> {
       final uri = Uri.parse('$baseUrl/api/users/$userSeq/profile_image');
       final response = await http.get(uri);
 
-      if (response.statusCode == 200 && mounted) {
+      if (response.statusCode == 200 && response.bodyBytes.isNotEmpty && mounted) {
         setState(() {
           _profileImageBytes = response.bodyBytes;
         });
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ [MainUserDrawer] 프로필 이미지 로드 에러: $e');
+        debugPrint('[MainUserDrawer] 프로필 이미지 로드 에러: $e');
       }
     }
   }
@@ -249,19 +249,32 @@ class _MainUserDrawerMenuState extends State<MainUserDrawerMenu> {
           width: 80,
           height: 80,
           errorBuilder: (context, error, stackTrace) {
-            return Icon(Icons.person, size: 40, color: p.primary);
+            return ClipOval(
+              child: Image.asset(
+                config.defaultProfileImage,
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Icon(Icons.person, size: 40, color: p.primary);
+                },
+              ),
+            );
           },
         ),
       );
     }
-    // 프로필 이미지가 없거나 로드되지 않은 경우 이니셜 표시
-    final displayName = _getDisplayName();
-    final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
-    return Text(
-      initial,
-      style: mainLargeTitleStyle.copyWith(
-        fontWeight: FontWeight.bold,
-        color: p.primary,
+    
+    // 프로필 이미지가 없거나 로드되지 않은 경우 기본 이미지 표시
+    return ClipOval(
+      child: Image.asset(
+        config.defaultProfileImage,
+        width: 80,
+        height: 80,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Icon(Icons.person, size: 40, color: p.primary);
+        },
       ),
     );
   }

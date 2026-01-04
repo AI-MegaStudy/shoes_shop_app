@@ -174,8 +174,9 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
             ? Text('')
             : Padding(
               padding: const EdgeInsets.all(10),
-              child: Column(
-                children: [
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
                   Card(
                     color: Colors.white,
                       shadowColor: Colors.transparent,
@@ -306,7 +307,8 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
                       alignment: Alignment.centerRight,
                       child: Text('총 가격: ${CustomCommonUtil.formatPrice(dataSeq['b_price'])}', style: config_testsy.titleStyle)),
                   )
-                ],
+                  ],
+                ),
               ),
             )
           )

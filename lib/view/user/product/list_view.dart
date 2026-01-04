@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 import 'package:shoes_shop_app/config.dart' as config;
@@ -68,7 +69,8 @@ class _ProductListViewState extends State<ProductListView> {
               child: const Icon(Icons.chat_rounded),
             ),
             drawer: MainUserDrawerMenu(), //MainUserDrawerMenu,
-            body: Center(
+            resizeToAvoidBottomInset: true,
+            body: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
@@ -106,23 +108,21 @@ class _ProductListViewState extends State<ProductListView> {
                         ),
                       ],
                     ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height - (searchBoxSize + 130),
-                      child: isSearch
-                          ? _noResultWidget()
-                          : GridView.builder(
-                              itemCount: products.length,
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 10, // 가로
-                                mainAxisSpacing: 10, // 세로
-                              ),
-                              itemBuilder: (context, index) {
-                                return _displayProduct(products[index]);
-                              },
+                    isSearch
+                        ? _noResultWidget()
+                        : GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: products.length,
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 10, // 가로
+                              mainAxisSpacing: 10, // 세로
                             ),
-                    ),
+                            itemBuilder: (context, index) {
+                              return _displayProduct(products[index]);
+                            },
+                          ),
                   ],
                 ),
               ),
@@ -133,16 +133,56 @@ class _ProductListViewState extends State<ProductListView> {
   // == Functions
   Future<void> _searchProduct() async {
     // Search by product name
-    isSearch = true;
-    String url0 = "$mainUrl/products/searchByMain/?kwds=${searchController.text.trim()}";
-
-    final url = Uri.parse(url0);
-    final response = await http.get(url);
-    final jsonData = json.decode(utf8.decode(response.bodyBytes));
-
-    if (jsonData != null && jsonData["results"].length > 0) {
-      products = jsonData["results"].map((d) => Product.fromJson(d)).toList();
+    final searchKeyword = searchController.text.trim();
+    
+    // 공백만 입력했거나 빈 문자열인 경우 전체 제품 목록 다시 불러오기
+    if (searchKeyword.isEmpty) {
       isSearch = false;
+      await getProducts(null);
+      return;
+    }
+    
+    isSearch = true;
+
+    try {
+      // URL 인코딩을 위해 Uri.queryParameters 사용
+      final baseUri = Uri.parse(mainUrl);
+      final url = baseUri.replace(
+        path: '${baseUri.path}/products/searchByMain',
+        queryParameters: {'kwds': searchKeyword},
+      );
+      final response = await http.get(url);
+      
+      if (response.statusCode != 200) {
+        // API 에러 발생 시 검색 결과 없음으로 처리
+        products = [];
+        isSearch = false;
+        setState(() {});
+        return;
+      }
+      
+      final jsonData = json.decode(utf8.decode(response.bodyBytes));
+
+      // null 체크 및 results 존재 여부 확인
+      if (jsonData != null && 
+          jsonData.containsKey("results") && 
+          jsonData["results"] != null &&
+          jsonData["results"] is List &&
+          (jsonData["results"] as List).isNotEmpty) {
+        products = (jsonData["results"] as List).map((d) => Product.fromJson(d)).toList();
+        isSearch = false;
+      } else {
+        // 검색 결과가 없는 경우
+        products = [];
+        isSearch = false;
+      }
+    } catch (e) {
+      // 에러 발생 시 검색 결과 없음으로 처리
+      products = [];
+      isSearch = false;
+      if (kDebugMode) {
+        debugPrint('[ProductListView] 검색 에러: $e');
+      }
     }
     setState(() {});
   }

@@ -57,22 +57,79 @@ async def select_chattings():
 
 
 @router.get("/by_user_seq")
-async def select_chatting(u_seq: int,is_closed:bool):
-    print(u_seq)
+async def select_chatting(u_seq: int, is_closed: bool):
+    """
+    고객별 채팅 세션 조회
+    - is_closed=False: 열린 채팅방을 찾고, 없으면 닫힌 채팅방을 다시 열어서 반환
+    - is_closed=True: 닫힌 채팅방만 조회
+    """
     conn = connect_db()
     curs = conn.cursor()
-    curs.execute("""
-        SELECT c.chatting_seq, c.u_seq, c.fb_doc_id, c.s_seq, c.created_at, c.is_closed
-        , u.u_name, s.s_name
-        FROM chatting c
-        INNER JOIN user u on u.u_seq=c.u_seq
-        LEFT JOIN staff s on c.s_seq=s.s_seq
-        WHERE c.u_seq=%s
-    """,(u_seq,))
-    row = curs.fetchone()
+    
+    if is_closed == False:
+        # 열린 채팅방 먼저 찾기
+        curs.execute("""
+            SELECT c.chatting_seq, c.u_seq, c.fb_doc_id, c.s_seq, c.created_at, c.is_closed
+            , u.u_name, s.s_name
+            FROM chatting c
+            INNER JOIN user u on u.u_seq=c.u_seq
+            LEFT JOIN staff s on c.s_seq=s.s_seq
+            WHERE c.u_seq=%s AND c.is_closed=0
+            ORDER BY c.created_at DESC
+            LIMIT 1
+        """, (u_seq,))
+        row = curs.fetchone()
+        
+        # 열린 채팅방이 없으면 닫힌 채팅방 찾기
+        if row is None:
+            curs.execute("""
+                SELECT c.chatting_seq, c.u_seq, c.fb_doc_id, c.s_seq, c.created_at, c.is_closed
+                , u.u_name, s.s_name
+                FROM chatting c
+                INNER JOIN user u on u.u_seq=c.u_seq
+                LEFT JOIN staff s on c.s_seq=s.s_seq
+                WHERE c.u_seq=%s AND c.is_closed=1
+                ORDER BY c.created_at DESC
+                LIMIT 1
+            """, (u_seq,))
+            row = curs.fetchone()
+            
+            # 닫힌 채팅방을 찾으면 다시 열기
+            if row is not None:
+                chatting_seq = row[0]
+                curs.execute("""
+                    UPDATE chatting SET is_closed=0 WHERE chatting_seq=%s
+                """, (chatting_seq,))
+                conn.commit()
+                # 업데이트 후 다시 조회
+                curs.execute("""
+                    SELECT c.chatting_seq, c.u_seq, c.fb_doc_id, c.s_seq, c.created_at, c.is_closed
+                    , u.u_name, s.s_name
+                    FROM chatting c
+                    INNER JOIN user u on u.u_seq=c.u_seq
+                    LEFT JOIN staff s on c.s_seq=s.s_seq
+                    WHERE c.chatting_seq=%s
+                """, (chatting_seq,))
+                row = curs.fetchone()
+    else:
+        # 닫힌 채팅방만 조회
+        curs.execute("""
+            SELECT c.chatting_seq, c.u_seq, c.fb_doc_id, c.s_seq, c.created_at, c.is_closed
+            , u.u_name, s.s_name
+            FROM chatting c
+            INNER JOIN user u on u.u_seq=c.u_seq
+            LEFT JOIN staff s on c.s_seq=s.s_seq
+            WHERE c.u_seq=%s AND c.is_closed=1
+            ORDER BY c.created_at DESC
+            LIMIT 1
+        """, (u_seq,))
+        row = curs.fetchone()
+    
     conn.close()
+    
     if row is None:
         return {"result": "Error", "message": "Chatting not found"}
+    
     result = {
         'chatting_seq': row[0],
         'u_seq': row[1],
@@ -80,8 +137,8 @@ async def select_chatting(u_seq: int,is_closed:bool):
         's_seq': row[3],
         'created_at': row[4],
         'is_closed': row[5],
-        'u_name' : row[6],
-        's_name' : row[7]
+        'u_name': row[6],
+        's_name': row[7]
     }
     return {"result": result}
 

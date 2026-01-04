@@ -44,15 +44,15 @@ class _Dev_03State extends State<Dev_03> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: () => Get.to(UserPurchaseList()), 
+              onPressed: () => Get.to(() => UserPurchaseList()), 
               child: Text('주문 목록')
             ),
             ElevatedButton(
-              onPressed: () => Get.to(UserPickupList()), 
+              onPressed: () => Get.to(() => UserPickupList()), 
               child: Text('수령 목록')
             ),
             ElevatedButton(
-              onPressed: () => Get.to(UserRefundList()), 
+              onPressed: () => Get.to(() => UserRefundList()), 
               child: Text('반품 목록')
             )
           ],

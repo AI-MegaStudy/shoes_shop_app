@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get_storage/get_storage.dart';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:shoes_shop_app/theme/app_colors.dart';
 import 'package:shoes_shop_app/theme/theme_provider.dart';
@@ -15,6 +18,7 @@ import 'package:shoes_shop_app/view/admin/auth/admin_refund_view.dart';
 import 'package:shoes_shop_app/view/main/Admin/auth/admin_profile_edit_view.dart';
 import 'package:shoes_shop_app/view/main/Admin/user/admin_user_list_view.dart';
 import 'package:shoes_shop_app/view/main/Admin/product/product_management.dart';
+import 'package:shoes_shop_app/config.dart' as config;
 
 /// 관리자 드로워 메뉴
 /// GetStorage에서 'admin' 키로 저장된 staff 정보를 로드하여 표시합니다.
@@ -27,6 +31,7 @@ class AdminDrawerMenu extends StatefulWidget {
 
 class _AdminDrawerMenuState extends State<AdminDrawerMenu> {
   Staff? _currentStaff;
+  Uint8List? _profileImageBytes;
 
   @override
   void initState() {
@@ -35,7 +40,7 @@ class _AdminDrawerMenuState extends State<AdminDrawerMenu> {
   }
 
   /// 관리자 정보 로드
-  void _loadAdminInfo() {
+  Future<void> _loadAdminInfo() async {
     try {
       final storage = GetStorage();
       // GetStorage에서 'admin' 키로 저장된 데이터 로드
@@ -45,11 +50,35 @@ class _AdminDrawerMenuState extends State<AdminDrawerMenu> {
         setState(() {
           _currentStaff = staff;
         });
+        
+        // 프로필 이미지 로드
+        if (staff.s_seq != null) {
+          await _loadProfileImage(staff.s_seq!);
+        }
       }
     } catch (e) {
       // 에러 발생 시 기본값 유지
       if (mounted) {
-        debugPrint('❌ [AdminDrawer] 관리자 정보 로드 에러: $e');
+        debugPrint('[AdminDrawer] 관리자 정보 로드 에러: $e');
+      }
+    }
+  }
+
+  /// 프로필 이미지 로드
+  Future<void> _loadProfileImage(int staffSeq) async {
+    try {
+      final baseUrl = config.getApiBaseUrl();
+      final uri = Uri.parse('$baseUrl/api/staff/$staffSeq/profile_image');
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200 && response.bodyBytes.isNotEmpty && mounted) {
+        setState(() {
+          _profileImageBytes = response.bodyBytes;
+        });
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AdminDrawer] 프로필 이미지 로드 에러: $e');
       }
     }
   }
@@ -83,11 +112,7 @@ class _AdminDrawerMenuState extends State<AdminDrawerMenu> {
                         CircleAvatar(
                           radius: 40,
                           backgroundColor: p.cardBackground,
-                          child: Icon(
-                            Icons.admin_panel_settings,
-                            size: 40,
-                            color: p.primary,
-                          ),
+                          child: _buildProfileImage(context),
                         ),
                         const SizedBox(height: 12),
                         Text(
@@ -172,9 +197,13 @@ class _AdminDrawerMenuState extends State<AdminDrawerMenu> {
                           context,
                           icon: Icons.person,
                           title: '개인정보 수정',
-                          onTap: () {
+                          onTap: () async {
                             Get.back();
-                            Get.to(() => AdminProfileEditView());
+                            final result = await Get.to(() => AdminProfileEditView());
+                            // 개인정보 수정 후 관리자 정보 다시 로드
+                            if (result == true) {
+                              _loadAdminInfo();
+                            }
                           },
                         ),
                         
@@ -271,6 +300,48 @@ class _AdminDrawerMenuState extends State<AdminDrawerMenu> {
       },
       shape: RoundedRectangleBorder(
         borderRadius: mainSmallBorderRadius,
+      ),
+    );
+  }
+
+  /// 프로필 이미지 위젯
+  Widget _buildProfileImage(BuildContext context) {
+    final p = context.palette;
+    
+    if (_profileImageBytes != null) {
+      return ClipOval(
+        child: Image.memory(
+          _profileImageBytes!,
+          fit: BoxFit.cover,
+          width: 80,
+          height: 80,
+          errorBuilder: (context, error, stackTrace) {
+            return ClipOval(
+              child: Image.asset(
+                config.defaultProfileImage,
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Icon(Icons.admin_panel_settings, size: 40, color: p.primary);
+                },
+              ),
+            );
+          },
+        ),
+      );
+    }
+    
+    // 프로필 이미지가 없거나 로드되지 않은 경우 기본 이미지 표시
+    return ClipOval(
+      child: Image.asset(
+        config.defaultProfileImage,
+        width: 80,
+        height: 80,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Icon(Icons.admin_panel_settings, size: 40, color: p.primary);
+        },
       ),
     );
   }

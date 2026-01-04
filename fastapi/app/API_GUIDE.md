@@ -16,9 +16,10 @@
 5. [기본 CRUD API](#기본-crud-api)
 6. [인증 API](#인증-api)
 7. [JOIN API](#join-api)
-8. [특수 기능 API](#특수-기능-api)
-9. [에러 처리](#에러-처리)
-10. [사용 예시](#사용-예시)
+8. [관리자 API (Admin API)](#관리자-api-admin-api)
+9. [고객용 Plus API](#고객용-plus-api)
+10. [에러 처리](#에러-처리)
+11. [사용 예시](#사용-예시)
 
 ---
 
@@ -34,15 +35,15 @@
 
 ### API 구조
 
-- **기본 CRUD API**: 16개 테이블에 대한 CRUD 작업
+- **기본 CRUD API**: 11개 테이블에 대한 CRUD 작업
   - branches, users, user_auth_identities, staff, makers
   - kind_categories, color_categories, size_categories, gender_categories, refund_reason_categories
-  - products, purchase_items, pickups, refunds, receives, requests, chatting
+  - products, purchase_items, pickups, refunds, chatting
 - **인증 API**: 소셜 로그인 및 회원가입
-- **JOIN API**: 복잡한 조인 쿼리를 위한 6개 API 그룹
+- **JOIN API**: 복잡한 조인 쿼리를 위한 2개 API 그룹 (Product Join, Refund Join)
 - **관리자 API (Admin API)**: 관리자 페이지용 전용 API (구매 내역, 수령, 반품)
 - **고객용 Plus API**: 고객용 주문/수령/반품 내역 조회 API (검색 및 정렬 기능 포함)
-- **총 엔드포인트**: 약 130개 이상
+- **총 엔드포인트**: 약 100개 이상
 
 ---
 
@@ -95,7 +96,22 @@ GET /
     "branches": "/api/branches",
     "users": "/api/users",
     "user_auth_identities": "/api/user_auth_identities",
-    ...
+    "staff": "/api/staff",
+    "makers": "/api/makers",
+    "kind_categories": "/api/kind_categories",
+    "color_categories": "/api/color_categories",
+    "size_categories": "/api/size_categories",
+    "gender_categories": "/api/gender_categories",
+    "refund_reason_categories": "/api/refund_reason_categories",
+    "products": "/api/products",
+    "purchase_items": "/api/purchase_items",
+    "pickups": "/api/pickups",
+    "refunds": "/api/refunds",
+    "chatting": "/api/chatting"
+  },
+  "join_endpoints": {
+    "products_join": "/api/products/with_categories",
+    "refunds_join": "/api/refunds/{id}/with_details, /api/refunds/{id}/full_detail"
   }
 }
 ```
@@ -167,10 +183,10 @@ GET /
 | 메서드 | 엔드포인트 | 설명 |
 |--------|-----------|------|
 | GET | `/api/branches` | 전체 지점 조회 |
-| GET | `/api/branches/{br_seq}` | 지점 상세 조회 |
+| GET | `/api/branches/{branch_seq}` | 지점 상세 조회 |
 | POST | `/api/branches` | 지점 추가 |
-| POST | `/api/branches/{br_seq}` | 지점 수정 |
-| DELETE | `/api/branches/{br_seq}` | 지점 삭제 |
+| POST | `/api/branches/{branch_seq}` | 지점 수정 |
+| DELETE | `/api/branches/{branch_seq}` | 지점 삭제 |
 
 **데이터 모델:**
 ```json
@@ -239,8 +255,6 @@ curl -X POST "http://127.0.0.1:8000/api/users" \
 
 | 메서드 | 엔드포인트 | 설명 |
 |--------|-----------|------|
-| GET | `/api/user_auth_identities` | 전체 인증 정보 조회 |
-| GET | `/api/user_auth_identities/{auth_seq}` | 인증 정보 상세 조회 |
 | GET | `/api/user_auth_identities/user/{user_seq}` | 사용자별 인증 정보 조회 |
 | GET | `/api/user_auth_identities/provider/{provider}` | 제공자별 인증 정보 조회 |
 | POST | `/api/user_auth_identities` | 인증 정보 추가 |
@@ -362,10 +376,10 @@ curl "http://127.0.0.1:8000/api/staff/by_id/staff001"
 | 메서드 | 엔드포인트 | 설명 |
 |--------|-----------|------|
 | GET | `/api/makers` | 전체 제조사 조회 |
-| GET | `/api/makers/{m_seq}` | 제조사 상세 조회 |
+| GET | `/api/makers/{maker_seq}` | 제조사 상세 조회 |
 | POST | `/api/makers` | 제조사 추가 |
-| POST | `/api/makers/{m_seq}` | 제조사 수정 |
-| DELETE | `/api/makers/{m_seq}` | 제조사 삭제 |
+| POST | `/api/makers/{maker_seq}` | 제조사 수정 |
+| DELETE | `/api/makers/{maker_seq}` | 제조사 삭제 |
 
 ---
 
@@ -378,10 +392,10 @@ curl "http://127.0.0.1:8000/api/staff/by_id/staff001"
 | 메서드 | 엔드포인트 | 설명 |
 |--------|-----------|------|
 | GET | `/api/kind_categories` | 전체 조회 |
-| GET | `/api/kind_categories/{kc_seq}` | 상세 조회 |
+| GET | `/api/kind_categories/{kind_category_seq}` | 상세 조회 |
 | POST | `/api/kind_categories` | 추가 |
-| POST | `/api/kind_categories/{kc_seq}` | 수정 |
-| DELETE | `/api/kind_categories/{kc_seq}` | 삭제 |
+| POST | `/api/kind_categories/{kind_category_seq}` | 수정 |
+| DELETE | `/api/kind_categories/{kind_category_seq}` | 삭제 |
 
 #### 6.2 색상 카테고리 (Color Category)
 
@@ -407,15 +421,15 @@ curl "http://127.0.0.1:8000/api/staff/by_id/staff001"
 
 | 메서드 | 엔드포인트 | 설명 |
 |--------|-----------|------|
-| GET | `/api/products` | 전체 제품 조회 |
-| GET | `/api/products/{product_seq}` | 제품 상세 조회 |
-| GET | `/api/products/by_maker/{maker_seq}` | 제조사별 제품 조회 |
+| GET | `/api/products` | 전체 제품 조회 (모든 제품 목록, 제품 + 모든 카테고리 + 제조사 정보 JOIN) |
+| GET | `/api/products/group_by_name` | 제품명 그룹화 조회 (같은 이름의 제품을 그룹화) |
+| GET | `/api/products/id/{product_seq}` | 제품 ID로 상세 조회 |
+| GET | `/api/products/getBySeqs` | 제조사별 제품 조회 (쿼리 파라미터: m_seq) |
+| GET | `/api/products/searchByMain` | 키워드로 제품명 검색 (쿼리 파라미터: kwds, 부분 일치 검색) |
 | POST | `/api/products` | 제품 추가 |
 | POST | `/api/products/{product_seq}` | 제품 수정 |
 | POST | `/api/products/{product_seq}/stock` | 제품 재고 수정 |
 | POST | `/api/products/{product_seq}/upload_file` | 제품 이미지 업로드 |
-| GET | `/api/products/{product_seq}/file_info` | 제품 이미지 정보 조회 |
-| GET | `/api/products/{product_seq}/file` | 제품 이미지 다운로드 |
 | DELETE | `/api/products/{product_seq}` | 제품 삭제 |
 
 **데이터 모델:**
@@ -449,7 +463,7 @@ curl "http://127.0.0.1:8000/api/staff/by_id/staff001"
 | GET | `/api/purchase_items/by_user/{user_seq}` | 고객별 구매 내역 조회 |
 | GET | `/api/purchase_items/by_datetime` | 분 단위 그룹화된 주문 조회 |
 | POST | `/api/purchase_items` | 구매 내역 추가 |
-| POST | `/api/purchase_items/{id}` | 구매 내역 수정 |
+| POST | `/api/purchase_items/{purchase_item_seq}` | 구매 내역 수정 |
 | DELETE | `/api/purchase_items/{purchase_item_seq}` | 구매 내역 삭제 |
 
 **데이터 모델:**
@@ -484,10 +498,10 @@ curl "http://127.0.0.1:8000/api/staff/by_id/staff001"
 |--------|-----------|------|
 | GET | `/api/pickups` | 전체 수령 내역 조회 |
 | GET | `/api/pickups/{pickup_seq}` | 수령 내역 상세 조회 |
-| GET | `/api/pickups/{purchase_seq}` | 구매 내역별 수령 조회 |
+| GET | `/api/pickups/by_bseq/{purchase_item_seq}` | 구매 내역별 수령 조회 |
 | POST | `/api/pickups` | 수령 내역 추가 |
-| POST | `/api/pickups/{id}` | 수령 내역 수정 |
-| POST | `/api/pickups/pickup_seq/complete` | 수령 완료 처리 |
+| POST | `/api/pickups/{pickup_seq}` | 수령 내역 수정 |
+| POST | `/api/pickups/{pickup_seq}/complete` | 수령 완료 처리 |
 | DELETE | `/api/pickups/{pickup_seq}` | 수령 내역 삭제 |
 
 ---
@@ -502,45 +516,13 @@ curl "http://127.0.0.1:8000/api/staff/by_id/staff001"
 | GET | `/api/refunds/{refund_seq}` | 반품 내역 상세 조회 |
 | GET | `/api/refunds/by_user/{user_seq}` | 고객별 반품 내역 조회 |
 | POST | `/api/refunds` | 반품 내역 추가 |
-| POST | `/api/refunds/{id}` | 반품 내역 수정 |
+| POST | `/api/refunds/{refund_seq}` | 반품 내역 수정 |
 | POST | `/api/refunds/{refund_seq}/process` | 반품 처리 |
 | DELETE | `/api/refunds/{refund_seq}` | 반품 내역 삭제 |
 
 ---
 
-### 11. 입고 (Receive)
-
-**기본 경로**: `/api/receives`
-
-| 메서드 | 엔드포인트 | 설명 |
-|--------|-----------|------|
-| GET | `/api/receives` | 전체 입고 내역 조회 |
-| GET | `/api/receives/{receive_seq}` | 입고 내역 상세 조회 |
-| GET | `/api/receives/{product_seq}` | 제품별 입고 내역 조회 |
-| POST | `/api/receives` | 입고 내역 추가 |
-| POST | `/api/receives/{id}` | 입고 내역 수정 |
-| POST | `/api/receives/receive_seq/process` | 입고 처리 |
-| DELETE | `/api/receives/{receive_seq}` | 입고 내역 삭제 |
-
----
-
-### 12. 발주 (Request)
-
-**기본 경로**: `/api/requests`
-
-| 메서드 | 엔드포인트 | 설명 |
-|--------|-----------|------|
-| GET | `/api/requests` | 전체 발주 내역 조회 |
-| GET | `/api/requests/{request_seq}` | 발주 내역 상세 조회 |
-| POST | `/api/requests` | 발주 내역 추가 |
-| POST | `/api/requests/{id}` | 발주 내역 수정 |
-| POST | `/api/requests/request_seq/approve_manager` | 팀장 결재 처리 |
-| POST | `/api/requests/request_seq/approve_director` | 이사 결재 처리 |
-| DELETE | `/api/requests/{request_seq}` | 발주 내역 삭제 |
-
----
-
-### 13. 채팅 (Chatting)
+### 11. 채팅 (Chatting)
 
 **기본 경로**: `/api/chatting`
 
@@ -552,7 +534,7 @@ curl "http://127.0.0.1:8000/api/staff/by_id/staff001"
 | GET | `/api/chatting/by_user_seq` | 고객별 채팅 세션 조회 (쿼리 파라미터: u_seq, is_closed) |
 | GET | `/api/chatting/{chatting_seq}` | 채팅 세션 상세 조회 |
 | POST | `/api/chatting` | 채팅 세션 추가 |
-| POST | `/api/chatting/{id}` | 채팅 세션 수정 |
+| POST | `/api/chatting/{chatting_seq}` | 채팅 세션 수정 |
 | DELETE | `/api/chatting/{chatting_seq}` | 채팅 세션 삭제 |
 
 **데이터 모델:**
@@ -584,7 +566,9 @@ curl "http://127.0.0.1:8000/api/staff/by_id/staff001"
 curl "http://127.0.0.1:8000/api/chatting/by_user_seq?u_seq=1&is_closed=false"
 ```
 
-**참고**: `is_closed` 파라미터는 필수이지만, 현재 버전에서는 쿼리에 사용되지 않습니다. 향후 버전에서 필터링 기능이 추가될 예정입니다.
+**is_closed 파라미터 동작:**
+- `is_closed=false`: 열린 채팅방(`is_closed=0`)을 먼저 찾고, 없으면 닫힌 채팅방(`is_closed=1`)을 찾아서 자동으로 다시 열어서 반환합니다. 둘 다 없으면 `{"result": "Error"}` 반환
+- `is_closed=true`: 닫힌 채팅방만 조회합니다
 
 **채팅 세션 추가 예시:**
 ```bash
@@ -617,6 +601,7 @@ curl -X POST "http://127.0.0.1:8000/api/chatting" \
 - 채팅 메시지는 Firebase Firestore에 저장되며, `fb_doc_id`로 연결됩니다.
 - `s_seq`가 NULL인 경우 아직 담당 직원이 배정되지 않은 상태입니다.
 - `is_closed`가 `true`인 경우 종료된 채팅 세션입니다.
+- 같은 유저 ID로 `is_closed=false` 요청 시, 닫힌 채팅방이 있으면 자동으로 다시 열어서 재사용합니다.
 
 ---
 
@@ -693,63 +678,6 @@ curl -X POST "http://127.0.0.1:8000/api/auth/social/login" \
 }
 ```
 
-#### 2. 회원가입 완료 (2단계)
-
-```http
-POST /api/users/{user_seq}/complete_registration
-```
-
-**설명**: 소셜 로그인 사용자의 회원가입 완료 처리
-- 필수 필드: `u_phone`
-- 선택 필드: `u_name` (수정), `u_address`
-
-**요청 파라미터 (Form):**
-- `u_name` (선택): 이름 (수정 가능)
-- `u_phone` (필수): 전화번호
-- `u_address` (선택): 주소
-
-**요청 예시:**
-```bash
-curl -X POST "http://127.0.0.1:8000/api/users/2/complete_registration" \
-  -F "u_name=홍길동" \
-  -F "u_phone=010-1111-1111" \
-  -F "u_address=서울시 강남구"
-```
-
-**응답 예시:**
-```json
-{
-  "result": "OK",
-  "message": "회원가입이 완료되었습니다"
-}
-```
-
-#### 3. 회원가입 상태 확인
-
-```http
-GET /api/users/{user_seq}/registration_status
-```
-
-**설명**: 사용자의 회원가입 완료 상태 확인
-- 미완료인 경우 누락된 필드 목록 반환
-
-**응답 예시 (완료):**
-```json
-{
-  "registration_completed": true,
-  "message": "회원가입이 완료되었습니다"
-}
-```
-
-**응답 예시 (미완료):**
-```json
-{
-  "registration_completed": false,
-  "missing_fields": ["u_phone"],
-  "message": "추가 정보 입력이 필요합니다"
-}
-```
-
 ---
 
 ## JOIN API
@@ -758,35 +686,7 @@ GET /api/users/{user_seq}/registration_status
 
 **기본 경로**: `/api/products`
 
-#### 1.1 제품 전체 상세 조회
-
-```http
-GET /api/products/{product_seq}/full_detail
-```
-
-**설명**: 제품 + 모든 카테고리 + 제조사 정보 (6테이블 JOIN)
-
-**응답 예시:**
-```json
-{
-  "result": {
-    "p_seq": 1,
-    "p_name": "에어맥스 90",
-    "p_price": 150000,
-    "p_stock": 50,
-    "p_image": "/images/product_1.jpg",
-    "kind_name": "러닝화",
-    "color_name": "블랙",
-    "size_name": "260",
-    "gender_name": "남성",
-    "maker_name": "나이키",
-    "maker_phone": "02-1111-1111",
-    "maker_address": "서울시 강남구"
-  }
-}
-```
-
-#### 1.2 제품 목록 + 카테고리 조회
+#### 1.1 제품 목록 + 카테고리 조회
 
 ```http
 GET /api/products/with_categories
@@ -808,131 +708,69 @@ curl "http://127.0.0.1:8000/api/products/with_categories"
 
 # 필터링: 나이키 제품 중 남성용
 curl "http://127.0.0.1:8000/api/products/with_categories?maker_seq=1&gender_seq=1"
+```
 
-# 제조사별 제품 조회
-curl "http://127.0.0.1:8000/api/products/by_maker/{maker_seq}/with_categories"
+**응답 예시:**
+```json
+{
+  "results": [
+    {
+      "p_seq": 1,
+      "p_name": "에어맥스 90",
+      "p_price": 150000,
+      "p_stock": 50,
+      "p_image": "/images/product_1.jpg",
+      "kind_name": "러닝화",
+      "color_name": "블랙",
+      "size_name": "260",
+      "gender_name": "남성",
+      "maker_name": "나이키"
+    }
+  ]
+}
 ```
 
 ---
 
-### 2. 구매 내역 JOIN API
-
-**기본 경로**: `/api/purchase_items`
-
-#### 2.1 구매 내역 상세 조회
-
-```http
-GET /api/purchase_items/{purchase_item_seq}/with_details
-```
-
-**설명**: 구매 내역 + 고객 + 제품 + 지점 정보 (4테이블 JOIN)
-
-#### 2.2 구매 내역 전체 상세 조회
-
-```http
-GET /api/purchase_items/{purchase_item_seq}/full_detail
-```
-
-**설명**: 구매 내역 + 고객 + 제품 + 지점 + 모든 카테고리 + 제조사 (9테이블 JOIN)
-
-#### 2.3 분 단위 그룹화된 주문 조회
-
-```http
-GET /api/purchase_items/by_datetime/with_details
-```
-
-**파라미터:**
-- `user_seq` (필수): 고객 번호
-- `order_datetime` (필수): 주문 일시 (YYYY-MM-DD HH:MM 형식)
-- `branch_seq` (필수): 지점 번호
-
----
-
-### 3. 수령 JOIN API
-
-**기본 경로**: `/api/pickups`
-
-#### 3.1 수령 상세 조회
-
-```http
-GET /api/pickups/{pickup_seq}/with_details
-```
-
-**설명**: 수령 + 구매 내역 + 고객 + 제품 + 지점 정보 (5테이블 JOIN)
-
-#### 3.2 수령 전체 상세 조회
-
-```http
-GET /api/pickups/{pickup_seq}/full_detail
-```
-
-**설명**: 수령 + 구매 내역 + 고객 + 제품 + 지점 + 모든 카테고리 + 제조사 (10테이블 JOIN)
-
----
-
-### 4. 반품 JOIN API
+### 2. 반품 JOIN API
 
 **기본 경로**: `/api/refunds`
 
-#### 4.1 반품 상세 조회
+#### 2.1 반품 상세 정보 조회
 
 ```http
-GET /api/refunds/{refund_seq}/with_details
+GET /api/refunds/refunds/{refund_seq}/with_details
 ```
 
 **설명**: 반품 + 고객 + 직원 + 수령 + 구매 내역 + 제품 + 지점 정보 (7테이블 JOIN)
 
-#### 4.2 반품 전체 상세 조회
+**실제 경로**: `/api/refunds/refunds/{refund_seq}/with_details` (prefix `/api/refunds` + 라우터 경로 `/refunds/{refund_seq}/with_details`)
+
+#### 2.2 반품 전체 상세 정보 조회
 
 ```http
-GET /api/refunds/{refund_seq}/full_detail
+GET /api/refunds/refunds/{refund_seq}/full_detail
 ```
 
 **설명**: 반품 + 고객 + 직원 + 수령 + 구매 내역 + 제품 + 지점 + 모든 카테고리 + 제조사 (12테이블 JOIN)
 
----
+**실제 경로**: `/api/refunds/refunds/{refund_seq}/full_detail`
 
-### 5. 입고 JOIN API
-
-**기본 경로**: `/api/receives`
-
-#### 5.1 입고 상세 조회
+#### 2.3 고객별 반품 상세 정보 조회
 
 ```http
-GET /api/receives/{receive_seq}/with_details
+GET /api/refunds/refunds/by_user/{user_seq}/with_details
 ```
 
-**설명**: 입고 + 직원 + 제품 + 제조사 정보 (4테이블 JOIN)
+**설명**: 특정 고객의 모든 반품 내역을 상세 정보와 함께 조회
 
-#### 5.2 입고 전체 상세 조회
+#### 2.4 직원별 반품 상세 정보 조회
 
 ```http
-GET /api/receives/{receive_seq}/full_detail
+GET /api/refunds/refunds/by_staff/{staff_seq}/with_details
 ```
 
-**설명**: 입고 + 직원 + 제품 + 제조사 + 모든 카테고리 정보 (9테이블 JOIN)
-
----
-
-### 6. 발주 JOIN API
-
-**기본 경로**: `/api/requests`
-
-#### 6.1 발주 상세 조회
-
-```http
-GET /api/requests/{request_seq}/with_details
-```
-
-**설명**: 발주 + 직원 + 제품 + 제조사 정보 (4테이블 JOIN)
-
-#### 6.2 발주 전체 상세 조회
-
-```http
-GET /api/requests/{request_seq}/full_detail
-```
-
-**설명**: 발주 + 직원 + 제품 + 제조사 + 모든 카테고리 정보 (9테이블 JOIN)
+**설명**: 특정 직원이 처리한 모든 반품 내역을 상세 정보와 함께 조회
 
 ---
 
@@ -1261,13 +1099,6 @@ curl -X POST "http://127.0.0.1:8000/api/auth/social/login" \
   -F "name=홍길동"
 
 # 응답: {"result": {...}, "message": "소셜 로그인 성공. 추가 정보 입력이 필요합니다."}
-
-# 2. 회원가입 완료 (2단계: 추가 정보 입력)
-curl -X POST "http://127.0.0.1:8000/api/users/2/complete_registration" \
-  -F "u_phone=010-1111-1111" \
-  -F "u_address=서울시 강남구"
-
-# 응답: {"result": "OK", "message": "회원가입이 완료되었습니다"}
 ```
 
 ### 예시 3: 고객 가입 및 주문
@@ -1282,7 +1113,7 @@ curl -X POST "http://127.0.0.1:8000/api/users" \
   -F "file=@profile.jpg"
 
 # 2. 제품 조회
-curl "http://127.0.0.1:8000/api/products/1/full_detail"
+curl "http://127.0.0.1:8000/api/products/with_categories"
 
 # 3. 구매 내역 추가
 curl -X POST "http://127.0.0.1:8000/api/purchase_items" \
@@ -1330,6 +1161,7 @@ curl -X POST "http://127.0.0.1:8000/api/purchase_items" \
 5. **소프트 삭제**: `u_quit_date`, `s_quit_date`를 설정하여 탈퇴 처리를 할 수 있습니다.
 6. **로컬 회원가입**: `user` 테이블과 `user_auth_identities` 테이블을 별도 API로 생성해야 합니다.
 7. **소셜 로그인**: `user` 테이블과 `user_auth_identities` 테이블이 하나의 API에서 함께 생성됩니다.
+8. **채팅 API**: `is_closed=false`로 요청 시 닫힌 채팅방이 있으면 자동으로 다시 열어서 재사용합니다.
 
 ---
 
@@ -1396,8 +1228,28 @@ curl -X POST "http://127.0.0.1:8000/api/purchase_items" \
 - **API 개요 업데이트**: 기본 CRUD API 15개 → 16개 테이블로 증가 (chatting 추가)
 - **총 엔드포인트 수정**: 약 130개 → 약 136개 이상
 
+### 2026-01-05
+- **삭제된 API 섹션 제거**:
+  - Receives API (입고) 전체 삭제
+  - Requests API (발주) 전체 삭제
+  - Purchase Item Join API 전체 삭제
+  - Pickup Join API 전체 삭제
+  - Receive Join API 전체 삭제
+  - Request Join API 전체 삭제
+- **삭제된 엔드포인트 제거**:
+  - Product API: `GET /api/products`, `GET /api/products/{product_seq}`, `GET /api/products/by_maker/{maker_seq}`, `GET /api/products/{product_seq}/file_info`, `GET /api/products/{product_seq}/file`
+  - User Auth Identities API: `GET /api/user_auth_identities`, `GET /api/user_auth_identities/{auth_seq}`
+  - Product Join API: `GET /api/products/{product_seq}/full_detail`, `GET /api/products/by_maker/{maker_seq}/with_categories`, `GET /api/products/by_category`
+- **채팅 API 업데이트**:
+  - `is_closed` 파라미터 동작 상세 설명 추가
+  - `is_closed=false`일 때 닫힌 채팅방 자동 재사용 기능 설명 추가
+- **Refund Join API 경로 수정**:
+  - 실제 경로 명시: `/api/refunds/refunds/{refund_seq}/with_details` (prefix + 라우터 경로)
+- **API 개요 업데이트**: 기본 CRUD API 16개 → 11개 테이블로 감소
+- **총 엔드포인트 수정**: 약 136개 → 약 100개 이상
+
 ---
 
-**문서 버전**: 2.3  
-**최종 수정일**: 2026-01-04  
+**문서 버전**: 3.0  
+**최종 수정일**: 2026-01-05  
 **최종 수정자**: 김택권

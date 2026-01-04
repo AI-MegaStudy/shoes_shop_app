@@ -72,6 +72,60 @@ class Product(BaseModel):
 
 
 # ============================================
+# 전체 제품 조회
+# ============================================
+@router.get("")
+async def select_products():
+    """
+    전체 제품 조회 (모든 제품 목록 반환)
+    - 제품 + 모든 카테고리 + 제조사 정보를 JOIN하여 반환
+    """
+    conn = connect_db()
+    curs = conn.cursor()
+    
+    try:
+        curs.execute("""
+            select 
+                p.p_seq, p.kc_seq, p.cc_seq, p.sc_seq, p.gc_seq, p.m_seq, p.p_name, p.p_price, p.p_stock, p.p_image, p.p_description, p.created_at      
+                ,cc.cc_name as p_color,sc.sc_name as p_size,gc.gc_name as p_gender, ma.m_name
+            from product p 
+            inner join color_category cc on p.cc_seq=cc.cc_seq
+            inner join gender_category gc on p.gc_seq=gc.gc_seq
+            inner join size_category sc on p.sc_seq=sc.sc_seq
+            inner join maker ma on p.m_seq=ma.m_seq 
+            order by p.p_seq
+        """)
+        
+        rows = curs.fetchall()
+        
+        results = [{
+            "p_seq": row[0],
+            "kc_seq": row[1],
+            "cc_seq": row[2],
+            "sc_seq": row[3],
+            "gc_seq": row[4],
+            "m_seq": row[5],
+            "p_name": row[6],
+            "p_price": row[7],
+            "p_stock": row[8],
+            "p_image": row[9],
+            "p_description": row[10],
+            'created_at': row[11].isoformat() if row[11] else None,
+            "p_color": row[12],
+            "p_size": row[13],
+            "p_gender": row[14],
+            "p_maker": row[15]
+        } for row in rows]
+        
+        return {"results": results}
+    except Exception as error:
+        print(error)
+        return {"result": "Error", "errorMsg": str(error)}
+    finally:
+        conn.close()
+
+
+# ============================================
 # 전체 GROUP BY 제품 조회
 # ============================================
 @router.get("/group_by_name")
@@ -132,57 +186,6 @@ async def select_products_by_name():
 
 
 # ============================================
-# 전체 제품 조회
-# ============================================
-@router.get("")
-async def select_products():
-    conn = connect_db()
-    curs = conn.cursor()
-    
-    # original soruce
-    # curs.execute("""
-    #     SELECT p_seq, kc_seq, cc_seq, sc_seq, gc_seq, m_seq, p_name, p_price, p_stock, p_image, p_description, created_at 
-    #     FROM product 
-    #     ORDER BY p_seq
-    # """)
-    # rows = curs.fetchall()
-
-    curs.execute("""
-        select
-            p.p_seq, p.kc_seq, p.cc_seq, p.sc_seq, p.gc_seq, p.m_seq, p.p_name, p.p_price, p.p_stock, p.p_image, p.p_description, p.created_at  
-            ,cc.cc_name as p_color,sc.sc_name as p_size,gc.gc_name as p_gender, ma.m_name
-        from product p 
-        inner join color_category cc on p.cc_seq=cc.cc_seq
-        inner join gender_category gc on p.gc_seq=gc.gc_seq
-        inner join size_category sc on p.sc_seq=sc.sc_seq
-        inner join maker ma on p.m_seq=ma.m_seq                
-    """)
-    
-    rows = curs.fetchall()
-
-  
-    result = [{
-        'p_seq': row[0],
-        'kc_seq': row[1],
-        'cc_seq': row[2],
-        'sc_seq': row[3],
-        'gc_seq': row[4],
-        'm_seq': row[5],
-        'p_name': row[6],
-        'p_price': row[7],
-        'p_stock': row[8],
-        'p_image': row[9],
-        'p_description': row[10],
-        'created_at': row[11].isoformat() if row[11] else None,
-        'p_color': row[12],
-        'p_size': row[13],
-        'p_gender': row[14],
-        'p_maker': row[15],
-    } for row in rows]
-    return {"results": result}
-
-
-# ============================================
 # ID로 제품 조회
 # ============================================
 @router.get("/id/{product_seq}")
@@ -233,125 +236,6 @@ async def select_product(product_seq: int):
         'p_maker': row[15]
     }
     return {"result": result}
-
-
-# ============================================
-# 제조사별 제품 조회
-# ============================================
-@router.get("/by_maker/{maker_seq}")
-async def select_products_by_maker(maker_seq: int):
-    conn = connect_db()
-    curs = conn.cursor()
-    curs.execute("""
-        SELECT p_seq, kc_seq, cc_seq, sc_seq, gc_seq, m_seq, p_name, p_price, p_stock, p_image, p_description, created_at 
-        FROM product 
-        WHERE m_seq = %s
-        ORDER BY p_seq
-    """, (maker_seq,))
-    rows = curs.fetchall()
-    conn.close()
-    result = [{
-        'p_seq': row[0],
-        'kc_seq': row[1],
-        'cc_seq': row[2],
-        'sc_seq': row[3],
-        'gc_seq': row[4],
-        'm_seq': row[5],
-        'p_name': row[6],
-        'p_price': row[7],
-        'p_stock': row[8],
-        'p_image': row[9],
-        'p_description': row[10],
-        'created_at': row[11].isoformat() if row[11] else None
-    } for row in rows]
-    return {"results": result}
-
-
-# GT: 추가함
-# ============================================
-# Search (Read All)
-# ============================================
-@router.get("/search")
-async def select_search(
-  maker: Optional[str]=None,
-  kwds: Optional[str]=None,
-  color: Optional[str]=None,
-  size: Optional[str]=None,
-  isOneKwds: Optional[bool]=False
-):
-  
-  #### 쿼리 조건문 만들기
-  data = []
-  qry_condition = 'where 1=1 and '
-  if maker is not None:
-    qry_condition += 'ma.m_name=%s and '
-    data.append(maker)
-  kwds_condition = ''
-  if kwds is not None:
-    if isOneKwds :
-        kwds_condition += 'p.p_name =%s or '
-        data.append(kwds)
-    else :
-        for kwd in kwds.split(' '):
-            kwds_condition += 'p.p_name like %s or '
-            data.append(f"%{kwd}%")
-  if kwds_condition != '':
-    qry_condition += f'({kwds_condition[0:len(kwds_condition)-3]}) and '
-  if color is not None:
-    qry_condition += 'cc.cc_name=%s and '
-    data.append(color)
-  if size is not None:
-    qry_condition += 'p.size=%s and '
-    data.append(size)
-
-  qry_condition = qry_condition[0:len(qry_condition)-4]
-  #### END OF 쿼리 조건문 만들기
-
-  conn = connect_db()
-  try:
-    curs = conn.cursor()
-    curs.execute("""
-          select 
-            p.p_seq, p.kc_seq, p.cc_seq, p.sc_seq, p.gc_seq, p.m_seq, p.p_name, p.p_price, p.p_stock, p.p_image, p.p_description, p.created_at      
-            ,cc.cc_name as p_color,sc.sc_name as p_size,gc.gc_name as p_gender, ma.m_name
-          from product p 
-          inner join color_category cc on p.cc_seq=cc.cc_seq
-          inner join gender_category gc on p.gc_seq=gc.gc_seq
-          inner join size_category sc on p.sc_seq=sc.sc_seq
-          inner join maker ma on p.m_seq=ma.m_seq 
-          """ + qry_condition
-          ,data
-    )
-
-
-    rows = curs.fetchall()
-    print(rows)
-    results = [{
-        "p_seq": row[0],
-        "kc_seq": row[1],
-        "cc_seq": row[2],
-        "sc_seq": row[3],
-        "gc_seq": row[4],
-        "m_seq": row[5],
-        "p_name": row[6],
-        "p_price": row[7],
-        "p_stock": row[8],
-        "p_image": row[9],
-        "p_description" : row[10],
-        'created_at': row[11].isoformat() if row[11] else None,
-        "p_color": row[12],
-        "p_size": row[13],
-        "p_gender": row[14],
-        "p_maker": row[15]
-    } for row in rows]
-   
-  
-    return {"results": results}
-  except Exception as error:
-    print(error)
-    return {"result": "Error", "errorMsg": str(error)}
-  finally:
-     conn.close()
 
 
 # GT: 추가함
@@ -442,101 +326,78 @@ async def select_search(
      conn.close()
 
 
-
-# GT: 추가함
 # ============================================
-# Search (Read All)
+# 키워드 검색 (제품명 부분 일치 검색, 색상별 그룹화)
 # ============================================
 @router.get("/searchByMain")
-async def select_search_by_main(
-  maker: Optional[str]=None,
-  kwds: Optional[str]=None,
-  color: Optional[str]=None
-):
-  
-  #### 쿼리 조건문 만들기
-  data = []
-  qry_condition = 'where 1=1 and '
-  if maker is not None:
-    qry_condition += 'ma.m_name=%s and '
-    data.append(maker)
-  kwds_condition = ''
-  if kwds is not None:
-    for kwd in kwds.split(' '):
-      kwds_condition += 'p.p_name like %s or '
-      data.append(f"%{kwd}%")
-
-  if kwds_condition != '':
-    qry_condition += f'({kwds_condition[0:len(kwds_condition)-3]}) and '
-  if color is not None:
-    qry_condition += 'cc.cc_name=%s and '
-    data.append(color)
-  qry_condition = qry_condition[0:len(qry_condition)-4]
-  #### END OF 쿼리 조건문 만들기
-
-  conn = connect_db()
-  try:
-    curs = conn.cursor()
-    curs.execute("""
-             select p.p_name, p.cc_seq, p.m_seq, cc.cc_name, ma.m_name,p.p_image
-                
-            from product p 
-            inner join color_category cc on p.cc_seq=cc.cc_seq
-            inner join gender_category gc on p.gc_seq=gc.gc_seq
-            inner join size_category sc on p.sc_seq=sc.sc_seq
-            inner join maker ma on p.m_seq=ma.m_seq
-            
-          """ + qry_condition + " group by p.p_name,p.cc_seq,p.m_seq,p.p_image"
-          ,data
-    )
-         
-    rows = curs.fetchall()
-    print(rows)
-    # results = [{
-    #     "p_seq": row[0],
-    #     "kc_seq": row[1],
-    #     "cc_seq": row[2],
-    #     "sc_seq": row[3],
-    #     "gc_seq": row[4],
-    #     "m_seq": row[5],
-    #     "p_name": row[6],
-    #     "p_price": row[7],
-    #     "p_stock": row[8],
-    #     "p_image": row[9],
-    #     "p_description" : row[10],
-    #     'created_at': row[11].isoformat() if row[11] else None,
-    #     "p_color": row[12],
-    #     "p_size": row[13],
-    #     "p_gender": row[14],
-    #     "p_maker": row[15]
-    # } for row in rows]
-    results = [{
-        'p_seq': -1,
-        'kc_seq': -1,
-        'cc_seq': row[1],
-        'sc_seq': -1,
-        'gc_seq': -1,
-        'm_seq': row[2],
-        'p_name': row[0],
-        'p_price': -1,
-        'p_stock': -1,
-        'p_image': row[5],
-        'p_description': '',
-        'created_at': None,
-        'p_color': row[3],
-        'p_size': '',
-        'p_gender': '',
-        'p_maker': row[4],
-    } for row in rows]
-    return {"results": results}
-  except Exception as error:
-    print(error)
-    return {"result": "Error", "errorMsg": str(error)}
-  finally:
-     conn.close()
+async def search_by_main(kwds: Optional[str] = None):
+    """
+    제품명으로 키워드 검색 (부분 일치, 색상별 그룹화)
+    - kwds: 검색 키워드 (쿼리 파라미터)
+    - 제품명에 키워드가 포함된 제품을 색상별로 그룹화하여 반환
+    - 같은 제품명 + 같은 색상 + 같은 제조사 + 같은 이미지 조합은 하나만 반환
+    - 가격은 가장 낮은 가격 선택
+    """
+    conn = connect_db()
+    try:
+        curs = conn.cursor()
+        
+        if kwds is None or kwds.strip() == "":
+            # 키워드가 없으면 빈 결과 반환
+            return {"results": []}
+        
+        # LIKE 검색을 위한 키워드 준비
+        search_keyword = f"%{kwds.strip()}%"
+        
+        curs.execute("""
+            select pp.*
+            ,(select p_price from product where product.m_seq=pp.m_seq
+                            and product.cc_seq=pp.cc_seq and product.p_name=pp.p_name
+                            order by product.p_price asc limit 1
+                         ) as p_price 
+            from (
+                select p.p_name, p.cc_seq, p.m_seq, cc.cc_name, ma.m_name, p.p_image
+                from product p 
+                inner join color_category cc on p.cc_seq=cc.cc_seq
+                inner join gender_category gc on p.gc_seq=gc.gc_seq
+                inner join size_category sc on p.sc_seq=sc.sc_seq
+                inner join maker ma on p.m_seq=ma.m_seq
+                where p.p_name LIKE %s
+                group by p.p_name, p.cc_seq, p.m_seq, p.p_image
+            ) as pp
+        """, (search_keyword,))
+        
+        rows = curs.fetchall()
+        
+        result = [{
+            'p_seq': -1,
+            'kc_seq': -1,
+            'cc_seq': row[1],
+            'sc_seq': -1,
+            'gc_seq': -1,
+            'm_seq': row[2],
+            'p_name': row[0],
+            'p_price': row[6],
+            'p_stock': -1,
+            'p_image': row[5],
+            'p_description': '',
+            'created_at': None,
+            'p_color': row[3],
+            'p_size': '',
+            'p_gender': '',
+            'p_maker': row[4],
+        } for row in rows]
+        
+        return {"results": result}
+    except Exception as error:
+        print(error)
+        return {"result": "Error", "errorMsg": str(error)}
+    finally:
+        conn.close()
 
 
 
+# GT: 추가함
 # ============================================
 # 제품 추가
 # ============================================
@@ -753,124 +614,4 @@ async def upload_product_file(
         return {"result": "Error", "errorMsg": error_msg, "traceback": traceback.format_exc()}
 
 
-# ============================================
-# 제품 파일 정보 조회
-# ============================================
-@router.get("/{product_seq}/file_info")
-async def get_product_file_info(product_seq: int):
-    """
-    제품의 파일 정보를 조회합니다 (DB에 저장된 경로 반환).
-    """
-    try:
-        conn = connect_db()
-        curs = conn.cursor()
-        curs.execute("SELECT p_image FROM product WHERE p_seq = %s", (product_seq,))
-        row = curs.fetchone()
-        conn.close()
-        
-        if row is None:
-            return {"result": "Error", "message": "Product not found"}
-        
-        file_path = row[0] if row[0] else None
-        
-        if file_path is None:
-            return {"result": "Error", "message": "No file uploaded"}
-        
-        return {
-            "result": "OK",
-            "file_url": file_path,
-            "product_seq": product_seq
-        }
-    except Exception as e:
-        return {"result": "Error", "errorMsg": str(e)}
-
-
-# ============================================
-# 제품 파일 직접 다운로드 (PHP 웹서버 파일 시스템에서 직접 읽어서 반환)
-# ============================================
-@router.get("/{product_seq}/file")
-async def download_product_file(product_seq: int):
-    """
-    제품 파일을 직접 다운로드합니다 (PHP 웹서버 파일 시스템에서 파일을 읽어서 반환).
-    GLB 파일은 PHP 파일을 통해 접근하는 것을 권장하지만, 이 엔드포인트로도 다운로드 가능합니다.
-    """
-    try:
-        # DB에서 파일 경로 조회
-        conn = connect_db()
-        curs = conn.cursor()
-        curs.execute("SELECT p_image FROM product WHERE p_seq = %s", (product_seq,))
-        row = curs.fetchone()
-        conn.close()
-        
-        if row is None:
-            return {"result": "Error", "message": "Product not found"}
-        
-        file_url = row[0] if row[0] else None
-        
-        if file_url is None:
-            return {"result": "Error", "message": "No file uploaded"}
-        
-        # PHP 웹서버 URL에서 실제 파일명 추출
-        # 예: "https://cheng80.myqnapcloud.com/model.php?name=nike_v2k" -> "nike_v2k.glb"
-        # 예: "https://cheng80.myqnapcloud.com/images/product_1_image.jpg" -> "product_1_image.jpg"
-        
-        file_name = None
-        save_dir = None
-        
-        if "?name=" in file_url:
-            # GLB 파일: URL에서 모델명 추출
-            model_name = file_url.split("?name=")[1].split("&")[0]
-            file_name = f"{model_name}.glb"
-            save_dir = PHP_MODEL_DIR
-        elif "/images/" in file_url:
-            # 이미지 파일: images 디렉토리에서 파일명 추출
-            file_name = file_url.split("/images/")[1].split("?")[0]
-            save_dir = PHP_IMAGES_DIR
-        elif "/model/" in file_url:
-            # 예전 형식 호환: model 디렉토리에서 파일명 추출
-            file_name = file_url.split("/model/")[1].split("?")[0]
-            save_dir = PHP_MODEL_DIR
-        else:
-            # 파일명을 추출할 수 없는 경우
-            return {"result": "Error", "message": "Cannot extract file name from URL"}
-        
-        # PHP 웹서버 디렉토리에서 파일 읽기
-        file_path = save_dir / file_name
-        
-        if not file_path.exists():
-            return {"result": "Error", "message": f"파일을 찾을 수 없습니다: {file_path}"}
-        
-        # 파일 읽기
-        with open(file_path, "rb") as f:
-            file_content = f.read()
-        
-        # MIME 타입 결정
-        file_ext = Path(file_name).suffix.lower()
-        if file_ext == '.glb':
-            media_type = "model/gltf-binary"
-        elif file_ext in ['.jpg', '.jpeg']:
-            media_type = "image/jpeg"
-        elif file_ext == '.png':
-            media_type = "image/png"
-        elif file_ext == '.gif':
-            media_type = "image/gif"
-        elif file_ext == '.webp':
-            media_type = "image/webp"
-        else:
-            media_type = "application/octet-stream"
-        
-        # 파일 반환
-        return Response(
-            content=file_content,
-            media_type=media_type,
-            headers={
-                "Content-Disposition": f'inline; filename="{file_name}"',
-                "Cache-Control": "no-cache, no-store, must-revalidate"
-            }
-        )
-    except Exception as e:
-        import traceback
-        error_msg = str(e)
-        traceback.print_exc()
-        return {"result": "Error", "errorMsg": error_msg, "traceback": traceback.format_exc()}
 

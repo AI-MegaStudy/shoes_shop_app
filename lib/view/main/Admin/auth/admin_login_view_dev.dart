@@ -162,7 +162,7 @@ class _AdminLoginViewDevState extends State<AdminLoginViewDev> {
                                 ),
                               ),
                             ),
-
+                            /*
                             SizedBox(height: mainDefaultSpacing),
 
                             Center(
@@ -182,7 +182,7 @@ class _AdminLoginViewDevState extends State<AdminLoginViewDev> {
                                 ),
                               ),
                             ),
-
+                            */
                             SizedBox(height: mainDefaultSpacing),
 
                             Center(

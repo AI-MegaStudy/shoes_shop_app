@@ -22,16 +22,10 @@ from app.api import product
 from app.api import purchase_item
 from app.api import pickup
 from app.api import refund
-from app.api import receive
-from app.api import request
 
 # JOIN 라우터 import
 from app.api import product_join
-from app.api import purchase_item_join
-from app.api import pickup_join
 from app.api import refund_join
-from app.api import receive_join
-from app.api import request_join
 
 from app.api import purchase_item_plus
 from app.api import pickup_plus
@@ -61,18 +55,12 @@ app.include_router(gender_category.router, prefix="/api/gender_categories", tags
 app.include_router(refund_reason_category.router, prefix="/api/refund_reason_categories", tags=["refund_reason_categories"])
 # JOIN 라우터 등록 (더 구체적인 경로를 먼저 등록)
 app.include_router(product_join.router, prefix="/api/products", tags=["products-join"])
-app.include_router(purchase_item_join.router, prefix="/api/purchase_items", tags=["purchase_items-join"])
 
 app.include_router(product.router, prefix="/api/products", tags=["products"])
 app.include_router(purchase_item.router, prefix="/api/purchase_items", tags=["purchase_items"])
 app.include_router(pickup.router, prefix="/api/pickups", tags=["pickups"])
 app.include_router(refund.router, prefix="/api/refunds", tags=["refunds"])
-app.include_router(receive.router, prefix="/api/receives", tags=["receives"])
-app.include_router(request.router, prefix="/api/requests", tags=["requests"])
-app.include_router(pickup_join.router, prefix="/api/pickups", tags=["pickups-join"])
 app.include_router(refund_join.router, prefix="/api/refunds", tags=["refunds-join"])
-app.include_router(receive_join.router, prefix="/api/receives", tags=["receives-join"])
-app.include_router(request_join.router, prefix="/api/requests", tags=["requests-join"])
 
 app.include_router(purchase_item_plus.router, prefix="/api/purchase_items", tags=["purchase_items-plus"])
 app.include_router(pickup_plus.router, prefix="/api/pickups", tags=["pickups-plus"])
@@ -105,17 +93,11 @@ async def root():
             "purchase_items": "/api/purchase_items",
             "pickups": "/api/pickups",
             "refunds": "/api/refunds",
-            "receives": "/api/receives",
-            "requests": "/api/requests",
             "chatting": "/api/chatting" # GT ADDED
         },
         "join_endpoints": {
-            "products_join": "/api/products/{id}/full_detail, /api/products/with_categories",
-            "purchase_items_join": "/api/purchase_items/{id}/with_details, /api/purchase_items/{id}/full_detail",
-            "pickups_join": "/api/pickups/{id}/with_details, /api/pickups/{id}/full_detail",
-            "refunds_join": "/api/refunds/{id}/with_details, /api/refunds/{id}/full_detail",
-            "receives_join": "/api/receives/{id}/with_details, /api/receives/{id}/full_detail",
-            "requests_join": "/api/requests/{id}/with_details, /api/requests/{id}/full_detail"
+            "products_join": "/api/products/with_categories",
+            "refunds_join": "/api/refunds/{id}/with_details, /api/refunds/{id}/full_detail"
         }
     }
 

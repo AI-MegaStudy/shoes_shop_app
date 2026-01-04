@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/config_testsy.dart' as config_testsy;
@@ -34,20 +35,54 @@ class _AdminRefundViewState extends State<AdminRefundView> {
   }
 
   Future<void> getJSONData({String? search}) async{
-    final apiBaseUrl = config.getApiBaseUrl();
-    var urlStr = '$apiBaseUrl/api/refunds/admin/all';
-    if (search != null && search.isNotEmpty){
-      urlStr += '?search=$search';
+    try {
+      final apiBaseUrl = config.getApiBaseUrl();
+      var url = Uri.parse(apiBaseUrl).replace(
+        path: '/api/refunds/admin/all',
+        queryParameters: search != null && search.isNotEmpty ? {'search': search} : null,
+      );
+      print('Request URL: $url');
+      var response = await http.get(url);
+      
+      if (response.statusCode != 200) {
+        // HTTP 에러 발생 시 빈 리스트로 처리
+        data.clear();
+        setState(() {});
+        return;
+      }
+      
+      data.clear();
+      var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
+      
+      // 에러 응답 확인
+      if (dataConvertedJSON['result'] == 'Error') {
+        // API 에러 발생 시 빈 리스트로 처리
+        data.clear();
+        setState(() {});
+        return;
+      }
+      
+      var result = dataConvertedJSON['results'];
+      
+      // results가 null이거나 List가 아닌 경우 처리
+      if (result == null || result is! List) {
+        data.clear();
+        setState(() {});
+        return;
+      }
+      
+      // 타입 체크 후 List로 변환
+      final resultList = List<dynamic>.from(result);
+      data = resultList.map((e) => RefundAdmin.fromJson(e)).toList(); // model의 factory형태
+      setState(() {});
+    } catch (e) {
+      // 에러 발생 시 빈 리스트로 처리
+      data.clear();
+      setState(() {});
+      if (kDebugMode) {
+        debugPrint('[AdminRefundView] 데이터 로드 에러: $e');
+      }
     }
-    var url = Uri.parse(urlStr);
-    print('Request URL: $url');
-    var response = await http.get(url);
-    data.clear();
-    var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
-    var result = dataConvertedJSON['results'];
-    data = result.map((e) => RefundAdmin.fromJson(e)).toList(); // model의 factory형태
-
-    setState(() {});
   }
   @override
   Widget build(BuildContext context) {
@@ -123,9 +158,10 @@ class _AdminRefundViewState extends State<AdminRefundView> {
             ? Text('')
             : Padding(
               padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                   Card(
                     color: Colors.white,
                       shadowColor: Colors.transparent,
@@ -220,7 +256,8 @@ class _AdminRefundViewState extends State<AdminRefundView> {
                   )
                 ],
               ),
-            )
+            ),
+            ),
           )
         ],
       ),
@@ -230,9 +267,9 @@ class _AdminRefundViewState extends State<AdminRefundView> {
   // --- widgets ---
 
   // --- functions ---
-  Future<void> getJSONrefSeqData(int r_seq) async{
+  Future<void> getJSONrefSeqData(int rSeq) async{
     final apiBaseUrl = config.getApiBaseUrl();
-    var url = Uri.parse('$apiBaseUrl/api/refunds/admin/$r_seq/full_detail');
+    var url = Uri.parse('$apiBaseUrl/api/refunds/admin/$rSeq/full_detail');
     print(url);
     var response = await http.get(url);
     var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));

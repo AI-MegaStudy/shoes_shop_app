@@ -126,12 +126,12 @@ class _GTUserCartViewState extends State<GTUserCartView> {
                                   borderRadius: BorderRadius.circular(12),
                                   child: Container(
                                     width: 90,
-                                    height: 90,
+                                    height: 100,
                                     color: Colors.white,
                                     child: Image.network(
                                       //'http://172.16.250.175:8000/api/products/?t=${DateTime.now().microsecondsSinceEpoch}',
                                       'https://cheng80.myqnapcloud.com/images/${data[index].p_image}',
-                                      width: 100,
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
                                 ),
@@ -147,7 +147,14 @@ class _GTUserCartViewState extends State<GTUserCartView> {
                                         style: TextStyle(color: Colors.black54, fontSize: 14),
                                       ),
                                       SizedBox(height: 8),
-                                      Text("단가: ${CustomCommonUtil.formatPrice(data[index].p_price)}", style: TextStyle(fontSize: 14)),
+                                      Text(
+                                        "단가: ${CustomCommonUtil.formatPrice(data[index].p_price)}",
+                                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                                      ),
+                                      Text(
+                                        "합계: ${CustomCommonUtil.formatPrice(data[index].p_price * data[index].quantity)}",
+                                        style: TextStyle(fontSize: 14),
+                                      ),
                                       SizedBox(height: 4),
                                       // Text(
                                       //   "합계: ${(data[index].p_price ?? 0) * (data[index].cc_quantity ?? 1)}원",
@@ -189,21 +196,33 @@ class _GTUserCartViewState extends State<GTUserCartView> {
                       },
                     ),
                   ),
+                  Divider(height: 1, color: Colors.grey),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
                       width: MediaQuery.of(context).size.width,
                       height: purchaseBoxHeight - 180,
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: Colors.blue[100]),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)),
                       child: Row(
                         spacing: 10,
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Padding(padding: const EdgeInsets.fromLTRB(0, 0, 100, 0), child: Text('총액 : ${CustomCommonUtil.formatPrice(totalPrice)}')),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 100, 0),
+                            child: Text('총액 : ${CustomCommonUtil.formatPrice(totalPrice)}', style: TextStyle(fontSize: 18)),
+                          ),
 
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: ElevatedButton(onPressed: () => Get.to(() => UserPurchaseView()), child: Text('결제 화면')),
+                            child: ElevatedButton(
+                              onPressed: () => Get.to(() => UserPurchaseView()),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                              ),
+                              child: Text('결제 화면'),
+                            ),
                           ),
                         ],
                       ),

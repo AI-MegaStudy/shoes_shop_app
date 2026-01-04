@@ -12,8 +12,8 @@ import 'package:shoes_shop_app/view/user/product/list_view.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 import 'package:shoes_shop_app/config.dart' as config;
 
-
 import 'package:shoes_shop_app/custom/external_util/network/custom_network_util.dart';
+import 'package:shoes_shop_app/utils/custom_common_util.dart';
 
 class CartItem {
   int p_seq, p_price, cc_seq, sc_seq, gc_seq, quantity;
@@ -168,7 +168,7 @@ class _UserPurchaseViewState extends State<UserPurchaseView> {
                           ),
                         ),
                         subtitle: Text("${data[index].cc_name} / ${data[index].sc_name} / ${data[index].quantity}개"),
-                        trailing: Text("${data[index].p_price}원"),
+                        trailing: Text("${CustomCommonUtil.formatPrice(data[index].p_price)}"),
                       ),
                     ),
                   ),
@@ -190,7 +190,7 @@ class _UserPurchaseViewState extends State<UserPurchaseView> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            '총액 : $totalPrice원',
+            '총액 : ${CustomCommonUtil.formatPrice(totalPrice)}',
             style: TextStyle(
               //fontSize: 18,
               // fontWeight: FontWeight.bold,
@@ -324,8 +324,6 @@ class _UserPurchaseViewState extends State<UserPurchaseView> {
   Future<void> _savePurchaseItemsToDb(Branch branch) async {
     // 구매 전 재고 확인 (다른 사용자의 구매로 재고가 변경되었을 수 있음)
     final (isValid, insufficientItems) = await _validateStock();
-
-    print('$isValid--------');
     if (!isValid) {
       final errorMessage =
           '재고가 부족한 상품이 있습니다:\n${insufficientItems.join('\n')}\n\n'
@@ -421,28 +419,23 @@ class _UserPurchaseViewState extends State<UserPurchaseView> {
       // API에서 최신 재고 조회
       try {
         final response = await CustomNetworkUtil.get<Map<String, dynamic>>('/api/products/id/$productId', fromJson: (json) => json);
-        print(response);
-        print('=-=-=-=-=');
+
         if (!response.success || response.data == null) {
           insufficientItems.add('$productName: 제품 정보를 찾을 수 없습니다.');
           continue;
         }
 
         final productData = response.data!['result'] as Map<String, dynamic>;
-        print(productData);
         final stock = productData['p_stock'];
 
         // 재고 부족 체크
         if (stock < purchaseQuantity) {
-          print('aasdfasdfsdfasdfasdf');
           insufficientItems.add('$productName: 재고 $stock개 / 구매 요청 $purchaseQuantity개');
         }
       } catch (e) {
-        print(e);
         insufficientItems.add('$productName: 재고 확인 실패');
       }
     }
-    print(insufficientItems);
     return (insufficientItems.isEmpty, insufficientItems);
   }
 }

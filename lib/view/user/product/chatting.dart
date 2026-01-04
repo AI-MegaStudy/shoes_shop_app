@@ -2,7 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get_utils/get_utils.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:shoes_shop_app/config.dart';
 // import 'package:get_storage/get_storage.dart';
 
 class Chatting extends StatefulWidget {
@@ -29,10 +32,10 @@ class _ChattingState extends State<Chatting> {
   List<MsgObj> listMessage = [];
 
   String fb_collection_id = 'chatting';
-  String fb_doc_id = ''; //'VL4CihKJcvzws9lcASoZ'; // '9k9U3bHxup6LKg1LdtfH';
+  String fb_doc_id = '';
   Map<String, dynamic> current_user = {"id": -1, "name": "no name"};
 
-  final String mainUrl = "http://127.0.0.1:8000/api";
+  final String mainUrl = customApiBaseUrl + "/api"; //"http://127.0.0.1:8000/api";
 
   @override
   void initState() {
@@ -40,22 +43,17 @@ class _ChattingState extends State<Chatting> {
 
     // 유저의 doc id가 존재 한지 DB확인
     // 세션이 종료된지 확인해야 함.
-    // GetStorage storage = GetStorage();
-    // final userJson = json.decode(storage.read('user'));
-    current_user["id"] = 28;
-    current_user["name"] = '빌게이츠';
+    GetStorage storage = GetStorage();
+    final userJson = json.decode(storage.read('user'));
+    current_user["id"] = userJson['uSeq'];
+    current_user["name"] = userJson['uName'];
 
-    // create Doc_id for the user.
-    // createDocId();
     checkGetChatting();
   }
 
   // 유저이름으로 쳇팅방이 있나 확인 없으면 방만들고 저장후 시작.
   Future<void> checkGetChatting() async {
-    // 요청하여 값을 가져온다.
-    // 전체 제품 가져오는 부분
-    // String _url = mainUrl + "/products";
-    String _url = mainUrl + "/chatting/by_user_seq?u_seq=${current_user["id"]}&is_closed=False";
+    String _url = mainUrl + "/chatting/by_user_seq?u_seq=${current_user["id"]}&is_closed=false";
 
     var url = Uri.parse(_url);
     var response = await http.get(url, headers: {});
@@ -63,51 +61,30 @@ class _ChattingState extends State<Chatting> {
     print(jsonData);
     if (jsonData["result"] != null && jsonData["result"] != "Error") {
       // 존재 함.
-
-      fb_doc_id = jsonData["result"]["fb_doc_id"];
+      fb_doc_id = jsonData["result"]["fb_doc_id"] != null ? jsonData["result"]["fb_doc_id"] : '';
       print('====== 존재함 ${fb_doc_id}');
     } else {
+      print('====== 존재 안함');
       // 존재 안함.
-      // await createDocId();
+      await createDocId();
       // Insert Chatting
       _url = mainUrl + "/chatting";
-      url = Uri.parse(_url);
-      response = await http.post(
-        url,
-        // headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: {"u_seq": "1", "fb_doc_id": "aaa", "s_seq": "0", "is_closed": "0"},
-        //{"u_seq": current_user["id"], "fb_doc_id": fb_doc_id, "s_seq": 0, "is_closed": false},
-      );
-      print(response);
-      print('====== 존재 안함');
+      var request = http.MultipartRequest('POST', Uri.parse(_url));
+
+      request.fields['u_seq'] = "${current_user["id"]}";
+      request.fields['fb_doc_id'] = fb_doc_id;
+      request.fields['s_seq'] = "0";
+      request.fields['is_closed'] = "false";
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        // Success
+        print('response ===== $response');
+      } else {
+        // Failed
+        // Todo: Snack Message
+      }
     }
     setState(() {});
-  }
-
-  Future<void> createDocId() async {
-    CollectionReference chattings = FirebaseFirestore.instance.collection(fb_collection_id);
-
-    // Add the data and get the DocumentReference of the new document
-    DocumentReference documentRef = await chattings.add({
-      'created_at': Timestamp.fromDate(DateTime.now()),
-      'is_closed': false,
-      'user_seq': current_user["id"],
-      'data': {'datetime': Timestamp.fromDate(DateTime.now()), 'message': '상담사와 연결중입니다. 잠시 기다려 주십시요.', 'name': '시스템'},
-    });
-
-    // Access the auto-generated document ID
-    String docId = documentRef.id;
-    fb_doc_id = docId;
-    // 쳇팅방을 저장한다.
-
-    setState(() {});
-    print('============ ${docId}');
-  }
-
-  Future<void> deleteDocData() async {
-    await FirebaseFirestore.instance.collection(fb_collection_id).doc(fb_doc_id).set({'data': []}).then((data) {
-      print("cleared");
-    });
   }
 
   @override
@@ -152,30 +129,6 @@ class _ChattingState extends State<Chatting> {
                           // );
                         },
                       ),
-
-                // child: ListView.builder(
-                //   itemCount: listMessage.length,
-                //   itemBuilder: (context, index) {
-                //     return Card(
-                //       child: Row(
-                //         spacing: 10,
-                //         children: [
-                //           Text(listMessage[index].name),
-                //           Column(
-                //             crossAxisAlignment: CrossAxisAlignment.start,
-                //             children: [Text(listMessage[index].message)],
-                //           ),
-                //         ],
-                //       ),
-                //     );
-                //   },
-                // ),
-              ),
-              Row(
-                children: [
-                  ElevatedButton(onPressed: () => createDocId(), child: Text('CREATE DOC')),
-                  ElevatedButton(onPressed: () => deleteDocData(), child: Text('Clear')),
-                ],
               ),
 
               Row(
@@ -215,23 +168,25 @@ class _ChattingState extends State<Chatting> {
   }
 
   // == Functions
-  Future<void> createDoc() async {
-    // final chattingDocName = await FirebaseFirestore.instance.collection('chatting')
-    // .add({"chatId":'1','user':'test','datetime':DateTime.now().toString()});
-    // print("${chattingDocName}======================");
-    // 유저의 doc
+  Future<void> createDocId() async {
+    print('hitted === ');
+    CollectionReference chattings = FirebaseFirestore.instance.collection(fb_collection_id);
+    print('1 === ');
+    // Add the data and get the DocumentReference of the new document
+    DocumentReference documentRef = await chattings.add({
+      'created_at': Timestamp.fromDate(DateTime.now()),
+      'is_closed': false,
+      'user_seq': current_user["id"],
+      'data': [
+        {'datetime': Timestamp.fromDate(DateTime.now()), 'message': '상담사와 연결중입니다. 잠시 기다려 주십시요.', 'name': '시스템'},
+      ],
+    });
+    print('2 == ');
+    // Access the auto-generated document ID
+    String docId = documentRef.id;
+    fb_doc_id = docId;
 
-    // Document->field:
-    // {
-    //   "userId":1,
-    //   "chatId": 'firstchatId-1',
-    //   'length': 2,
-    //   "data": [
-    //     {"who":'유저1', "message":"헬로우"},
-    //     {"who":'담당자1', "message":'무엇을 도와 드릴까요?'},
-    //   ]
-
-    // }
+    setState(() {});
   }
 
   Future<void> insertMessage(String value) async {
@@ -248,23 +203,20 @@ class _ChattingState extends State<Chatting> {
     await FirebaseFirestore.instance.collection(fb_collection_id).doc(fb_doc_id).set({'data': arrData}).then((data) {
       teMessageController.text = '';
     });
-
-    // print("${arrData[0]['who']} =============");
-    // listMessage.add(
-    //   MsgObj(name: user1, message: value, datetime: DateTime.now().toString()),
-    // );
-    // setState(() {});
-    // Create 문서
   }
 
   Widget _buildWidget(doc) {
+    print(doc);
+    if (doc == null || doc['name'] == null) {
+      return Text('loading...');
+    }
     MsgObj m = MsgObj(name: doc['name'], message: doc['message'], datetime: doc['datetime']);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
       child: SizedBox(
         width: 200,
-        height: 80,
+
         child: Card(
           margin: m.name == current_user['name']
               ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width / 2.5, 0, 0, 0)

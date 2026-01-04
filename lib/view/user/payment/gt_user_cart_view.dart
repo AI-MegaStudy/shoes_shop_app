@@ -257,9 +257,9 @@ class _GTUserCartViewState extends State<GTUserCartView> {
   }
 
   void _remove(int index) {
+    totalPrice -= data[index].p_price * data[index].quantity;
     CartStorage.removeItem(index);
     data.removeAt(index);
-    totalPrice = 0;
     setState(() {});
   }
 

@@ -161,12 +161,12 @@ class _UserProfileEditViewState extends State<UserProfileEditView> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // 개인정보 수정 타이틀
-                        Text(
-                          '개인정보 수정',
-                          style: userAuthTitleStyle,
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(height: userAuthLargeSpacing),
+                        // Text(
+                        //   '개인정보 수정',
+                        //   style: userAuthTitleStyle,
+                        //   textAlign: TextAlign.center,
+                        // ),
+                        // SizedBox(height: userAuthLargeSpacing),
                         // 프로필 이미지 선택 영역
                         Center(
                           child: GestureDetector(

@@ -41,9 +41,6 @@ class _LoginViewState extends State<LoginView> {
     scopes: ['email', 'profile'],
   );
 
-  /// 로고 표시 여부 (기본값: false, 2초 안에 5번 클릭하면 true로 변경)
-  final bool _showLogo = false;
-
   /// 관리자 진입을 위한 로고 탭 횟수
   int _adminTapCount = 0;
   
@@ -118,20 +115,10 @@ class _LoginViewState extends State<LoginView> {
                               color: p.divider,
                               borderRadius: userAuthDefaultBorderRadius,
                             ),
-                            child: _showLogo
-                                ? Image.asset(
-                                    'images/logo.png',
-                                    fit: BoxFit.contain,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return const Center(
-                                        child: Text(
-                                          'SHOE KING',
-                                          style: userAuthLargeTitleStyle,
-                                        ),
-                                      );
-                                    },
-                                  )
-                                : null,
+                            child: Image.asset(
+                              'images/Shoes_Shop_AppLogo.png',
+                              fit: BoxFit.contain,
+                            ),
                           ),
                         ),
                         SizedBox(height: userAuthDefaultSpacing),

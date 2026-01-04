@@ -83,20 +83,33 @@ class ProductDetailView extends StatefulWidget {
 class _ProductDetailViewState extends State<ProductDetailView> {
   Product? product = Get.arguments;
 
+  /// 초기 제품 정보 (진입 시 받아온 값)
+  Product? _initialProduct;
+
+  /// 같은 제품명의 모든 색상별 제품 목록
+  List<Product> _allColorProducts = [];
+
+  /// 카테고리 목록 (전체)
+  List<GenderCategory> _genderCategories = [];
+  List<ColorCategory> _colorCategories = [];
+  List<SizeCategory> _sizeCategories = [];
+
+  /// 실제 존재하는 옵션만 필터링된 리스트
+  List<ColorCategory> _availableColors = [];
+  List<SizeCategory> _availableSizes = [];
+  List<GenderCategory> _availableGenders = [];
+
   late int selectedGender = 2;
   late int selectedColor = 0;
   late int selectedSize = 0;
   bool isExist = true;
 
   int quantity = 1;
-  // Map<String, dynamic> genderList = {'남성': 1, '여성': 2, '공통': 3};
-  // List<String> genderList = ['남성', '여성', '공통'];
-  List genderList = [];
-  List colorList = [];
-  // List<String> colorList = ['블랙', '화이트', '그레이', '레드', '블루', '그린', '옐로우'];
-  // Map<String, dynamic> colorList = {'블랙': 1, '화이트': 2, '그레이': 3, '레드': 4, '블루': 5, '그린': 6, '옐로우': 7};
-  // List<int> sizeList = [220, 225, 230, 235, 240, 250, 260, 270, 275, 280, 290];
-  List sizeList = [];
+
+  /// 3D 뷰어용 데이터
+  List<String> _3dImageNames = []; // 색상별 이미지 파일명 리스트
+  List<String> _3dColorNames = []; // 색상명 리스트
+  int _3dReloadKey = 0; // 위젯 재생성을 위한 키
   // == UI관련 색깔
   // 선택 버튼 background
   final Color selectedBgColor = Colors.blue;
@@ -105,79 +118,232 @@ class _ProductDetailViewState extends State<ProductDetailView> {
   // Title Font Size
   final double titleFontSize = 15.0;
 
-  String get mainUrl => config.getApiBaseUrl() + "/api";
+  String get mainUrl => "${config.getApiBaseUrl()}/api";
   @override
   void initState() {
     super.initState();
-
-    // Set default value before starting.
-
-    // product!.gc_seq = selectedGender+1;
-    // product!.sc_seq = selectedSize+1;
-    // product!.p_gender = genderList[selectedGender];
-    // product!.p_color = colorList[selectedColor];
-    // product!.p_size = sizeList[selectedSize].toString();
-
+    _initialProduct = product;
     initializedData();
   }
 
   Future<void> initializedData() async {
-    // Get Gender Data from Search
+    if (product == null) return;
 
-    String _url = mainUrl + "/gender_categories";
+    try {
+      // 1. 카테고리 목록 로드 (전체)
+      await _loadCategories();
 
-    var url = Uri.parse(_url);
-    var response = await http.get(url, headers: {});
-    var jsonData = json.decode(utf8.decode(response.bodyBytes));
+      // 2. 같은 제품명의 모든 색상별 제품 조회
+      await _loadAllColorProducts();
 
-    genderList.addAll(jsonData["results"].map((d) => GenderCategory.fromJson(d)).toList());
+      // 3. 실제 존재하는 옵션만 필터링
+      _updateAvailableOptions();
 
-    _url = mainUrl + "/color_categories";
-    url = Uri.parse(_url);
-    response = await http.get(url, headers: {});
-    jsonData = json.decode(utf8.decode(response.bodyBytes));
-    colorList.addAll(jsonData["results"].map((d) => ColorCategory.fromJson(d)).toList());
-    selectedColor = colorList.indexWhere((f) => f.cc_seq == product!.cc_seq);
+      // 4. 초기 선택값 설정
+      _setInitialSelections();
 
-    _url = mainUrl + "/size_categories";
-    url = Uri.parse(_url);
-    response = await http.get(url, headers: {});
-    jsonData = json.decode(utf8.decode(response.bodyBytes));
-    sizeList.addAll(jsonData["results"].map((d) => SizeCategory.fromJson(d)).toList());
+      // 5. 3D 뷰어 데이터 구성
+      _build3DViewerData();
 
-    // Get Product with color,size,gender
-    // price must update
-    await getProduct("init");
+      // 6. 초기 제품 정보 업데이트
+      await getProduct("init");
+    } catch (e) {
+      debugPrint('데이터 로드 실패: $e');
+    }
+  }
+
+  /// 카테고리 목록 로드 (전체)
+  Future<void> _loadCategories() async {
+    try {
+      // Gender Categories
+      var url = Uri.parse("$mainUrl/gender_categories");
+      var response = await http.get(url, headers: {});
+      var jsonData = json.decode(utf8.decode(response.bodyBytes));
+      _genderCategories = (jsonData["results"] as List)
+          .map((d) => GenderCategory.fromJson(d))
+          .toList();
+
+      // Color Categories
+      url = Uri.parse("$mainUrl/color_categories");
+      response = await http.get(url, headers: {});
+      jsonData = json.decode(utf8.decode(response.bodyBytes));
+      _colorCategories = (jsonData["results"] as List)
+          .map((d) => ColorCategory.fromJson(d))
+          .toList();
+
+      // Size Categories
+      url = Uri.parse("$mainUrl/size_categories");
+      response = await http.get(url, headers: {});
+      jsonData = json.decode(utf8.decode(response.bodyBytes));
+      _sizeCategories = (jsonData["results"] as List)
+          .map((d) => SizeCategory.fromJson(d))
+          .toList();
+    } catch (e) {
+      debugPrint('카테고리 로드 실패: $e');
+    }
+  }
+
+  /// 같은 제품명의 모든 색상별 제품 조회
+  Future<void> _loadAllColorProducts() async {
+    try {
+      final url = Uri.parse(
+          "$mainUrl/products/getBySeqs?m_seq=${_initialProduct!.m_seq}&p_name=${Uri.encodeComponent(_initialProduct!.p_name)}");
+      final response = await http.get(url);
+      final jsonData = json.decode(utf8.decode(response.bodyBytes));
+
+      if (jsonData['results'] != null) {
+        _allColorProducts = (jsonData['results'] as List)
+            .map((d) => Product.fromJson(d))
+            .toList();
+      }
+    } catch (e) {
+      debugPrint('같은 제품명의 모든 색상별 제품 조회 실패: $e');
+    }
+  }
+
+  /// 실제 존재하는 옵션만 필터링
+  void _updateAvailableOptions() {
+    if (_allColorProducts.isEmpty) return;
+
+    // 실제 존재하는 색상만 필터링
+    final existingColorSeqs = _allColorProducts.map((p) => p.cc_seq).toSet().toList();
+    _availableColors = _colorCategories.where((c) => existingColorSeqs.contains(c.cc_seq)).toList();
+
+    // 선택된 색상이 있으면 해당 색상의 사이즈만 필터링
+    if (_availableColors.isNotEmpty && selectedColor < _availableColors.length) {
+      final selectedColorSeq = _availableColors[selectedColor].cc_seq;
+      final existingSizeSeqs = _allColorProducts
+          .where((p) => p.cc_seq == selectedColorSeq)
+          .map((p) => p.sc_seq)
+          .toSet()
+          .toList();
+      _availableSizes = _sizeCategories.where((s) => existingSizeSeqs.contains(s.sc_seq)).toList()
+        ..sort((a, b) => a.sc_seq.compareTo(b.sc_seq)); // 사이즈 순으로 정렬
+
+      // 선택된 사이즈가 있으면 해당 색상+사이즈의 성별만 필터링
+      if (_availableSizes.isNotEmpty && selectedSize < _availableSizes.length) {
+        final selectedSizeSeq = _availableSizes[selectedSize].sc_seq;
+        final existingGenderSeqs = _allColorProducts
+            .where((p) => p.cc_seq == selectedColorSeq && p.sc_seq == selectedSizeSeq)
+            .map((p) => p.gc_seq)
+            .toSet()
+            .toList();
+        _availableGenders = _genderCategories.where((g) => existingGenderSeqs.contains(g.gc_seq)).toList();
+      } else {
+        _availableGenders = [];
+      }
+    } else {
+      _availableSizes = [];
+      _availableGenders = [];
+    }
+  }
+
+  /// 3D 뷰어 데이터 구성 (색상별 이미지 파일명 리스트 생성)
+  void _build3DViewerData() {
+    _3dImageNames = [];
+    _3dColorNames = [];
+
+    // 실제 존재하는 색상별로 이미지 파일명 수집
+    for (final color in _availableColors) {
+      // 해당 색상의 첫 번째 제품에서 이미지 파일명 가져오기
+      final colorProduct = _allColorProducts.firstWhere(
+        (p) => p.cc_seq == color.cc_seq && p.p_image.isNotEmpty,
+        orElse: () => _allColorProducts.firstWhere(
+          (p) => p.cc_seq == color.cc_seq,
+          orElse: () => _allColorProducts.first,
+        ),
+      );
+
+      if (colorProduct.p_image.isNotEmpty) {
+        _3dImageNames.add(colorProduct.p_image);
+        _3dColorNames.add(color.cc_name);
+      }
+    }
+
+    debugPrint('=== 3D 뷰어 데이터 구성 ===');
+    debugPrint('이미지 파일명 리스트: $_3dImageNames');
+    debugPrint('색상명 리스트: $_3dColorNames');
+    debugPrint('현재 선택된 색상 인덱스: $selectedColor');
+    debugPrint('==========================');
+  }
+
+  /// 초기 선택값 설정 (진입 시 받아온 product 값으로 기본 선택)
+  void _setInitialSelections() {
+    if (_initialProduct == null) return;
+
+    // 1. 초기 색상 인덱스 설정
+    final initialColorSeq = _initialProduct!.cc_seq;
+    final colorIndex = _availableColors.indexWhere((c) => c.cc_seq == initialColorSeq);
+    if (colorIndex != -1) {
+      selectedColor = colorIndex;
+    } else if (_availableColors.isNotEmpty) {
+      selectedColor = 0;
+    }
+
+    // 2. 색상 선택 후 사이즈 목록 업데이트
+    _updateAvailableOptions();
+
+    // 3. 초기 사이즈 인덱스 설정 (진입 시 받아온 제품의 사이즈)
+    if (_availableSizes.isNotEmpty) {
+      final initialSizeSeq = _initialProduct!.sc_seq;
+      final sizeIndex = _availableSizes.indexWhere((s) => s.sc_seq == initialSizeSeq);
+      if (sizeIndex != -1) {
+        selectedSize = sizeIndex;
+      } else {
+        // 해당 색상에 초기 사이즈가 없으면 가장 작은 사이즈로 설정
+        selectedSize = 0;
+      }
+    }
+
+    // 4. 사이즈 선택 후 성별 목록 업데이트
+    _updateAvailableOptions();
+
+    // 5. 초기 성별 인덱스 설정 (진입 시 받아온 제품의 성별)
+    if (_availableGenders.isNotEmpty) {
+      final initialGenderSeq = _initialProduct!.gc_seq;
+      final genderIndex = _availableGenders.indexWhere((g) => g.gc_seq == initialGenderSeq);
+      if (genderIndex != -1) {
+        selectedGender = genderIndex;
+      } else {
+        // 해당 색상+사이즈에 초기 성별이 없으면 첫 번째 성별로 설정
+        selectedGender = 0;
+      }
+    }
   }
 
   Future<void> getProduct(String type) async {
     if (product!.p_seq == -1) {
-      String _url = mainUrl + "/products/getBySeqs/?m_seq=${product!.m_seq}&p_name=${product!.p_name}&cc_seq=${product!.cc_seq}";
+      String url0 = "$mainUrl/products/getBySeqs/?m_seq=${product!.m_seq}&p_name=${product!.p_name}&cc_seq=${product!.cc_seq}";
 
-      final url = Uri.parse(_url);
+      final url = Uri.parse(url0);
       final response = await http.get(url);
       final jsonData = json.decode(utf8.decode(response.bodyBytes));
 
       if (jsonData != null && jsonData["results"].length > 0) {
         product = Product.fromJson(jsonData['results'][0]);
-        selectedGender = genderList.indexWhere((f) => f.gc_seq == product!.gc_seq);
+        final genderIndex = _availableGenders.indexWhere((f) => f.gc_seq == product!.gc_seq);
+        if (genderIndex != -1) {
+          selectedGender = genderIndex;
+        }
       }
     } else {
-      String _url =
-          mainUrl +
-          "/products/getBySeqs/?m_seq=${product!.m_seq}&p_name=${product!.p_name}&cc_seq=${product!.cc_seq}&sc_seq=${product!.sc_seq}&gc_seq=${product!.gc_seq}";
+      String url0 =
+          "$mainUrl/products/getBySeqs/?m_seq=${product!.m_seq}&p_name=${product!.p_name}&cc_seq=${product!.cc_seq}&sc_seq=${product!.sc_seq}&gc_seq=${product!.gc_seq}";
 
-      final url = Uri.parse(_url);
+      final url = Uri.parse(url0);
       final response = await http.get(url);
       final jsonData = json.decode(utf8.decode(response.bodyBytes));
 
       if (jsonData != null && jsonData["results"].length > 0) {
         product = Product.fromJson(jsonData['results'][0]);
-        selectedGender = genderList.indexWhere((f) => f.gc_seq == product!.gc_seq);
+        final genderIndex = _availableGenders.indexWhere((f) => f.gc_seq == product!.gc_seq);
+        if (genderIndex != -1) {
+          selectedGender = genderIndex;
+        }
         isExist = true;
       } else {
         isExist = false;
-        Get.snackbar("알림", "죄송합니다. 선택한 ${type}의 제품이 존재 하지 않습니다. ", backgroundColor: Colors.blue[200]);
+        Get.snackbar("알림", "죄송합니다. 선택한 $type의 제품이 존재 하지 않습니다. ", backgroundColor: Colors.blue[200]);
       }
     }
     setState(() {});
@@ -194,11 +360,18 @@ class _ProductDetailViewState extends State<ProductDetailView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
+                SizedBox(
                   width: MediaQuery.of(context).size.width,
                   height: 450,
                   // color: Colors.green,
-                  child: GTProductDetail3D(),
+                  child: _3dImageNames.isNotEmpty
+                      ? GTProductDetail3D(
+                          key: ValueKey('3d_${_3dReloadKey}_$selectedColor'), // 색상 변경 시 위젯 재생성
+                          imageNames: _3dImageNames,
+                          colorList: _3dColorNames,
+                          initialIndex: selectedColor < _3dImageNames.length ? selectedColor : 0,
+                        )
+                      : const SizedBox.shrink(),
                 ),
                 Text(
                   "상품명: ${product!.p_name}",
@@ -233,63 +406,51 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                           spacing: 10,
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            _quantityWidget(),
-
+                            Flexible(
+                              child: _quantityWidget(),
+                            ),
                             IconButton(
                               onPressed: () => _addCart(true),
                               style: IconButton.styleFrom(
                                 backgroundColor: Colors.green[100],
-
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5)),
                               ),
-
                               icon: Icon(Icons.shopping_cart, color: Colors.black),
                             ),
-                            ElevatedButton(
-                              onPressed: () => Get.to(() => const GTUserCartView()),
-
-                              style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5))),
-
-                              child: Text('View'),
+                            Flexible(
+                              child: ElevatedButton(
+                                onPressed: () => Get.to(() => const GTUserCartView()),
+                                style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5))),
+                                child: Text('View'),
+                              ),
                             ),
                           ],
                         ),
                       )
-                    : Text(''),
+                    : const SizedBox.shrink(),
                 isExist
-                    ? Row(
-                        spacing: 5,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // ElevatedButton(
-                          //   onPressed: () => Get.to(() => const GTUserCartView()),
-                          //   style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5))),
-
-                          //   child: Text("장바구니 보기"),
-                          // ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              // 카트에 추가
-                              _addCart(false);
-                              // Todo: GO to page
-                              Get.to(() => GTUserCartView());
-                            },
-                            style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5))),
-
-                            child: Text("바로구매"),
-                          ),
-                          // ElevatedButton(
-                          //   onPressed: () {
-                          //     // 카트에서 삭제
-                          //     CartStorage.clearCart();
-                          //     List xx = CartStorage.getCart();
-                          //     print(xx.length);
-                          //   },
-                          //   child: Text("장바구니 clear"),
-                          // ),
-                        ],
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 15, 0, 0),
+                        child: Row(
+                          spacing: 5,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  // 카트에 추가
+                                  _addCart(false);
+                                  // Todo: GO to page
+                                  Get.to(() => GTUserCartView());
+                                },
+                                style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5))),
+                                child: Text("바로구매"),
+                              ),
+                            ),
+                          ],
+                        ),
                       )
-                    : Text(''),
+                    : const SizedBox.shrink(),
               ],
             ),
           ),
@@ -328,7 +489,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
           children: [
             Text('성공적으로 추가 됬습니다.'),
             Text('상품명: ${product!.p_name} / ${product!.p_gender}'),
-            Text('수 량: ${quantity}'),
+            Text('수 량: $quantity'),
             Text('가 격: ${product!.p_price * quantity}원'),
           ],
         ),
@@ -346,6 +507,8 @@ class _ProductDetailViewState extends State<ProductDetailView> {
 
   // -- Widgets
   Widget _genderWidget() {
+    if (_availableGenders.isEmpty) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -356,20 +519,23 @@ class _ProductDetailViewState extends State<ProductDetailView> {
         Row(
           spacing: 5,
           children: List.generate(
-            genderList.length,
+            _availableGenders.length,
             (index) => ElevatedButton(
               onPressed: () async {
                 selectedGender = index;
-                product!.gc_seq = genderList[selectedGender].gc_seq;
-                product!.p_gender = genderList[selectedGender].gc_name;
-                await getProduct(product!.p_gender!);
+                final genderSeq = _availableGenders[selectedGender].gc_seq;
+                if (genderSeq != null) {
+                  product!.gc_seq = genderSeq;
+                }
+                product!.p_gender = _availableGenders[selectedGender].gc_name;
+                await getProduct(_availableGenders[selectedGender].gc_name);
               },
-
               style: ElevatedButton.styleFrom(
                 backgroundColor: selectedGender == index ? selectedBgColor : selectedFgColor,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5)),
               ),
-              child: Text(genderList[index].gc_name, style: TextStyle(color: selectedGender == index ? selectedFgColor : Colors.black)),
+              child: Text(_availableGenders[index].gc_name,
+                  style: TextStyle(color: selectedGender == index ? selectedFgColor : Colors.black)),
             ),
           ),
         ),
@@ -378,6 +544,8 @@ class _ProductDetailViewState extends State<ProductDetailView> {
   }
 
   Widget _sizeWidget() {
+    if (_availableSizes.isEmpty) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -391,20 +559,21 @@ class _ProductDetailViewState extends State<ProductDetailView> {
           child: Row(
             spacing: 5,
             children: List.generate(
-              sizeList.length,
+              _availableSizes.length,
               (index) => ElevatedButton(
                 onPressed: () async {
                   selectedSize = index;
-                  product!.sc_seq = sizeList[selectedSize].sc_seq;
-                  product!.p_size = sizeList[selectedSize].sc_name;
-                  print("${product!.m_seq},${product!.p_name}, ${product!.cc_seq},${product!.sc_seq}, ${product!.gc_seq}");
+                  product!.sc_seq = _availableSizes[selectedSize].sc_seq;
+                  product!.p_size = _availableSizes[selectedSize].sc_name;
+                  _updateAvailableOptions(); // 사이즈 선택 후 성별 목록 업데이트
                   await getProduct("사이즈(${product!.p_size})");
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: selectedSize == index ? selectedBgColor : selectedFgColor,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5)),
                 ),
-                child: Text("${sizeList[index].sc_name}", style: TextStyle(color: selectedSize == index ? selectedFgColor : Colors.black)),
+                child: Text(_availableSizes[index].sc_name,
+                    style: TextStyle(color: selectedSize == index ? selectedFgColor : Colors.black)),
               ),
             ),
           ),
@@ -414,6 +583,8 @@ class _ProductDetailViewState extends State<ProductDetailView> {
   }
 
   Widget _colorWidget() {
+    if (_availableColors.isEmpty) return const SizedBox.shrink();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -427,34 +598,30 @@ class _ProductDetailViewState extends State<ProductDetailView> {
           child: Row(
             spacing: 5,
             children: List.generate(
-              colorList.length,
+              _availableColors.length,
               (index) => ElevatedButton(
                 onPressed: () async {
                   selectedColor = index;
-                  product!.cc_seq = colorList[selectedColor].cc_seq;
-                  product!.p_color = colorList[selectedColor].cc_name;
+                  final colorSeq = _availableColors[selectedColor].cc_seq;
+                  if (colorSeq != null) {
+                    product!.cc_seq = colorSeq;
+                  }
+                  product!.p_color = _availableColors[selectedColor].cc_name;
+                  selectedSize = 0; // 색상 변경 시 가장 작은 사이즈로 리셋
+                  _updateAvailableOptions(); // 색상 선택 후 사이즈/성별 목록 업데이트
+                  _build3DViewerData(); // 3D 뷰어 데이터 업데이트
+                  _3dReloadKey++; // 위젯 재생성을 위한 키 증가
                   await getProduct("Color(${product!.p_color})");
-
-                  // setState(() {});
+                  setState(() {}); // UI 업데이트
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: selectedColor == index ? selectedBgColor : selectedFgColor,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5)),
                 ),
-                child: Text("${colorList[index].cc_name}", style: TextStyle(color: selectedColor == index ? selectedFgColor : Colors.black)),
+                child: Text(_availableColors[index].cc_name,
+                    style: TextStyle(color: selectedColor == index ? selectedFgColor : Colors.black)),
               ),
             ),
-
-            // colorList.entries
-            //     .map(
-            //       (entry) => ElevatedButton(
-            //         onPressed: () {
-            //           selectedColor = entry.value;
-            //         },
-            //         child: Text(entry.key),
-            //       ),
-            //     )
-            //     .toList(),
           ),
         ),
       ],
@@ -485,7 +652,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
               border: Border.all(width: 1, color: Colors.grey),
               borderRadius: BorderRadius.circular(5),
             ),
-            child: Text('${quantity}'),
+            child: Text('$quantity'),
           ),
           IconButton(
             onPressed: () {

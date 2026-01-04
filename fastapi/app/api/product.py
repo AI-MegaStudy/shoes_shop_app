@@ -89,14 +89,20 @@ async def select_products_by_name():
     #      ,cc.cc_name as p_color,sc.sc_name as p_size,gc.gc_name as p_gender, ma.m_name
     curs.execute("""
                  
-        select p.p_name, p.cc_seq, p.m_seq, cc.cc_name, ma.m_name,p.p_image
-                
+        select pp.*
+  ,(select p_price from product where product.m_seq=pp.m_seq
+                 	and product.cc_seq=pp.cc_seq and product.p_name=pp.p_name
+                 	order by product.p_price asc limit 1
+                 ) as p_price 
+  from (
+   	select p.p_name, p.cc_seq, p.m_seq, cc.cc_name, ma.m_name,p.p_image
         from product p 
         inner join color_category cc on p.cc_seq=cc.cc_seq
         inner join gender_category gc on p.gc_seq=gc.gc_seq
         inner join size_category sc on p.sc_seq=sc.sc_seq
         inner join maker ma on p.m_seq=ma.m_seq
-        group by p.p_name,p.cc_seq,p.m_seq,p.p_image                
+        group by p.p_name,p.cc_seq,p.m_seq,p.p_image
+  ) as pp;        
     """)
     
     rows = curs.fetchall()
@@ -110,7 +116,7 @@ async def select_products_by_name():
         'gc_seq': -1,
         'm_seq': row[2],
         'p_name': row[0],
-        'p_price': -1,
+        'p_price': row[6],
         'p_stock': -1,
         'p_image': row[5],
         'p_description': '',

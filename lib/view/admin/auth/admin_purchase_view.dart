@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/config_testsy.dart' as config_testsy;
 import 'package:shoes_shop_app/model/purchase_item_join.dart';
+import 'package:shoes_shop_app/utils/custom_common_util.dart';
 
 
 class AdminPurchaseView extends StatefulWidget {
@@ -87,13 +88,22 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
                     ),
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Column(
                   children: [
-                    statusContainer(0),
-                    statusContainer(1),
-                    statusContainer(2),
-                    statusContainer(3)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        statusContainer(0),
+                        statusContainer(1),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        statusContainer(2),
+                        statusContainer(3),
+                      ],
+                    )
                   ],
                 ), // b_status 리스트 만들어서 개수 출력
                 Expanded(
@@ -294,7 +304,7 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
                     padding: const EdgeInsets.fromLTRB(0, 8, 8, 0),
                     child: Align(
                       alignment: Alignment.centerRight,
-                      child: Text('총 가격: ${dataSeq['b_price']}', style: config_testsy.titleStyle)),
+                      child: Text('총 가격: ${CustomCommonUtil.formatPrice(dataSeq['b_price'])}', style: config_testsy.titleStyle)),
                   )
                 ],
               ),
@@ -310,7 +320,7 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(5, 0, 0, 5),
       child: Container(
-        width: MediaQuery.of(context).size.width / 14,
+        width: MediaQuery.of(context).size.width / 7,
         alignment: Alignment.center, // 텍스트를 박스 중앙에 정렬
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
@@ -366,6 +376,8 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
 
     request.fields['b_seq'] = dataSeq['b_seq'].toString();
     request.fields['u_seq'] = dataSeq['u_seq'].toString();
+    request.fields['created_at'] = CustomCommonUtil.formatDate(DateTime.now(), 'yyyy-MM-dd HH:mm:ss');
+
 
     var res = await request.send();
     if(res.statusCode == 200){

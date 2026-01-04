@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/config_testsy.dart' as config_testsy;
 import 'package:shoes_shop_app/model/refund_admin.dart';
+import 'package:shoes_shop_app/utils/custom_common_util.dart';
 
 class AdminRefundView extends StatefulWidget {
   const AdminRefundView({super.key});
@@ -144,6 +145,12 @@ class _AdminRefundViewState extends State<AdminRefundView> {
                             padding: const EdgeInsets.fromLTRB(5, 10, 0, 10),
                             child: Text('반품 번호 ${dataSeq['ref_seq']}', style: config_testsy.titleStyle),
                           ),
+                          Divider(color: config_testsy.PColor.dividerColor),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(5, 10, 0, 10),
+                            child: Text('반품 일시 ${dataSeq['ref_date'].toString().replaceAll('T', ' ')}', style: config_testsy.titleStyle),
+                          ),
+                          Divider(color: config_testsy.PColor.dividerColor),
                           Padding(
                             padding: const EdgeInsets.fromLTRB(5, 10, 0, 10),
                             child: Column(
@@ -205,6 +212,12 @@ class _AdminRefundViewState extends State<AdminRefundView> {
                       ),
                     ),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 8, 8, 0),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text('총 가격: ${CustomCommonUtil.formatPrice(dataSeq['b_price'])}', style: config_testsy.titleStyle)),
+                  )
                 ],
               ),
             )

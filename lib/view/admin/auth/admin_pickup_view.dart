@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/config_testsy.dart' as config_testsy;
 import 'package:shoes_shop_app/model/pickup_admin.dart';
+import 'package:shoes_shop_app/utils/custom_common_util.dart';
 
 class AdminPickupView extends StatefulWidget {
   const AdminPickupView({super.key});
@@ -284,7 +285,7 @@ class _AdminPickupViewState extends State<AdminPickupView> {
                     padding: const EdgeInsets.fromLTRB(0, 8, 8, 0),
                     child: Align(
                       alignment: Alignment.centerRight,
-                      child: Text('총 가격: ${dataSeq['b_price']}', style: config_testsy.titleStyle)),
+                      child: Text('총 가격: ${CustomCommonUtil.formatPrice(dataSeq['b_price'])}', style: config_testsy.titleStyle)),
                   )
                 ],
               ),
@@ -373,7 +374,8 @@ class _AdminPickupViewState extends State<AdminPickupView> {
     request.fields['u_seq'] = dataSeq['u_seq'].toString();
     request.fields['s_seq'] = 16.toString(); // staff sequence 추가
     request.fields['pic_seq'] = dataSeq['pic_seq'].toString();
-    request.fields['ref_re_name'] = dropDownValue;
+    request.fields['ref_reason'] = dropDownValue;
+    request.fields['ref_date'] = CustomCommonUtil.formatDate(DateTime.now(), 'yyyy-MM-dd HH:mm:ss');
 
     var res = await request.send();
     if(res.statusCode == 200){

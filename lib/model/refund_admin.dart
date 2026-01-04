@@ -5,6 +5,7 @@ class RefundAdmin {
   final int? u_seq;
   final String? u_name;
   final String? u_phone;
+  final String? u_email;
   final int? s_seq;
   final String? s_rank;
   final String? s_phone;
@@ -34,6 +35,7 @@ class RefundAdmin {
     this.u_seq,
     this.u_name,
     this.u_phone,
+    this.u_email,
     this.s_seq,
     this.s_rank,
     this.s_phone,
@@ -66,6 +68,7 @@ class RefundAdmin {
       u_seq: json['u_seq'] as int?,
       u_name: json['u_name'] as String?,
       u_phone: json['u_phone'] as String?,
+      u_email: json['u_email'] as String?,
       s_seq: json['s_seq'] as int?,
       s_rank: json['s_rank'] as String?,
       s_phone: json['s_phone'] as String?,
@@ -99,6 +102,7 @@ class RefundAdmin {
       'u_seq': u_seq,
       'u_name': u_name,
       'u_phone': u_phone,
+      'u_email': u_email,
       's_seq': s_seq,
       's_rank': s_rank,
       's_phone': s_phone,

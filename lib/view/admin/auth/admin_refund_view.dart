@@ -196,7 +196,7 @@ class _AdminRefundViewState extends State<AdminRefundView> {
                                   style: config_testsy.titleStyle,
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                                   child: Text('이름: ${dataSeq['u_name']}',
                                     style: config_testsy.mediumTextStyle,
                                   ),

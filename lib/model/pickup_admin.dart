@@ -9,6 +9,7 @@ class PickupAdmin {
   final int? u_seq;
   final String? u_name;
   final String? u_phone;
+  final String? u_email;
   final int? p_seq;
   final String? p_name;
   final int? p_price;
@@ -34,6 +35,7 @@ class PickupAdmin {
     this.u_seq,
     this.u_name,
     this.u_phone,
+    this.u_email,
     this.p_seq,
     this.p_name,
     this.p_price,
@@ -62,6 +64,7 @@ class PickupAdmin {
       u_seq: json['u_seq'] as int?,
       u_name: json['u_name'] as String?,
       u_phone: json['u_phone'] as String?,
+      u_email: json['u_email'] as String?,
       p_seq: json['p_seq'] as int?,
       p_name: json['p_name'] as String?,
       p_price: json['p_price'] as int?,
@@ -91,6 +94,7 @@ class PickupAdmin {
       'u_seq': u_seq,
       'u_name': u_name,
       'u_phone': u_phone,
+      'u_email': u_email,
       'p_seq': p_seq,
       'p_name': p_name,
       'p_price': p_price,

@@ -10,6 +10,7 @@ import 'package:shoes_shop_app/model/size_category.dart';
 import 'package:shoes_shop_app/utils/cart_storage.dart';
 import 'package:shoes_shop_app/utils/custom_common_util.dart';
 import 'package:shoes_shop_app/view/user/payment/gt_user_cart_view.dart';
+import 'package:shoes_shop_app/view/user/payment/gt_user_purchase_view.dart';
 import 'package:shoes_shop_app/view/user/product/detail_module_3d.dart';
 import 'package:http/http.dart' as http;
 
@@ -423,7 +424,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                                   // 카트에 추가
                                   _addCart(false);
                                   // Todo: GO to page
-                                  Get.to(() => GTUserCartView());
+                                  Get.to(() => UserPurchaseView());
                                 },
                                 style: ElevatedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadiusGeometry.circular(5))),
                                 child: Text("바로구매"),

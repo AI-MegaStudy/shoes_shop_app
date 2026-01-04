@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/list_notifier.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:shoes_shop_app/config.dart';
 import 'package:shoes_shop_app/model/product.dart';
 import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/view/user/product/chatting.dart';
@@ -20,8 +21,8 @@ class ProductListView extends StatefulWidget {
 class _ProductListViewState extends State<ProductListView> {
   // 보여지는 부분 height
   final double searchBoxSize = 100;
-
-  final String mainUrl = "http://127.0.0.1:8000/api"; //'http://172.16.250.187:8000/api'; //"http://127.0.0.1:8000/api";
+  // customApiBaseUrl
+  final String mainUrl = customApiBaseUrl + "/api"; //'http://172.16.250.187:8000/api'; //"http://127.0.0.1:8000/api";
   List products = [];
   bool isSearch = false;
   TextEditingController searchController = TextEditingController();

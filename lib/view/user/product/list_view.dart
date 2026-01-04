@@ -8,6 +8,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/model/product.dart';
 import 'package:http/http.dart' as http;
+import 'package:shoes_shop_app/view/main/main_user_drawer_menu.dart';
 import 'package:shoes_shop_app/view/user/product/chatting.dart';
 import 'package:shoes_shop_app/view/user/product/detail_view.dart';
 
@@ -67,6 +68,7 @@ class _ProductListViewState extends State<ProductListView> {
 
               child: const Icon(Icons.chat_rounded),
             ),
+            drawer: MainUserDrawerMenu(), //MainUserDrawerMenu,
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -127,13 +129,6 @@ class _ProductListViewState extends State<ProductListView> {
     setState(() {});
   }
 
-  void _openChatting() {
-    // Get User Data
-    // GetStorage storage = GetStorage();
-    // final userJson = json.decode(storage.read('user'));
-    // print('${userJson['uEmail']} - ${userJson['uSeq']}');
-  }
-
   // == Widgets
   Widget _displayProduct(Product p) {
     return GestureDetector(
@@ -147,26 +142,14 @@ class _ProductListViewState extends State<ProductListView> {
               image: NetworkImage('https://cheng80.myqnapcloud.com/images/${p.p_image}'),
               // AssetImage('images/Nike_Air_1/Nike_Air_1_Black_01.avif'),
               fit: BoxFit.contain,
-
-              //
             ),
             // color: Colors.grey,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              // Image.network(
-              //                 //'http://172.16.250.175:8000/api/products/?t=${DateTime.now().microsecondsSinceEpoch}',
-              //                 'https://cheng80.myqnapcloud.com/images/${p.p_image}',
-              //                 width: 100,
-              //               ),
               Text(p.p_name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
               Text("${p.p_maker!} / ${p.p_color}", style: TextStyle(fontSize: 13, color: Colors.black54)),
-
-              // Text(
-              //   "${p.p_price}원",
-              //   style: TextStyle(decoration: TextDecoration.underline),
-              // ),
             ],
           ),
         ),

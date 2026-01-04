@@ -154,7 +154,7 @@ class _ProductListViewState extends State<ProductListView> {
       onTap: () => Get.to(() => ProductDetailView(), arguments: p),
       child: Card(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.network('https://cheng80.myqnapcloud.com/images/${p.p_image}', height: 100),
             Text(p.p_name, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),

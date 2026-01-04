@@ -20,6 +20,7 @@ import 'package:shoes_shop_app/utils/admin_tablet_utils.dart';
 import 'package:shoes_shop_app/view/admin/auth/admin_login_view.dart';
 import 'package:shoes_shop_app/view/main/Admin/auth/admin_login_view_dev.dart';
 import 'package:shoes_shop_app/view/admin/auth/admin_mobile_block_view.dart';
+import 'package:shoes_shop_app/view/user/product/list_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -349,7 +350,8 @@ class _LoginViewState extends State<LoginView> {
       message: '${user.uName}님 환영합니다!',
     );
     // 로그인 성공 후 홈 화면으로 이동 (이전 스택 모두 제거)
-    Get.offAll(() => Home());
+    // Get.offAll(() => Home());
+    Get.offAll(() => ProductListView());
   }
   
   /// GetStorage에 사용자 정보 저장

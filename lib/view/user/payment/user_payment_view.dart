@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/model/branch.dart';
 
 class UserPaymentView extends StatefulWidget {
@@ -17,7 +18,6 @@ class _UserPaymentViewState extends State<UserPaymentView> {
   late List<Branch> data;
   late int branchSeq;
   Branch? selectedBranch;
-  String ipAddress = "172.16.250.175"; //ip
   String selectedPayment = 'toss';
 
   @override
@@ -31,9 +31,8 @@ class _UserPaymentViewState extends State<UserPaymentView> {
 
   Future<void> getJSONData() async {
     try {
-      var url = Uri.parse(
-        'http://$ipAddress:8000/api/branches',
-      );
+      final apiBaseUrl = config.getApiBaseUrl();
+      var url = Uri.parse('$apiBaseUrl/api/branches');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {

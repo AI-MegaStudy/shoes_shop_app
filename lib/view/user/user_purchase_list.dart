@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:shoes_shop_app/config_pluralize.dart';
+import 'package:shoes_shop_app/config.dart' as config;
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
@@ -25,6 +26,9 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
 
   late String selectedOrder;
   late List<String> orderList;
+  
+  bool _isLoading = false;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -44,25 +48,58 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
   }
 
   Future<void> getJSONData() async{
-    var url = Uri(
-      scheme: 'http',
-      host: ipAddress,
-      port: 8000,
-      path: '/api/purchase_items/by_user/$userSeq/user_bundle',
-      queryParameters: {
-        'keyword': searchController.text.trim(),
-        'order': selectedOrder
-      },
-    );
-    //var url = Uri.parse('http://${ipAddress}:8000/api/purchase_items/purchase_items/by_user/${userSeq}/user_bundle');
-    var response = await http.get(url);
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    
+    try {
+      // config.dart의 getApiBaseUrl() 사용하여 로컬/원격 서버 자동 선택
+      final apiBaseUrl = config.getApiBaseUrl();
+      final keyword = searchController.text.trim();
+      final queryParams = <String, String>{};
+      if (keyword.isNotEmpty) {
+        queryParams['keyword'] = keyword;
+      }
+      queryParams['order'] = selectedOrder;
+      
+      var url = Uri.parse('$apiBaseUrl/api/purchase_items/by_user/$userSeq/user_bundle')
+          .replace(queryParameters: queryParams);
+      
+      // 타임아웃 30초로 설정
+      var response = await http.get(url).timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          throw Exception('요청 시간이 초과되었습니다. 네트워크 연결을 확인해주세요.');
+        },
+      );
 
-    data.clear();
-    var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
-    List result = dataConvertedJSON['results'];
-    data = result.map((e) =>  PurchaseItemBundle.fromJson(e),).toList();
-
-    setState(() {});
+      if (response.statusCode == 200) {
+        data.clear();
+        var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
+        List result = dataConvertedJSON['results'];
+        data = result.map((e) =>  PurchaseItemBundle.fromJson(e),).toList();
+        _errorMessage = null;
+      } else {
+        _errorMessage = '데이터를 불러오는데 실패했습니다. (상태 코드: ${response.statusCode})';
+        data.clear();
+      }
+    } catch (e) {
+      _errorMessage = '네트워크 오류가 발생했습니다: ${e.toString()}';
+      data.clear();
+      if (mounted) {
+        Get.snackbar(
+          '오류',
+          _errorMessage!,
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 3),
+        );
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -155,11 +192,40 @@ class _UserPurchaseListState extends State<UserPurchaseList> {
                   ),
                 ),
               ),
-              data.isEmpty
-              ? SizedBox(
-                height: 100,
-                child: Text('데이터가 없습니다.')
-              )
+              _isLoading
+              ? const Expanded(
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              : _errorMessage != null
+              ? Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+                        const SizedBox(height: 16),
+                        Text(
+                          _errorMessage!,
+                          style: const TextStyle(color: Colors.red),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: getJSONData,
+                          child: const Text('다시 시도'),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : data.isEmpty
+              ? Expanded(
+                  child: Center(
+                    child: Text('데이터가 없습니다.'),
+                  ),
+                )
               : Expanded(
                 child: ListView.builder(
                   itemCount: data.length,

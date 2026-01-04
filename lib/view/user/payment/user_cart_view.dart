@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/model/product_join.dart';
 
 class UserCartView extends StatefulWidget {
@@ -13,8 +14,6 @@ class UserCartView extends StatefulWidget {
 
 class _UserCartViewState extends State<UserCartView> {
   // Property
-  //String ipAddress = "127.0.0.1"; //ip
-  String ipAddress = "172.16.250.175"; //ip
   List<ProductJoin> data = [];
   int productSeq = 1;
   //late List<ProductJoin> data; //유저의 카트 목록
@@ -34,9 +33,8 @@ class _UserCartViewState extends State<UserCartView> {
 
   Future<void> getJSONData() async {
     try {
-      var url = Uri.parse(
-        'http://$ipAddress:8000/api/products/',
-      );
+      final apiBaseUrl = config.getApiBaseUrl();
+      var url = Uri.parse('$apiBaseUrl/api/products/');
       var response = await http
           .get(url)
           .timeout(const Duration(seconds: 5));

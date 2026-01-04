@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/config_testsy.dart' as config_testsy;
 import 'package:shoes_shop_app/model/refund_admin.dart';
 
@@ -32,7 +33,8 @@ class _AdminRefundViewState extends State<AdminRefundView> {
   }
 
   Future<void> getJSONData({String? search}) async{
-    var urlStr = 'http://127.0.0.1:8000/api/refunds/admin/all';
+    final apiBaseUrl = config.getApiBaseUrl();
+    var urlStr = '$apiBaseUrl/api/refunds/admin/all';
     if (search != null && search.isNotEmpty){
       urlStr += '?search=$search';
     }
@@ -216,7 +218,8 @@ class _AdminRefundViewState extends State<AdminRefundView> {
 
   // --- functions ---
   Future<void> getJSONrefSeqData(int r_seq) async{
-    var url = Uri.parse('http://127.0.0.1:8000/api/refunds/admin/${r_seq}/full_detail');
+    final apiBaseUrl = config.getApiBaseUrl();
+    var url = Uri.parse('$apiBaseUrl/api/refunds/admin/$r_seq/full_detail');
     print(url);
     var response = await http.get(url);
     var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));

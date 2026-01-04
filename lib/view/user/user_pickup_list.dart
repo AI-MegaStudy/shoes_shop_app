@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:shoes_shop_app/config_pluralize.dart';
+import 'package:shoes_shop_app/config.dart' as config;
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
@@ -43,16 +44,16 @@ class _UserPickupListState extends State<UserPickupList> {
   }
 
   Future<void> getJSONData() async {
-    var url = Uri(
-      scheme: 'http',
-      host: ipAddress,
-      port: 8000,
-      path: '/api/pickups/by_user/$userSeq/all',
-      queryParameters: {
-        'keyword': searchController.text.trim(),
-        'order': selectedOrder
-      },
-    );
+    final apiBaseUrl = config.getApiBaseUrl();
+    final keyword = searchController.text.trim();
+    final queryParams = <String, String>{};
+    if (keyword.isNotEmpty) {
+      queryParams['keyword'] = keyword;
+    }
+    queryParams['order'] = selectedOrder;
+    
+    var url = Uri.parse('$apiBaseUrl/api/pickups/by_user/$userSeq/all')
+        .replace(queryParameters: queryParams);
 
     var response = await http.get(url);
 

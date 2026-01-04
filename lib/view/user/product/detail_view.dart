@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shoes_shop_app/config.dart';
+import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/model/color_category.dart';
 import 'package:shoes_shop_app/model/gender_category.dart';
 import 'package:shoes_shop_app/model/product.dart';
@@ -104,7 +104,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
   // Title Font Size
   final double titleFontSize = 15.0;
 
-  final String mainUrl = customApiBaseUrl + "/api"; //'http://127.0.0.1:8000/api';
+  String get mainUrl => config.getApiBaseUrl() + "/api";
   @override
   void initState() {
     super.initState();

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/config_testsy.dart' as config_testsy;
 import 'package:shoes_shop_app/model/pickup_admin.dart';
 
@@ -41,7 +42,8 @@ class _AdminPickupViewState extends State<AdminPickupView> {
   }
 
   Future<void> getJSONData({String? search}) async{
-    var urlStr = 'http://127.0.0.1:8000/api/pickups/admin/all';
+    final apiBaseUrl = config.getApiBaseUrl();
+    var urlStr = '$apiBaseUrl/api/pickups/admin/all';
     if (search != null && search.isNotEmpty){
       urlStr += '?search=$search';
     }
@@ -58,7 +60,8 @@ class _AdminPickupViewState extends State<AdminPickupView> {
   }
 
   Future<void> getJSONrefReasonData() async{
-    var url = Uri.parse('http://127.0.0.1:8000/api/refund_reason_categories');
+    final apiBaseUrl = config.getApiBaseUrl();
+    var url = Uri.parse('$apiBaseUrl/api/refund_reason_categories');
     print('Request URL: $url');
     var response = await http.get(url);
     var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
@@ -296,7 +299,8 @@ class _AdminPickupViewState extends State<AdminPickupView> {
 
   // --- functions ---
   Future<void> getJSONpicSeqData(int pic_seq) async{
-    var url = Uri.parse('http://127.0.0.1:8000/api/pickups/admin/${pic_seq}/full_detail');
+    final apiBaseUrl = config.getApiBaseUrl();
+    var url = Uri.parse('$apiBaseUrl/api/pickups/admin/$pic_seq/full_detail');
     print(url);
     var response = await http.get(url);
     var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
@@ -342,7 +346,7 @@ class _AdminPickupViewState extends State<AdminPickupView> {
               shadowColor: Colors.transparent,
               shape: RoundedRectangleBorder(
               side: BorderSide(
-                color: config_testsy.PColor.dividerColor,
+                color: Colors.grey,
                 width: 1.0,
               ),
               borderRadius: BorderRadius.circular(10.0),
@@ -360,9 +364,10 @@ class _AdminPickupViewState extends State<AdminPickupView> {
   }
 
   Future<void> insertRefund() async{
+    final apiBaseUrl = config.getApiBaseUrl();
     var request = http.MultipartRequest(
       'POST', 
-      Uri.parse('http://127.0.0.1:8000/api/refunds')
+      Uri.parse('$apiBaseUrl/api/refunds')
     );
 
     request.fields['u_seq'] = dataSeq['u_seq'].toString();
@@ -379,9 +384,10 @@ class _AdminPickupViewState extends State<AdminPickupView> {
   }
 
   Future<void> updatePurchaseItem(int b_seq) async{
+    final apiBaseUrl = config.getApiBaseUrl();
     var request = http.MultipartRequest(
       'POST', 
-      Uri.parse('http://127.0.0.1:8000/api/purchase_items/${b_seq}')
+      Uri.parse('$apiBaseUrl/api/purchase_items/$b_seq')
     );
 
     request.fields['br_seq'] = dataSeq['br_seq'].toString();

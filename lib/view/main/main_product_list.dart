@@ -224,6 +224,7 @@ class _MainProductListState extends State<MainProductList> {
         // 제품명(p_name) + 제조사명(p_maker) + 색상명(p_color) 기준으로 그룹화
         // 같은 제품명과 제조사와 색상 조합은 하나의 카드로만 표시 (사이즈, 성별 무시)
         // maker_name을 직접 사용하여 키 생성 (m_seq 매칭 오류 방지)
+        // 가장 작은 사이즈(sc_seq가 가장 작은) 제품을 대표로 선택
         final Map<String, Product> groupedProducts = {};
         for (final product in allProducts) {
           // 그룹 키: 제품명_제조사명_색상명 (문자열로 직접 비교)
@@ -231,6 +232,12 @@ class _MainProductListState extends State<MainProductList> {
           if (!groupedProducts.containsKey(key)) {
             // 해당 조합의 첫 번째 제품을 대표로 선택
             groupedProducts[key] = product;
+          } else {
+            // 이미 있는 경우, 사이즈가 더 작은 제품으로 교체 (sc_seq가 작을수록 작은 사이즈)
+            final existingProduct = groupedProducts[key]!;
+            if (product.sc_seq < existingProduct.sc_seq) {
+              groupedProducts[key] = product;
+            }
           }
         }
 

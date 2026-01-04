@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:shoes_shop_app/config.dart';
+import 'package:shoes_shop_app/config.dart' as config;
 // import 'package:get_storage/get_storage.dart';
 
 class Chatting extends StatefulWidget {
@@ -35,7 +35,7 @@ class _ChattingState extends State<Chatting> {
   String fb_doc_id = '';
   Map<String, dynamic> current_user = {"id": -1, "name": "no name"};
 
-  final String mainUrl = customApiBaseUrl + "/api"; //"http://127.0.0.1:8000/api";
+  String get mainUrl => config.getApiBaseUrl() + "/api";
 
   @override
   void initState() {

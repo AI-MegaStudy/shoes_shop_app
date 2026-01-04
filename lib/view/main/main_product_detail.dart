@@ -107,9 +107,17 @@ class _MainProductDetailState extends State<MainProductDetail> {
       // 사용 가능한 사이즈/성별 목록 업데이트
       _updateAvailableOptions();
       
-      // 사이즈 초기값 설정 (선택된 색상의 가장 작은 사이즈 = 첫 번째 사이즈)
+      // 사이즈 초기값 설정 (항상 가장 작은 사이즈로 설정)
       if (_availableSizes.isNotEmpty && _selectedSizeIndex == null) {
+        // _availableSizes는 이미 sc_seq 순으로 정렬되어 있으므로 첫 번째가 가장 작은 사이즈
         _selectedSizeIndex = 0;
+        _updateAvailableOptions(); // 사이즈 선택 후 성별 목록 업데이트
+        _updateCurrentProduct();
+      }
+      
+      // 성별 초기값 설정 (사이즈 선택 후 사용 가능한 성별 중 첫 번째로 설정)
+      if (_availableGenders.isNotEmpty && _selectedGenderIndex == null) {
+        _selectedGenderIndex = 0;
         _updateCurrentProduct();
       }
 
@@ -501,14 +509,9 @@ class _MainProductDetailState extends State<MainProductDetail> {
       return;
     }
 
-    if (_selectedColorIndex == null || _selectedSizeIndex == null || _selectedGenderIndex == null) {
-      Get.snackbar(
-        '알림',
-        '색상, 사이즈, 성별을 모두 선택해주세요.',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return;
-    }
+    // _currentProduct에 이미 모든 정보가 있으므로, 인덱스 검증 없이 진행
+    // 제품 상세 페이지에서 이미 색상과 성별 정보를 가지고 들어오고,
+    // 사이즈도 드롭박스에서 선택된 상태이므로 추가 검증 불필요
 
     final cartItem = {
       'p_seq': _currentProduct!.p_seq,

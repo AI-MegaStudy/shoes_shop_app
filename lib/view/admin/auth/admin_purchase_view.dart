@@ -3,8 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:shoes_shop_app/model/purchase_item_join.dart';
+import 'package:shoes_shop_app/config.dart' as config;
 import 'package:shoes_shop_app/config_testsy.dart' as config_testsy;
+import 'package:shoes_shop_app/model/purchase_item_join.dart';
 
 
 class AdminPurchaseView extends StatefulWidget {
@@ -39,7 +40,8 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
   }
 
   Future<void> getJSONData({String? search}) async{
-    var urlStr = 'http://127.0.0.1:8000/api/purchase_items/admin/all';
+    final apiBaseUrl = config.getApiBaseUrl();
+    var urlStr = '$apiBaseUrl/api/purchase_items/admin/all';
     if (search != null && search.isNotEmpty){
       urlStr += '?search=$search';
     }
@@ -343,7 +345,8 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
   }
 
   Future<void> getJSONbSeqData(int b_seq) async{
-    var url = Uri.parse('http://127.0.0.1:8000/api/purchase_items/admin/${b_seq}/full_detail');
+    final apiBaseUrl = config.getApiBaseUrl();
+    var url = Uri.parse('$apiBaseUrl/api/purchase_items/admin/$b_seq/full_detail');
     print(url);
     var response = await http.get(url);
     var dataConvertedJSON = json.decode(utf8.decode(response.bodyBytes));
@@ -355,9 +358,10 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
   }
 
   Future<void> insertPickup() async{
+    final apiBaseUrl = config.getApiBaseUrl();
     var request = http.MultipartRequest( // Form 쓸려면 multipartrequest 써야 함
       'POST', 
-      Uri.parse('http://127.0.0.1:8000/api/pickups')
+      Uri.parse('$apiBaseUrl/api/pickups')
     );
 
     request.fields['b_seq'] = dataSeq['b_seq'].toString();
@@ -372,9 +376,10 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
   }
 
   Future<void> updatePurchaseItem(int b_seq) async{
+    final apiBaseUrl = config.getApiBaseUrl();
     var request = http.MultipartRequest(
       'POST', 
-      Uri.parse('http://127.0.0.1:8000/api/purchase_items/${b_seq}')
+      Uri.parse('$apiBaseUrl/api/purchase_items/$b_seq')
     );
 
     request.fields['br_seq'] = dataSeq['br_seq'].toString();

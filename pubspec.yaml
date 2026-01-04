@@ -47,7 +47,7 @@ dependencies:
   http: ^1.1.0 # NetworkUtil, AddressUtil에서 사용
   xml: ^6.5.0
   slide_to_act: ^2.0.2 # 슬라이드-투-액션 버튼
-  slider_button: ^2.1.0 # 슬라이더 버튼
+  # slider_button: ^2.1.0 # 슬라이더 버튼
 
   google_sign_in: 6.2.1 # 구글 소셜 로그인
   firebase_core: ^4.3.0 # Firebase 초기화 (firebase_options.dart 사용 시 필요)

@@ -1,3 +1,5 @@
+import 'package:shoes_shop_app/view/main/auth/user_auth_ui_config.dart';
+
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:shoes_shop_app/config_pluralize.dart';
@@ -73,7 +75,7 @@ class _UserRefundListState extends State<UserRefundList> {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(edgeSpace),
+        padding: userAuthDefaultPadding,
         child: Column(
           children: [
             TextField(

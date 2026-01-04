@@ -1,10 +1,8 @@
-import 'dart:convert';
+import 'package:shoes_shop_app/view/main/auth/user_auth_ui_config.dart';
+
 import 'package:get/get.dart';
 import 'package:shoes_shop_app/config_pluralize.dart';
 import 'package:flutter/material.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:http/http.dart' as http;
-import 'package:shoes_shop_app/model/purchase_item_bundle.dart';
 import 'package:shoes_shop_app/model/purchase_item_join.dart';
 
 class UserPurchaseDetail extends StatefulWidget {
@@ -32,7 +30,7 @@ class _UserPurchaseDetailState extends State<UserPurchaseDetail> {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(edgeSpace),
+        padding: userAuthDefaultPadding,
         child: Center(
           child: Column(
             children: [

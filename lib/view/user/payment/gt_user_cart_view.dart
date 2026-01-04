@@ -4,7 +4,8 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shoes_shop_app/model/product_join.dart';
 import 'package:shoes_shop_app/utils/cart_storage.dart';
-
+import 'package:shoes_shop_app/view/user/payment/user_purchase_view.dart';
+import 'package:shoes_shop_app/utils/custom_common_util.dart';
 // Product detail과 같은 class
 
 class CartItem {
@@ -146,7 +147,7 @@ class _GTUserCartViewState extends State<GTUserCartView> {
                                         style: TextStyle(color: Colors.black54, fontSize: 14),
                                       ),
                                       SizedBox(height: 8),
-                                      Text("단가: ${data[index].p_price ?? 0}원", style: TextStyle(fontSize: 14)),
+                                      Text("단가: ${CustomCommonUtil.formatPrice(data[index].p_price)}", style: TextStyle(fontSize: 14)),
                                       SizedBox(height: 4),
                                       // Text(
                                       //   "합계: ${(data[index].p_price ?? 0) * (data[index].cc_quantity ?? 1)}원",
@@ -198,17 +199,11 @@ class _GTUserCartViewState extends State<GTUserCartView> {
                         spacing: 10,
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Padding(padding: const EdgeInsets.fromLTRB(0, 0, 100, 0), child: Text('총액 : ${totalPrice}원')),
+                          Padding(padding: const EdgeInsets.fromLTRB(0, 0, 100, 0), child: Text('총액 : ${CustomCommonUtil.formatPrice(totalPrice)}')),
 
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                //
-                              },
-
-                              child: Text('결제 화면'),
-                            ),
+                            child: ElevatedButton(onPressed: () => Get.to(() => UserPurchaseView()), child: Text('결제 화면')),
                           ),
                         ],
                       ),

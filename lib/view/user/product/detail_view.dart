@@ -8,6 +8,7 @@ import 'package:shoes_shop_app/model/gender_category.dart';
 import 'package:shoes_shop_app/model/product.dart';
 import 'package:shoes_shop_app/model/size_category.dart';
 import 'package:shoes_shop_app/utils/cart_storage.dart';
+import 'package:shoes_shop_app/utils/custom_common_util.dart';
 import 'package:shoes_shop_app/view/user/payment/gt_user_cart_view.dart';
 import 'package:shoes_shop_app/view/user/product/detail_module_3d.dart';
 import 'package:http/http.dart' as http;
@@ -203,8 +204,9 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                   "상품명: ${product!.p_name}",
                   style: TextStyle(fontSize: titleFontSize, fontWeight: FontWeight.bold),
                 ),
+
                 Text(
-                  "가격: ${product!.p_price}원",
+                  "가격: ${CustomCommonUtil.formatPrice(product!.p_price)}",
                   style: TextStyle(fontSize: titleFontSize, fontWeight: FontWeight.bold),
                 ),
 

@@ -582,17 +582,18 @@ class _SignUpViewState extends State<SignUpView> {
       _isSigningUp = true;
     });
 
-    /// User 객체 생성 및 DB에 저장
+    /// User 객체 생성 및 DB에 저장 (단일 트랜잭션)
     try {
-      // 1. user 테이블에 사용자 정보 저장 (Form + File)
+      // 단일 API 호출로 user + user_auth_identities 함께 생성
       final dummyImageBytes = _createDummyImageBytes();
       final request = http.MultipartRequest(
         'POST',
-        Uri.parse('${config.getApiBaseUrl()}/api/users'),
+        Uri.parse('${config.getApiBaseUrl()}/api/auth/local/signup'),
       );
       
       // Form 필드 추가
       request.fields['u_email'] = email;
+      request.fields['password'] = password;
       if (name.isNotEmpty) {
         request.fields['u_name'] = name;
       }
@@ -630,7 +631,7 @@ class _SignUpViewState extends State<SignUpView> {
         return;
       }
       
-        Map<String, dynamic>? responseData;
+      Map<String, dynamic>? responseData;
       try {
         responseData = jsonDecode(response.body) as Map<String, dynamic>;
       } catch (e) {
@@ -641,62 +642,9 @@ class _SignUpViewState extends State<SignUpView> {
         return;
       }
       
-      if (responseData['result'] != 'OK') {
+      // 새로운 API는 result 객체 안에 데이터가 있음
+      if (responseData['result'] == null || responseData['result'] is Map == false) {
         final errorMsg = responseData['errorMsg'] ?? '회원가입에 실패했습니다.';
-        
-        setState(() {
-          _isSigningUp = false;
-        });
-        CustomCommonUtil.showErrorSnackbar(context: context, message: errorMsg);
-        return;
-      }
-      
-      final insertedUSeq = responseData['u_seq'] as int;
-      
-      // 2. user_auth_identities 테이블에 로컬 로그인 정보 저장 (Form)
-      final authRequest = http.MultipartRequest(
-        'POST',
-        Uri.parse('${config.getApiBaseUrl()}/api/user_auth_identities'),
-      );
-      
-      authRequest.fields['u_seq'] = insertedUSeq.toString();
-      authRequest.fields['provider'] = 'local';
-      authRequest.fields['provider_subject'] = email;
-      authRequest.fields['password'] = password; // 평문 비밀번호 (백엔드에서 해시화 필요)
-      
-      final authStreamedResponse = await authRequest.send();
-      final authResponse = await http.Response.fromStream(authStreamedResponse);
-      
-      if (authResponse.statusCode != 200) {
-        Map<String, dynamic>? errorData;
-        try {
-          errorData = jsonDecode(authResponse.body) as Map<String, dynamic>;
-        } catch (e) {
-          // JSON 파싱 실패 무시
-        }
-        
-        final errorMsg = errorData?['errorMsg'] ?? '인증 정보 저장에 실패했습니다. (상태 코드: ${authResponse.statusCode})';
-        
-        setState(() {
-          _isSigningUp = false;
-        });
-        CustomCommonUtil.showErrorSnackbar(context: context, message: errorMsg);
-        return;
-      }
-      
-      Map<String, dynamic>? authResponseData;
-      try {
-        authResponseData = jsonDecode(authResponse.body) as Map<String, dynamic>;
-      } catch (e) {
-        setState(() {
-          _isSigningUp = false;
-        });
-        CustomCommonUtil.showErrorSnackbar(context: context, message: '응답 파싱 중 오류가 발생했습니다: $e');
-        return;
-      }
-      
-      if (authResponseData['result'] != 'OK') {
-        final errorMsg = authResponseData['errorMsg'] ?? '인증 정보 저장에 실패했습니다.';
         
         setState(() {
           _isSigningUp = false;

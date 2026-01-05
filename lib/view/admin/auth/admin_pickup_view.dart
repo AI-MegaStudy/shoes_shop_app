@@ -372,9 +372,10 @@ class _AdminPickupViewState extends State<AdminPickupView> {
     );
 
     request.fields['u_seq'] = dataSeq['u_seq'].toString();
-    request.fields['s_seq'] = 16.toString(); // staff sequence 추가
+    request.fields['s_seq'] = 24.toString(); // staff sequence 추가
     request.fields['pic_seq'] = dataSeq['pic_seq'].toString();
     request.fields['ref_reason'] = dropDownValue;
+    request.fields['ref_re_seq'] = config_testsy.refundReason[dropDownValue].toString();
     request.fields['ref_date'] = CustomCommonUtil.formatDate(DateTime.now(), 'yyyy-MM-dd HH:mm:ss');
 
     var res = await request.send();

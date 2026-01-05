@@ -52,6 +52,17 @@ Map pickupStatus = {
   3 : '반품 완료'
 };
 
+Map refundReason = {
+  '교환 요청' : 32,
+  '단순 변심' : 28,
+  '배송 지연' : 29,
+  '사이즈 불일치' : 25,
+  '색상 불일치' : 26,
+  '제품 불량' : 27,
+  '제품 설명과 다름' : 30,
+  '주문 실수' : 31
+};
+
 // 앱바 디자인
 class AdminAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;

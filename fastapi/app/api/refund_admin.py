@@ -71,6 +71,7 @@ async def get_refund_all(search: Optional[str] = None):
         JOIN maker m ON p.m_seq = m.m_seq
         JOIN branch br ON pi.br_seq = br.br_seq
         {where_sql}
+        ORDER BY ref_seq DESC
         """
         curs.execute(sql, params)
         rows = curs.fetchall()

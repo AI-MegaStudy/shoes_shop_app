@@ -172,13 +172,91 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
             flex: 2,
             child: dataSeq.isEmpty
             ? Text('')
-            : Padding(
-              padding: const EdgeInsets.all(10),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                  Card(
-                    color: Colors.white,
+            : Align(
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                    Card(
+                      color: Colors.white,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          side: BorderSide(
+                            color: config_testsy.PColor.dividerColor,
+                            width: 1.0,
+                          ),
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 5, 0, 10),
+                              child: Text('구매 번호 ${dataSeq['b_seq']}', style: config_testsy.titleStyle),
+                            ),
+                            Divider(color: config_testsy.PColor.dividerColor),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                              child: Text('구매 일시 ${dataSeq['b_date'].toString().replaceAll('T', ' ')}', style: config_testsy.titleStyle),
+                            ),
+                            Divider(color: config_testsy.PColor.dividerColor),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text('수령 지점',
+                                    style: config_testsy.titleStyle,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                    child: Text('${dataSeq['br_name']}\n${dataSeq['br_address']}',
+                                      style: config_testsy.mediumTextStyle,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Divider(color: config_testsy.PColor.dividerColor),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text('주문자 상세 정보',
+                                    style: config_testsy.titleStyle,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                    child: Text('이름: ${dataSeq['u_name']}',
+                                      style: config_testsy.mediumTextStyle,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
+                                    child: Text('연락처: ${dataSeq['u_phone']}',
+                                      style: config_testsy.mediumTextStyle,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
+                                    child: Text('이메일: ${dataSeq['u_email']}',
+                                      style: config_testsy.mediumTextStyle,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Card(
+                      color: Colors.white,
                       shadowColor: Colors.transparent,
                       shape: RoundedRectangleBorder(
                         side: BorderSide(
@@ -187,127 +265,52 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
                         ),
                         borderRadius: BorderRadius.circular(12.0),
                       ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 5, 0, 10),
-                            child: Text('구매 번호 ${dataSeq['b_seq']}', style: config_testsy.titleStyle),
-                          ),
-                          Divider(color: config_testsy.PColor.dividerColor),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                            child: Text('구매 일시 ${dataSeq['b_date'].toString().replaceAll('T', ' ')}', style: config_testsy.titleStyle),
-                          ),
-                          Divider(color: config_testsy.PColor.dividerColor),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text('수령 지점',
-                                  style: config_testsy.titleStyle,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                  child: Text('${dataSeq['br_name']}\n${dataSeq['br_address']}',
-                                    style: config_testsy.mediumTextStyle,
-                                  ),
-                                ),
-                              ],
+                      child: Padding(
+                      padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text('주문 상품',
+                              style: config_testsy.titleStyle,
                             ),
-                          ),
-                          Divider(color: config_testsy.PColor.dividerColor),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text('주문자 상세 정보',
-                                  style: config_testsy.titleStyle,
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                                  child: Text('이름: ${dataSeq['u_name']}',
-                                    style: config_testsy.mediumTextStyle,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
-                                  child: Text('연락처: ${dataSeq['u_phone']}',
-                                    style: config_testsy.mediumTextStyle,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(0, 6, 0, 0),
-                                  child: Text('이메일: ${dataSeq['u_email']}',
-                                    style: config_testsy.mediumTextStyle,
-                                  ),
-                                ),
-                              ],
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                              child: Text('${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}  |  ${dataSeq['b_quantity']}개',
+                                style: config_testsy.mediumTextStyle,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
+                    dataSeq['b_status'] == '1'
+                    ? ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          color: config_testsy.PColor.dividerColor,
+                          width: 1.0,
+                        ),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      ),
+                      onPressed: () {
+                        insertPickup();
+                        updatePurchaseItem(dataSeq['b_seq']);
+                      }, 
+                      child: Text('수령 완료', style: TextStyle(color: Colors.black),)
+                    )
+                    : Text(''),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 8, 8, 0),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Text('총 가격: ${CustomCommonUtil.formatPrice(dataSeq['b_price'])}', style: config_testsy.titleStyle)),
+                    )
+                    ],
                   ),
-                  Card(
-                    color: Colors.white,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                        color: config_testsy.PColor.dividerColor,
-                        width: 1.0,
-                      ),
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    child: Padding(
-                    padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text('주문 상품',
-                            style: config_testsy.titleStyle,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                            child: Text('${dataSeq['p_name']}  |  ${dataSeq['color_name']}  |  ${dataSeq['size_name']}  |  ${dataSeq['b_quantity']}개',
-                              style: config_testsy.mediumTextStyle,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  dataSeq['b_status'] == '1'
-                  ? ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                        color: config_testsy.PColor.dividerColor,
-                        width: 1.0,
-                      ),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    ),
-                    onPressed: () {
-                      insertPickup();
-                      updatePurchaseItem(dataSeq['b_seq']);
-                    }, 
-                    child: Text('수령 완료', style: TextStyle(color: Colors.black),)
-                  )
-                  : Text(''),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 8, 8, 0),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text('총 가격: ${CustomCommonUtil.formatPrice(dataSeq['b_price'])}', style: config_testsy.titleStyle)),
-                  )
-                  ],
                 ),
               ),
             )
@@ -417,6 +420,7 @@ class _AdminPurchaseViewState extends State<AdminPurchaseView> {
     Get.defaultDialog(
       title: '수령 결과',
       middleText: '수령이 완료되었습니다.',
+      backgroundColor: Colors.white,
       barrierDismissible: false,
       actions: [
         TextButton(
